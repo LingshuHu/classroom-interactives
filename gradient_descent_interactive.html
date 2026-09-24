@@ -20,11 +20,13 @@ svg{width:100%;height:auto;display:block}.axisLabel{font-size:24px;font-weight:8
 <body>
 <div class="wrapper">
   <div class="topbar">
-    <div class="title"><h1>Gradient Descent — Interactive Demo</h1><p>One update · repeated updates · learning-rate behavior</p></div>
+    <div class="title"><h1>Gradient Descent — Interactive Demo</h1><p>One update · learning rate · local/global minima · two-weight descent</p></div>
     <div class="stageNav">
       <button class="stageBtn active" data-stage="1">1. One update</button>
       <button class="stageBtn" data-stage="2">2. Learning rate</button>
-      <button class="stageBtn" data-stage="3">3. Regression connection</button>
+      <button class="stageBtn" data-stage="3">3. Local vs global</button>
+      <button class="stageBtn" data-stage="4">4. Two weights in 3D</button>
+      <button class="stageBtn" data-stage="5">5. Regression connection</button>
     </div>
   </div>
 
@@ -62,8 +64,46 @@ svg{width:100%;height:auto;display:block}.axisLabel{font-size:24px;font-weight:8
     </div>
   </section>
 
+
   <section class="stage" id="stage3">
-    <div class="stageHead"><h2>3. Connect gradient descent to regression</h2><div class="idea">Changing the slope changes RSS; gradient descent searches for a better slope</div></div>
+    <div class="stageHead"><h2>3. Local minimum vs. global minimum</h2><div class="idea">The starting point can determine which valley gradient descent reaches</div></div>
+    <div class="layout">
+      <div class="card graphCard"><svg id="svg4" viewBox="0 0 980 620" aria-label="Gradient descent on a non-convex loss curve with local and global minima"></svg></div>
+      <aside class="card side">
+        <div class="controlGroup"><h3>Choose the starting weight</h3>
+          <input id="start4" type="range" min="-2.5" max="4.2" value="0" step="0.05">
+          <div class="sliderLabel"><span>-2.5</span><span id="start4val" class="bigValue">0.00</span><span>4.2</span></div>
+          <div class="presets"><button id="localStart4">Start at 0</button><button id="globalStart4">Start at 2</button></div>
+        </div>
+        <div class="controlGroup"><h3>Learning rate, η</h3><input id="lr4" type="range" min="0.05" max="0.60" value="0.30" step="0.05"><div class="sliderLabel"><span>0.05</span><span id="lr4val" class="bigValue">0.30</span><span>0.60</span></div></div>
+        <button class="action good" id="run4">Run gradient descent</button><button class="action" id="step4">Take one step</button><button class="action secondary" id="reset4">Reset</button>
+        <div id="status4" class="status">Choose a starting point</div>
+        <div class="metric"><span>Current w</span><b id="w4now"></b></div>
+        <div class="metric"><span>Current loss</span><b id="loss4now"></b></div>
+        <div class="smallNote">Starting near <b>w = 0</b> falls into the shallower local valley. Starting to the right of the hill can reach the deeper global minimum.</div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="stage" id="stage4">
+    <div class="stageHead"><h2>4. Gradient descent with two weights</h2><div class="idea">Two weights + loss = a 3D optimization surface</div></div>
+    <div class="layout">
+      <div class="card graphCard"><svg id="svg5" viewBox="0 0 980 650" aria-label="Gradient descent trajectory across a three dimensional loss surface for two weights"></svg></div>
+      <aside class="card side">
+        <div class="controlGroup"><h3>Starting w₁</h3><input id="w51" type="range" min="-3" max="3" value="-2.5" step="0.1"><div class="sliderLabel"><span>-3</span><span id="w51val" class="bigValue">-2.5</span><span>3</span></div></div>
+        <div class="controlGroup"><h3>Starting w₂</h3><input id="w52" type="range" min="-3" max="3" value="2.5" step="0.1"><div class="sliderLabel"><span>-3</span><span id="w52val" class="bigValue">2.5</span><span>3</span></div></div>
+        <div class="controlGroup"><h3>Learning rate, η</h3><input id="lr5" type="range" min="0.10" max="1.00" value="0.55" step="0.05"><div class="sliderLabel"><span>0.10</span><span id="lr5val" class="bigValue">0.55</span><span>1.00</span></div></div>
+        <button class="action good" id="run5">Run 12 steps</button><button class="action" id="step5">Take one step</button><button class="action secondary" id="reset5">Reset</button>
+        <div id="status5" class="status">Start anywhere on the surface</div>
+        <div class="metric"><span>Current (w₁, w₂)</span><b id="w5now"></b></div>
+        <div class="metric"><span>Current loss</span><b id="loss5now"></b></div>
+        <div class="smallNote">At each step, gradient descent updates <b>both weights</b>. The purple path shows the parameter vector moving downhill toward the minimum.</div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="stage" id="stage5">
+    <div class="stageHead"><h2>5. Connect gradient descent to regression</h2><div class="idea">Changing the slope changes RSS; gradient descent searches for a better slope</div></div>
     <div class="twoCol">
       <div class="miniCard"><h3>Regression line</h3><p>Residuals change as the slope changes.</p><svg id="svg3a" viewBox="0 0 720 520"></svg></div>
       <div class="miniCard"><h3>RSS as a function of slope</h3><p>The current slope is a point on the loss curve.</p><svg id="svg3b" viewBox="0 0 720 520"></svg></div>
@@ -124,8 +164,38 @@ const data3=[[-2,-2.1],[-1.2,-.8],[-.2,.5],[.8,2.2],[1.8,3.8],[2.8,5.2]],b3=.8;l
 function render3a(){const svg=q('#svg3a');clear(svg);const L=65,R=675,T=35,B=455,xm=x=>L+(x+3)/6.5*(R-L),ym=y=>B-(y+3)/10*(B-T);for(let x=-2;x<=3;x++){line(svg,xm(x),T,xm(x),B,'#e7eaf0',1);text(svg,xm(x),B+28,String(x),'tick','middle')}for(let y=-2;y<=6;y+=2){line(svg,L,ym(y),R,ym(y),'#e7eaf0',1);text(svg,L-10,ym(y)+5,String(y),'tick','end')}line(svg,L,B,R,B,'#667085',2);line(svg,L,T,L,B,'#667085',2);data3.forEach(([x,y])=>{const yh=b3+m3*x;line(svg,xm(x),ym(y),xm(x),ym(yh),'#ef4444',2,'5 4');circle(svg,xm(x),ym(y),7,'#111827')});line(svg,xm(-3),ym(b3+m3*(-3)),xm(3.5),ym(b3+m3*3.5),'#2563eb',4);text(svg,(L+R)/2,505,'x','axisLabel','middle');text(svg,20,(T+B)/2,'y','axisLabel','middle')}
 function render3b(){const svg=q('#svg3b');clear(svg);const L=70,R=670,T=35,B=455,xm=m=>L+(m+1)/4.5*(R-L);let max=0;for(let m=-1;m<=3.5;m+=.02)max=Math.max(max,rss(m));const ym=v=>B-v/(max*1.02)*(B-T);for(let m=-1;m<=3;m++){line(svg,xm(m),T,xm(m),B,'#e7eaf0',1);text(svg,xm(m),B+28,String(m),'tick','middle')}const pts=[];for(let m=-1;m<=3.5;m+=.02)pts.push([xm(m),ym(rss(m))]);poly(svg,pts,'#1f2937',4);circle(svg,xm(m3),ym(rss(m3)),11,'#7c3aed');text(svg,xm(m3),ym(rss(m3))-18,`m=${m3.toFixed(2)}`,'pointLabel','middle');text(svg,(L+R)/2,505,'Slope m','axisLabel','middle');text(svg,22,(T+B)/2,'RSS','axisLabel','middle')}
 function render3(){q('#m3').value=m3;q('#m3val').textContent=m3.toFixed(2);render3a();render3b()} function step3(){m3=m3-.015*gradM(m3);render3()}q('#m3').oninput=e=>{m3=+e.target.value;render3()};q('#step3').onclick=step3;q('#reset3').onclick=()=>{if(t3)clearInterval(t3);t3=null;m3=-.2;render3()};q('#run3').onclick=()=>{if(t3){clearInterval(t3);t3=null;q('#run3').textContent='Auto fit';return}q('#run3').textContent='Pause';t3=setInterval(()=>{step3();if(Math.abs(gradM(m3))<.03){clearInterval(t3);t3=null;q('#run3').textContent='Auto fit'}},420)};
+
+// Stage 3: local vs global minimum on a non-convex loss landscape
+function J4(w){return 0.06*(w+1.2)*(w+1.2)*(w-3)*(w-3)-0.12*w+1.5}
+function G4(w){return 0.12*(w+1.2)*(w-3)*(2*w-1.8)-0.12}
+const LOCAL4=-1.1408, GLOBAL4=3.0545;
+let w4=0,path4=[0],timer4=null;
+const X40=78,X41=920,Y40=535,Y41=55,xmap4=w=>X40+(w+2.7)/7.2*(X41-X40),ymap4=v=>Y40-(v-0.9)/2.25*(Y40-Y41);
+function drawBase4(svg){clear(svg);for(let x=-2;x<=4;x++){const sx=xmap4(x);line(svg,sx,Y41,sx,Y40,'#e7eaf0',1);text(svg,sx,Y40+30,String(x),'tick','middle')}for(let y=1;y<=3;y+=.5){const sy=ymap4(y);line(svg,X40,sy,X41,sy,'#e7eaf0',1);text(svg,X40-12,sy+5,y.toFixed(1),'tick','end')}line(svg,X40,Y40,X41,Y40,'#667085',2);line(svg,X40,Y41,X40,Y40,'#667085',2);text(svg,(X40+X41)/2,595,'Weight w','axisLabel','middle');const yl=E('text',{x:27,y:(Y40+Y41)/2,class:'axisLabel','text-anchor':'middle',fill:'#111827',transform:`rotate(-90 27 ${(Y40+Y41)/2})`},'Loss');svg.appendChild(yl);const pts=[];for(let w=-2.65;w<=4.45;w+=.025)pts.push([xmap4(w),ymap4(J4(w))]);poly(svg,pts,'#1f2937',4);circle(svg,xmap4(LOCAL4),ymap4(J4(LOCAL4)),8,'#b45309');text(svg,xmap4(LOCAL4),ymap4(J4(LOCAL4))-22,'local minimum','pointLabel','middle','#b45309');circle(svg,xmap4(GLOBAL4),ymap4(J4(GLOBAL4)),8,'#15803d');text(svg,xmap4(GLOBAL4),ymap4(J4(GLOBAL4))-22,'global minimum','pointLabel','middle','#15803d')}
+function render4(){const svg=q('#svg4');drawBase4(svg);for(let i=1;i<path4.length;i++){const a=path4[i-1],b=path4[i];line(svg,xmap4(a),ymap4(J4(a)),xmap4(b),ymap4(J4(b)),'#c4b5fd',4)}path4.forEach((w,i)=>circle(svg,xmap4(w),ymap4(J4(w)),i===path4.length-1?11:5,i===path4.length-1?'#7c3aed':'#c4b5fd'));q('#start4val').textContent=(+q('#start4').value).toFixed(2);q('#lr4val').textContent=(+q('#lr4').value).toFixed(2);q('#w4now').textContent=w4.toFixed(3);q('#loss4now').textContent=J4(w4).toFixed(3);let msg='Descending...';let c='#7c3aed';if(Math.abs(w4-LOCAL4)<.03){msg='Reached the LOCAL minimum';c='#b45309'}else if(Math.abs(w4-GLOBAL4)<.03){msg='Reached the GLOBAL minimum';c='#15803d'}q('#status4').textContent=msg;q('#status4').style.color=c}
+function reset4(){if(timer4)clearInterval(timer4);timer4=null;w4=+q('#start4').value;path4=[w4];render4()}
+function step4(){w4=w4-(+q('#lr4').value)*G4(w4);path4.push(w4);if(path4.length>45)path4.shift();render4()}
+function run4(){if(timer4)clearInterval(timer4);reset4();let k=0;timer4=setInterval(()=>{step4();k++;if(Math.abs(G4(w4))<.001||k>=40){clearInterval(timer4);timer4=null;render4()}},360)}
+q('#start4').oninput=reset4;q('#lr4').oninput=render4;q('#step4').onclick=step4;q('#run4').onclick=run4;q('#reset4').onclick=reset4;q('#localStart4').onclick=()=>{q('#start4').value=0;reset4()};q('#globalStart4').onclick=()=>{q('#start4').value=2;reset4()};
+
+// Stage 4: two weights moving on a 3D loss surface
+function J5(a,b){return 0.5*(a-1)*(a-1)+0.35*(b+1)*(b+1)}
+function G51(a){return a-1} function G52(b){return 0.7*(b+1)}
+let w51=-2.5,w52=2.5,path5=[[-2.5,2.5]],timer5=null;
+function proj5(a,b,z){return [490+70*a-48*b,455+25*a+25*b-19*z]}
+function drawBase5(svg){clear(svg); // surface wireframe
+  const vals=[];for(let v=-3;v<=3.001;v+=.5)vals.push(+v.toFixed(2));
+  for(const a of vals){const pts=[];for(const b of vals){pts.push(proj5(a,b,J5(a,b)))}poly(svg,pts,'#d6dae2',1.4)}
+  for(const b of vals){const pts=[];for(const a of vals){pts.push(proj5(a,b,J5(a,b)))}poly(svg,pts,'#d6dae2',1.4)}
+  const o=proj5(-3,-3,0),xend=proj5(3,-3,0),yend=proj5(-3,3,0),zend=[o[0],o[1]-235];line(svg,o[0],o[1],xend[0],xend[1],'#667085',2.5);line(svg,o[0],o[1],yend[0],yend[1],'#667085',2.5);line(svg,o[0],o[1],zend[0],zend[1],'#667085',2.5);text(svg,xend[0]+15,xend[1]+8,'w₁','axisLabel');text(svg,yend[0]-8,yend[1]+28,'w₂','axisLabel','middle');text(svg,zend[0]-12,zend[1]-10,'Loss','axisLabel','middle');const m=proj5(1,-1,0);circle(svg,m[0],m[1],9,'#15803d');text(svg,m[0]+15,m[1]-10,'minimum (1, −1)','pointLabel','start','#15803d')}
+function render5(){const svg=q('#svg5');drawBase5(svg);for(let i=1;i<path5.length;i++){const [a0,b0]=path5[i-1],[a1,b1]=path5[i],p0=proj5(a0,b0,J5(a0,b0)),p1=proj5(a1,b1,J5(a1,b1));line(svg,p0[0],p0[1],p1[0],p1[1],'#7c3aed',5)}path5.forEach(([a,b],i)=>{const p=proj5(a,b,J5(a,b));circle(svg,p[0],p[1],i===path5.length-1?10:5,i===path5.length-1?'#7c3aed':'#c4b5fd')});q('#w51val').textContent=(+q('#w51').value).toFixed(1);q('#w52val').textContent=(+q('#w52').value).toFixed(1);q('#lr5val').textContent=(+q('#lr5').value).toFixed(2);q('#w5now').textContent=`(${w51.toFixed(2)}, ${w52.toFixed(2)})`;q('#loss5now').textContent=J5(w51,w52).toFixed(3);const near=Math.hypot(w51-1,w52+1)<.08;q('#status5').textContent=near?'Reached the minimum':'Both weights move downhill';q('#status5').style.color=near?'#15803d':'#7c3aed'}
+function reset5(){if(timer5)clearInterval(timer5);timer5=null;w51=+q('#w51').value;w52=+q('#w52').value;path5=[[w51,w52]];render5()}
+function step5(){const lr=+q('#lr5').value;w51=w51-lr*G51(w51);w52=w52-lr*G52(w52);path5.push([w51,w52]);if(path5.length>20)path5.shift();render5()}
+function run5(){if(timer5)clearInterval(timer5);reset5();let k=0;timer5=setInterval(()=>{step5();k++;if(Math.hypot(G51(w51),G52(w52))<.025||k>=12){clearInterval(timer5);timer5=null;render5()}},450)}
+q('#w51').oninput=reset5;q('#w52').oninput=reset5;q('#lr5').oninput=render5;q('#run5').onclick=run5;q('#step5').onclick=step5;q('#reset5').onclick=reset5;
+
 qa('.stageBtn').forEach(b=>b.onclick=()=>{qa('.stageBtn').forEach(x=>x.classList.remove('active'));qa('.stage').forEach(x=>x.classList.remove('active'));b.classList.add('active');q('#stage'+b.dataset.stage).classList.add('active')});
-render1();reset2();render3();
+render1();reset2();reset4();reset5();render3();
 })();
 </script>
 </body>
