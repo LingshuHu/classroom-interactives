@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PCA Interactive Playground</title>
+<style>
+  :root{
+    --navy:#18385b;--navy2:#2f628f;--gold:#a47c2d;--ink:#17222f;--muted:#667684;
+    --grid:#dfe5ea;--panel:#f6f8fa;--card:#ffffff;--pc1:#1f6f8b;--pc2:#9b5b38;
+    --point:#263e53;--proj:#7b8994;--green:#2f7d57;--red:#a14a4a;--border:#d8e0e6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--ink);background:#fff}
+  button,input{font:inherit}
+  .app{max-width:1680px;margin:0 auto;padding:18px 24px 26px}
+  .topbar{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+  h1{font-size:clamp(34px,3.2vw,52px);line-height:1.02;color:var(--navy);margin:0 0 5px;letter-spacing:-.025em}
+  .subtitle{color:var(--muted);font-size:18px;max-width:980px;line-height:1.35}
+  .top-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  button{border:1px solid var(--border);background:#fff;color:var(--navy);border-radius:10px;padding:12px 17px;cursor:pointer;font-weight:700;min-height:48px;font-size:16px}
+  button:hover{background:#f4f7f9}
+  button.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+  button.gold{background:#faf6ec;border-color:#ddc891;color:#6c541f}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button:focus-visible,input:focus-visible{outline:3px solid #8fb9dc;outline-offset:2px}
+
+  .steps{display:grid;grid-template-columns:repeat(9,minmax(155px,1fr));gap:9px;margin:14px 0 16px;overflow-x:auto;padding-bottom:3px}
+  .step{min-width:155px;text-align:left;padding:12px 13px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--muted);font-weight:700;font-size:15px;line-height:1.15;cursor:pointer}
+  .step span{display:block;font-size:12px;opacity:.72;margin-bottom:4px}
+  .step.active{color:var(--navy);border-color:#8fb0cc;background:#eef4f8;box-shadow:inset 0 0 0 1px #c8dbe9}
+  .step.done{color:#4e6575;background:#f8fafb}
+
+  .main{display:grid;grid-template-columns:minmax(0,1fr) 355px;gap:18px;align-items:start}
+  .viz-card,.side-card{border:1px solid var(--border);border-radius:14px;background:var(--card)}
+  .viz-card{padding:14px;min-width:0}
+  .side{display:grid;gap:12px}
+  .side-card{padding:16px}
+  .side-card h2{font-size:23px;margin:0 0 9px;color:var(--navy)}
+  .side-card h3{font-size:18px;margin:13px 0 6px;color:var(--navy)}
+  .side-card p{font-size:17px;line-height:1.4;margin:7px 0;color:#334452}
+  .tip{border-left:5px solid var(--gold);background:#faf8f2;padding:11px 12px;border-radius:8px;font-size:16px;line-height:1.38}
+  .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .metric{background:var(--panel);border-radius:10px;padding:10px;min-width:0}
+  .metric .lab{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.035em;font-weight:650}
+  .metric .val{font-size:28px;font-weight:800;color:var(--navy);margin-top:3px;overflow-wrap:anywhere}
+  .bar{height:14px;background:#dfe6ea;border-radius:999px;overflow:hidden;margin-top:9px}
+  .bar>span{display:block;height:100%;background:var(--pc1)}
+  .formula{font-family:Georgia,"Times New Roman",serif;background:var(--panel);padding:11px 12px;border-radius:8px;font-size:18px;line-height:1.45}
+  .controls{display:grid;gap:10px;margin-top:9px}
+  label.control{font-size:17px;color:var(--ink);font-weight:700}
+
+  /* Large, easy-to-drag sliders. More importantly, JS no longer rebuilds these controls while dragging. */
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:36px;background:transparent;cursor:pointer;margin:2px 0 5px;touch-action:pan-y}
+  input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:999px;background:#dbe5ec;border:1px solid #c4d2dc}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;background:var(--navy);border:4px solid #fff;box-shadow:0 0 0 2px var(--navy);margin-top:-10px}
+  input[type=range]::-moz-range-track{height:10px;border-radius:999px;background:#dbe5ec;border:1px solid #c4d2dc}
+  input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--navy);border:4px solid #fff;box-shadow:0 0 0 2px var(--navy)}
+
+  .button-row{display:flex;gap:7px;flex-wrap:wrap}
+  .legend{display:flex;gap:17px;flex-wrap:wrap;font-size:16px;color:#50616e;margin:9px 3px 3px;font-weight:600}
+  .legend i{display:inline-block;width:13px;height:13px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+  .table-wrap{max-height:255px;overflow:auto;border:1px solid var(--border);border-radius:9px}
+  table{border-collapse:collapse;width:100%;font-size:15px}
+  th,td{padding:8px 8px;border-bottom:1px solid #e6ebef;text-align:right;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  th{position:sticky;top:0;background:#edf3f6;color:var(--navy);z-index:1}
+  tr.selected td{background:#f6f2e7}
+  .footer-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+  .status{font-size:15px;color:var(--muted);text-align:center;flex:1}
+  .kbd{border:1px solid #cfd7dd;border-bottom-width:2px;background:#fff;border-radius:5px;padding:2px 6px;font-size:13px;color:#52606b}
+
+  svg{width:100%;height:auto;display:block;min-height:620px;touch-action:pan-y;background:#fff;border-radius:9px}
+  .axis-handle{cursor:grab}
+  .axis-handle.dragging{cursor:grabbing}
+  .axis-hit{cursor:grab;stroke:transparent;stroke-width:28}
+  .point-node{cursor:pointer}
+  .mini-svg{min-height:0;height:auto;margin-top:8px;background:var(--panel);border-radius:8px}
+  .stage-caption{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:2px 2px 8px}
+  .stage-title{font-size:29px;font-weight:800;color:var(--navy);letter-spacing:-.015em}
+  .stage-note{font-size:17px;color:var(--muted);text-align:right;font-weight:600}
+
+  @media (max-width:1150px){.main{grid-template-columns:1fr}.side{grid-template-columns:repeat(2,minmax(0,1fr))}.steps{grid-template-columns:repeat(9,170px)}svg{min-height:520px}}
+  @media (max-width:700px){.app{padding:12px}.topbar{display:block}.top-actions{justify-content:flex-start;margin-top:10px}.side{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr 1fr}.footer-nav{flex-wrap:wrap}.status{order:3;flex-basis:100%}svg{min-height:390px}.steps{grid-template-columns:repeat(9,155px)}.stage-note{display:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="topbar">
+    <div>
+      <h1>PCA Interactive Playground</h1>
+      <div class="subtitle">Projection → centering → coordinate rotation → PC1/PC2 → dimensionality reduction.</div>
+    </div>
+    <div class="top-actions">
+      <button id="resetAll">Reset</button>
+      <button id="revealPCA" class="gold">Reveal PCA rotation</button>
+    </div>
+  </div>
+
+  <div class="steps" id="steps"></div>
+
+  <div class="main">
+    <section class="viz-card">
+      <div class="stage-caption">
+        <div class="stage-title" id="stageTitle">1. Original data</div>
+        <div class="stage-note" id="stageNote">Education and Income before PCA</div>
+      </div>
+      <svg id="mainViz" viewBox="0 0 900 600" role="img" aria-label="Interactive PCA visualization"></svg>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <aside class="side">
+      <section class="side-card">
+        <h2 id="explainTitle">Start with two variables</h2>
+        <div id="explainText"></div>
+        <div class="tip" id="tipBox"></div>
+      </section>
+
+      <section class="side-card">
+        <h2>Controls</h2>
+        <div id="controls"></div>
+      </section>
+
+      <section class="side-card">
+        <h2>Live results</h2>
+        <div id="metrics"></div>
+      </section>
+
+      <section class="side-card">
+        <h2 id="tableTitle">Customer values</h2>
+        <div class="table-wrap"><table id="dataTable"></table></div>
+      </section>
+    </aside>
+  </div>
+
+  <div class="footer-nav">
+    <button id="prevBtn">← Previous</button>
+    <div class="status"><span id="stageCounter"></span> · You can also use <span class="kbd">←</span> <span class="kbd">→</span> keys.</div>
+    <button id="nextBtn" class="primary">Next →</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const RAW = [
+    {name:'Customer 1', x:2, y:3},
+    {name:'Customer 2', x:4, y:3},
+    {name:'Customer 3', x:2, y:2},
+    {name:'Customer 4', x:6, y:7},
+    {name:'Customer 5', x:8, y:9},
+    {name:'Customer 6', x:7, y:6}
+  ];
+  const MEAN={x:4.833333333333333,y:5};
+  const CENTERED=RAW.map(d=>({name:d.name,x:d.x-MEAN.x,y:d.y-MEAN.y}));
+  const PC1={x:0.67895359,y:0.73418120};
+  const PC2={x:-0.73418120,y:0.67895359};
+  const EIG=[13.70352551,0.46314116];
+  const PCA_ANGLE=Math.atan2(PC1.y,PC1.x)*180/Math.PI;
+  const SCORES=CENTERED.map(d=>({pc1:d.x*PC1.x+d.y*PC1.y,pc2:d.x*PC2.x+d.y*PC2.y}));
+  const AXIS_UNITS=5.65;
+
+  const STAGES=[
+    {name:'Original data',short:'Original'},
+    {name:'Project X or Y',short:'Project'},
+    {name:'Recenter',short:'Center'},
+    {name:'Rotate the coordinates',short:'Rotate coordinates'},
+    {name:'Find PC1',short:'Minimize SSE'},
+    {name:'Add PC2',short:'Build axes'},
+    {name:'Use PC coordinates',short:'New coordinates'},
+    {name:'Compare variance',short:'Variance'},
+    {name:'Reduce to 1D',short:'Drop PC2'}
+  ];
+
+  const svg=document.getElementById('mainViz');
+  const NS='http://www.w3.org/2000/svg';
+  const state={stage:0,centerT:0,angle:25,selected:0,showMath:false,reduced:false,dragging:false,projX:1,projY:1,projectionMode:'none',projectionRAF:null,pcaViewT:0,pcaProj1:1,pcaProj2:1,pcaProjectionMode:'none',pcaViewRAF:null,pcaProjectionRAF:null};
+
+  const $=s=>document.querySelector(s);
+  const stepsEl=$('#steps'),titleEl=$('#stageTitle'),noteEl=$('#stageNote'),exTitle=$('#explainTitle'),exText=$('#explainText'),tip=$('#tipBox'),controls=$('#controls'),metrics=$('#metrics'),legend=$('#legend'),table=$('#dataTable');
+
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function normalizeAngle(a){a%=180;if(a<0)a+=180;return a;}
+  function S(tag,attrs={},parent=svg){const n=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,String(v)));parent.appendChild(n);return n;}
+  function T(x,y,text,attrs={},parent=svg){
+    const a={...attrs};
+    const fs=Number(a['font-size'] ?? 14);
+    // Projector-friendly SVG text: ticks stay compact; labels/readouts become clearly visible.
+    if(fs<=11)a['font-size']=14;
+    else if(fs<=12)a['font-size']=16;
+    else if(fs<=13)a['font-size']=18;
+    else if(fs<=14)a['font-size']=19;
+    else if(fs<=15)a['font-size']=21;
+    else if(fs<=16)a['font-size']=22;
+    const n=S('text',Object.assign({x,y,fill:'#17222f','font-size':19,'font-family':'Arial, sans-serif'},a),parent);n.textContent=text;return n;
+  }
+  function variance(a){const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)*(v-m),0)/(a.length-1);}
+  function angleVec(deg){const r=deg*Math.PI/180;return {u:{x:Math.cos(r),y:Math.sin(r)},v:{x:-Math.sin(r),y:Math.cos(r)}};}
+  function rotateXY(x,y,deg){const r=deg*Math.PI/180,c=Math.cos(r),sn=Math.sin(r);return {x:x*c-y*sn,y:x*sn+y*c};}
+  function scoresFor(deg){const {u,v}=angleVec(deg);return CENTERED.map(d=>({pc1:d.x*u.x+d.y*u.y,pc2:d.x*v.x+d.y*v.y}));}
+  function metricsFor(deg){
+    const s=scoresFor(deg),v1=variance(s.map(d=>d.pc1)),v2=variance(s.map(d=>d.pc2));
+    return {var1:v1,var2:v2,ratio1:100*v1/(v1+v2),ratio2:100*v2/(v1+v2),sse:s.reduce((sum,d)=>sum+d.pc2*d.pc2,0)};
+  }
+
+  function buildSteps(){
+    stepsEl.innerHTML='';
+    STAGES.forEach((st,i)=>{const b=document.createElement('button');b.className='step';b.innerHTML=`<span>STEP ${i+1}</span>${st.name}`;b.addEventListener('click',()=>setStage(i));stepsEl.appendChild(b);});
+  }
+
+  function frame(mode='centered'){
+    const cfg=mode==='raw'?{xmin:0,xmax:10,ymin:0,ymax:10}:mode==='recenter'?{xmin:-4.5,xmax:10.5,ymin:-4.5,ymax:10.5}:{xmin:-6,xmax:6,ymin:-6,ymax:6};
+    const W=900,H=600,pad={l:72,r:42,t:42,b:62};
+    const sx=(W-pad.l-pad.r)/(cfg.xmax-cfg.xmin),sy=(H-pad.t-pad.b)/(cfg.ymax-cfg.ymin),scale=Math.min(sx,sy);
+    const plotW=(cfg.xmax-cfg.xmin)*scale,plotH=(cfg.ymax-cfg.ymin)*scale;
+    const left=pad.l+(W-pad.l-pad.r-plotW)/2,top=pad.t+(H-pad.t-pad.b-plotH)/2;
+    const map=(x,y)=>[left+(x-cfg.xmin)*scale,top+(cfg.ymax-y)*scale];
+    const [x0,y0]=map(0,0);
+    return {cfg,pad,W,H,scale,left,top,map,x0,y0,right:left+plotW,bottom:top+plotH};
+  }
+
+  function drawGrid(f,labels=true){
+    const xStart=Math.ceil(f.cfg.xmin),xEnd=Math.floor(f.cfg.xmax),yStart=Math.ceil(f.cfg.ymin),yEnd=Math.floor(f.cfg.ymax);
+    for(let x=xStart;x<=xEnd;x++){const [px]=f.map(x,0);S('line',{x1:px,y1:f.top,x2:px,y2:f.bottom,stroke:'#e0e6ea','stroke-width':1});if(labels&&x!==0)T(px+3,Math.min(f.bottom-4,Math.max(f.top+14,f.y0+18)),x,{fill:'#7a8994','font-size':11});}
+    for(let y=yStart;y<=yEnd;y++){const [,py]=f.map(0,y);S('line',{x1:f.left,y1:py,x2:f.right,y2:py,stroke:'#e0e6ea','stroke-width':1});if(labels&&y!==0)T(Math.min(f.right-20,Math.max(f.left+4,f.x0+6)),py-5,y,{fill:'#7a8994','font-size':11});}
+    if(f.cfg.ymin<=0&&f.cfg.ymax>=0)S('line',{x1:f.left,y1:f.y0,x2:f.right,y2:f.y0,stroke:'#8999a5','stroke-width':1.5});
+    if(f.cfg.xmin<=0&&f.cfg.xmax>=0)S('line',{x1:f.x0,y1:f.top,x2:f.x0,y2:f.bottom,stroke:'#8999a5','stroke-width':1.5});
+    T(f.right-77,Math.min(f.bottom-7,Math.max(f.top+15,f.y0-10)),state.stage>=2?'Centered Education':'Education',{fill:'#607080','font-size':13});
+    T(Math.min(f.right-125,Math.max(f.left+7,f.x0+8)),f.top+18,state.stage>=2?'Centered Income':'Income',{fill:'#607080','font-size':13});
+  }
+
+  function drawProjectionGrid(f){
+    const xAlpha=state.projX, yAlpha=state.projY;
+    const xStart=Math.ceil(f.cfg.xmin),xEnd=Math.floor(f.cfg.xmax),yStart=Math.ceil(f.cfg.ymin),yEnd=Math.floor(f.cfg.ymax);
+    for(let x=xStart;x<=xEnd;x++){
+      const [px]=f.map(x,0);
+      S('line',{x1:px,y1:f.top,x2:px,y2:f.bottom,stroke:'#e0e6ea','stroke-width':1,opacity:xAlpha.toFixed(3)});
+      if(x!==0 && xAlpha>0.08)T(px+3,f.y0+18,x,{fill:'#7a8994','font-size':11,opacity:xAlpha.toFixed(3)});
+    }
+    for(let y=yStart;y<=yEnd;y++){
+      const [,py]=f.map(0,y);
+      S('line',{x1:f.left,y1:py,x2:f.right,y2:py,stroke:'#e0e6ea','stroke-width':1,opacity:yAlpha.toFixed(3)});
+      if(y!==0 && yAlpha>0.08)T(f.x0+6,py-5,y,{fill:'#7a8994','font-size':11,opacity:yAlpha.toFixed(3)});
+    }
+    if(xAlpha>0.01){S('line',{x1:f.left,y1:f.y0,x2:f.right,y2:f.y0,stroke:'#1f6f8b','stroke-width':2.2,opacity:xAlpha.toFixed(3)});T(f.right-118,f.y0-10,'Education',{fill:'#1f6f8b','font-size':13,'font-weight':700,opacity:xAlpha.toFixed(3)});}
+    if(yAlpha>0.01){S('line',{x1:f.x0,y1:f.top,x2:f.x0,y2:f.bottom,stroke:'#9b5b38','stroke-width':2.2,opacity:yAlpha.toFixed(3)});T(f.x0+8,f.top+18,'Income',{fill:'#9b5b38','font-size':13,'font-weight':700,opacity:yAlpha.toFixed(3)});}
+  }
+
+
+  function drawPCACoordinateGrid(f){
+    const displayAngle=PCA_ANGLE*(1-state.pcaViewT),{u,v}=angleVec(displayAngle),g=clipGroup(f,'pca-coord-grid-clip'),ext=10;
+    for(let k=-5;k<=5;k++){
+      const a1=f.map(k*u.x-ext*v.x,k*u.y-ext*v.y),b1=f.map(k*u.x+ext*v.x,k*u.y+ext*v.y);
+      const a2=f.map(k*v.x-ext*u.x,k*v.y-ext*u.y),b2=f.map(k*v.x+ext*u.x,k*v.y+ext*u.y);
+      S('line',{x1:a1[0],y1:a1[1],x2:b1[0],y2:b1[1],stroke:'#e2e8ec','stroke-width':1,opacity:state.pcaProj1.toFixed(3)},g);
+      S('line',{x1:a2[0],y1:a2[1],x2:b2[0],y2:b2[1],stroke:'#e2e8ec','stroke-width':1,opacity:state.pcaProj2.toFixed(3)},g);
+    }
+    const e1=axisEndpoints(f,u),e2=axisEndpoints(f,v);
+    if(state.pcaProj1>0.01){S('line',{x1:e1.a[0],y1:e1.a[1],x2:e1.b[0],y2:e1.b[1],stroke:'#1f6f8b','stroke-width':4,opacity:state.pcaProj1.toFixed(3)});T(e1.b[0]+6,e1.b[1]-10,'PC1',{fill:'#1f6f8b','font-size':14,'font-weight':700,opacity:state.pcaProj1.toFixed(3)});}
+    if(state.pcaProj2>0.01){S('line',{x1:e2.a[0],y1:e2.a[1],x2:e2.b[0],y2:e2.b[1],stroke:'#9b5b38','stroke-width':3.5,opacity:state.pcaProj2.toFixed(3)});T(e2.b[0]+6,e2.b[1]-10,'PC2',{fill:'#9b5b38','font-size':14,'font-weight':700,opacity:state.pcaProj2.toFixed(3)});}
+  }
+
+  function drawPCAViewPoint(i,f){
+    const q=SCORES[i],rot=-PCA_ANGLE*state.pcaViewT;
+    const fullOriginal={x:q.pc1*PC1.x+q.pc2*PC2.x,y:q.pc1*PC1.y+q.pc2*PC2.y};
+    const currentOriginal={x:q.pc1*state.pcaProj1*PC1.x+q.pc2*state.pcaProj2*PC2.x,y:q.pc1*state.pcaProj1*PC1.y+q.pc2*state.pcaProj2*PC2.y};
+    const full=rotateXY(fullOriginal.x,fullOriginal.y,rot),cur=rotateXY(currentOriginal.x,currentOriginal.y,rot);
+    const p=f.map(full.x,full.y),pos=f.map(cur.x,cur.y);
+    if(state.pcaProjectionMode==='pc1'&&state.pcaProj2>0.02)S('line',{x1:p[0],y1:p[1],x2:pos[0],y2:pos[1],stroke:'#9b5b38','stroke-width':1.8,'stroke-dasharray':'5 4',opacity:state.pcaProj2.toFixed(3)});
+    if(state.pcaProjectionMode==='pc2'&&state.pcaProj1>0.02)S('line',{x1:p[0],y1:p[1],x2:pos[0],y2:pos[1],stroke:'#1f6f8b','stroke-width':1.8,'stroke-dasharray':'5 4',opacity:state.pcaProj1.toFixed(3)});
+    drawPoint(CENTERED[i],i,f,'#263e53',8,pos);
+  }
+
+  function animateProjection(mode){
+    if(state.projectionRAF)cancelAnimationFrame(state.projectionRAF);
+    const targets=mode==='x'?{x:1,y:0}:mode==='y'?{x:0,y:1}:{x:1,y:1};
+    const startX=state.projX,startY=state.projY,start=performance.now(),duration=650;
+    state.projectionMode=mode;
+    const tick=now=>{
+      const t=clamp((now-start)/duration,0,1),e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+      state.projX=startX+(targets.x-startX)*e;state.projY=startY+(targets.y-startY)*e;
+      draw();renderTable();updateProjectionMetrics();
+      if(t<1)state.projectionRAF=requestAnimationFrame(tick);else{state.projX=targets.x;state.projY=targets.y;state.projectionRAF=null;renderAll(true);}
+    };
+    state.projectionRAF=requestAnimationFrame(tick);
+  }
+
+  function updateProjectionMetrics(){
+    const d=RAW[state.selected],mx=$('#projXVal'),my=$('#projYVal'),dim=$('#projDimVal');
+    if(mx)mx.textContent=(d.x*state.projX).toFixed(3);if(my)my.textContent=(d.y*state.projY).toFixed(3);
+    if(dim)dim.textContent=(state.projX<0.02||state.projY<0.02)?'1D':'2D';
+  }
+
+
+  function updatePCACoordMetrics(){
+    const q=SCORES[state.selected],v1=$('#pcaCoord1'),v2=$('#pcaCoord2'),dim=$('#pcaDimVal'),pct=$('#pcaViewPct');
+    if(v1)v1.textContent=(q.pc1*state.pcaProj1).toFixed(3);
+    if(v2)v2.textContent=(q.pc2*state.pcaProj2).toFixed(3);
+    if(dim)dim.textContent=(state.pcaProj1<0.02||state.pcaProj2<0.02)?'1D':'2D';
+    if(pct)pct.textContent=Math.round(state.pcaViewT*100)+'%';
+  }
+
+  function animatePCAView(target){
+    if(state.pcaViewRAF)cancelAnimationFrame(state.pcaViewRAF);
+    const startT=state.pcaViewT,start=performance.now(),duration=800;
+    const tick=now=>{
+      const t=clamp((now-start)/duration,0,1),e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+      state.pcaViewT=startT+(target-startT)*e;
+      draw();renderTable();updatePCACoordMetrics();
+      const slider=$('#pcaViewSlider');if(slider)slider.value=state.pcaViewT;
+      if(t<1)state.pcaViewRAF=requestAnimationFrame(tick);else{state.pcaViewT=target;state.pcaViewRAF=null;renderAll(true);}
+    };
+    state.pcaViewRAF=requestAnimationFrame(tick);
+  }
+
+  function animatePCAProjection(mode){
+    if(state.pcaProjectionRAF)cancelAnimationFrame(state.pcaProjectionRAF);
+    const targets=mode==='pc1'?{a:1,b:0}:mode==='pc2'?{a:0,b:1}:{a:1,b:1};
+    const startA=state.pcaProj1,startB=state.pcaProj2,start=performance.now(),duration=650;
+    state.pcaProjectionMode=mode;
+    const tick=now=>{
+      const t=clamp((now-start)/duration,0,1),e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+      state.pcaProj1=startA+(targets.a-startA)*e;state.pcaProj2=startB+(targets.b-startB)*e;
+      draw();renderTable();updatePCACoordMetrics();
+      if(t<1)state.pcaProjectionRAF=requestAnimationFrame(tick);else{state.pcaProj1=targets.a;state.pcaProj2=targets.b;state.pcaProjectionRAF=null;renderAll(true);}
+    };
+    state.pcaProjectionRAF=requestAnimationFrame(tick);
+  }
+
+  function clipGroup(f,id){
+    const defs=S('defs');const clip=S('clipPath',{id},defs);S('rect',{x:f.left,y:f.top,width:f.right-f.left,height:f.bottom-f.top},clip);return S('g',{'clip-path':`url(#${id})`});
+  }
+
+  function drawPoint(d,i,f,fill='#263e53',r=8,posOverride=null){
+    const p=posOverride||f.map(d.x,d.y);
+    const c=S('circle',{cx:p[0],cy:p[1],r:state.selected===i?r+2:r,fill,stroke:'#fff','stroke-width':2,class:'point-node',tabindex:0,'aria-label':d.name});
+    T(p[0]+10,p[1]-10,String(i+1),{fill:'#263e53','font-size':12,'font-weight':700});
+    c.addEventListener('click',()=>{state.selected=i;renderAll(false);});
+    c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();state.selected=i;renderAll(false);}});
+  }
+
+  function drawMean(f,x,y,label='mean'){
+    const p=f.map(x,y);S('circle',{cx:p[0],cy:p[1],r:10,fill:'#a47c2d',stroke:'#fff','stroke-width':3});T(p[0]+13,p[1]-11,label,{fill:'#8b6924','font-size':13,'font-weight':700});
+  }
+
+  function axisEndpoints(f,vec,units=AXIS_UNITS){
+    return {a:f.map(-units*vec.x,-units*vec.y),b:f.map(units*vec.x,units*vec.y)};
+  }
+
+  function addAxisDragTarget(a,b,label){
+    const hit=S('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],class:'axis-hit','aria-label':label});hit.addEventListener('pointerdown',startAxisDrag);return hit;
+  }
+
+  function drawRotatedGrid(f,deg,{interactive=true,labels=['Education axis','Income axis'],axis1Color='#1f6f8b',axis2Color='#9b5b38'}={}){
+    const {u,v}=angleVec(deg);const g=clipGroup(f,'rotated-grid-clip');const ext=10;
+    for(let k=-5;k<=5;k++){
+      const a1=f.map(k*u.x-ext*v.x,k*u.y-ext*v.y),b1=f.map(k*u.x+ext*v.x,k*u.y+ext*v.y);
+      const a2=f.map(k*v.x-ext*u.x,k*v.y-ext*u.y),b2=f.map(k*v.x+ext*u.x,k*v.y+ext*u.y);
+      S('line',{x1:a1[0],y1:a1[1],x2:b1[0],y2:b1[1],stroke:'#e2e8ec','stroke-width':1},g);
+      S('line',{x1:a2[0],y1:a2[1],x2:b2[0],y2:b2[1],stroke:'#e2e8ec','stroke-width':1},g);
+    }
+    const e1=axisEndpoints(f,u),e2=axisEndpoints(f,v);
+    if(interactive){addAxisDragTarget(e1.a,e1.b,'Drag to rotate both coordinate axes');addAxisDragTarget(e2.a,e2.b,'Drag to rotate both coordinate axes');}
+    S('line',{x1:e1.a[0],y1:e1.a[1],x2:e1.b[0],y2:e1.b[1],stroke:axis1Color,'stroke-width':4});
+    S('line',{x1:e2.a[0],y1:e2.a[1],x2:e2.b[0],y2:e2.b[1],stroke:axis2Color,'stroke-width':3.5});
+    T(e1.b[0]+6,e1.b[1]-10,labels[0],{fill:axis1Color,'font-size':14,'font-weight':700});
+    T(e2.b[0]+6,e2.b[1]-10,labels[1],{fill:axis2Color,'font-size':14,'font-weight':700});
+    if(interactive){const h=S('circle',{cx:e1.b[0],cy:e1.b[1],r:14,fill:'#fff',stroke:'#18385b','stroke-width':4,class:'axis-handle',tabindex:0,'aria-label':'Drag to rotate the coordinate system'});h.addEventListener('pointerdown',startAxisDrag);}
+  }
+
+  function drawPC1Axis(f,deg,{interactive=true,label='PC1'}={}){
+    const {u}=angleVec(deg);const e=axisEndpoints(f,u);
+    if(interactive)addAxisDragTarget(e.a,e.b,'Drag to rotate PC1');
+    S('line',{x1:e.a[0],y1:e.a[1],x2:e.b[0],y2:e.b[1],stroke:'#1f6f8b','stroke-width':4});
+    T(e.b[0]+6,e.b[1]-10,label,{fill:'#1f6f8b','font-size':14,'font-weight':700});
+    if(interactive){const h=S('circle',{cx:e.b[0],cy:e.b[1],r:14,fill:'#fff',stroke:'#18385b','stroke-width':4,class:'axis-handle',tabindex:0,'aria-label':'Drag to rotate PC1'});h.addEventListener('pointerdown',startAxisDrag);}
+  }
+
+  function drawPCAAxes(f,{showPC2=true,interactive=false,angle=PCA_ANGLE,label1='PC1',label2='PC2'}={}){
+    const {u,v}=angleVec(angle),e1=axisEndpoints(f,u),e2=axisEndpoints(f,v);
+    if(interactive){addAxisDragTarget(e1.a,e1.b,'Drag to rotate both axes');if(showPC2)addAxisDragTarget(e2.a,e2.b,'Drag to rotate both axes');}
+    S('line',{x1:e1.a[0],y1:e1.a[1],x2:e1.b[0],y2:e1.b[1],stroke:'#1f6f8b','stroke-width':4});
+    T(e1.b[0]+6,e1.b[1]-10,label1,{fill:'#1f6f8b','font-size':14,'font-weight':700});
+    if(showPC2){S('line',{x1:e2.a[0],y1:e2.a[1],x2:e2.b[0],y2:e2.b[1],stroke:'#9b5b38','stroke-width':3.5});T(e2.b[0]+6,e2.b[1]-10,label2,{fill:'#9b5b38','font-size':14,'font-weight':700});}
+    if(interactive){const h=S('circle',{cx:e1.b[0],cy:e1.b[1],r:14,fill:'#fff',stroke:'#18385b','stroke-width':4,class:'axis-handle',tabindex:0,'aria-label':'Drag to rotate both axes'});h.addEventListener('pointerdown',startAxisDrag);}
+  }
+
+  function startAxisDrag(e){state.dragging=true;try{svg.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();}
+
+  function drawProjectionsBoth(d,f,deg,i,{collapse=false}={}){
+    const {u,v}=angleVec(deg),s1=d.x*u.x+d.y*u.y,s2=d.x*v.x+d.y*v.y;
+    const p=f.map(d.x,d.y),q1=f.map(s1*u.x,s1*u.y),q2=f.map(s2*v.x,s2*v.y);
+    if(collapse){drawPoint(d,i,f,'#263e53',8,q1);return;}
+    S('line',{x1:p[0],y1:p[1],x2:q1[0],y2:q1[1],stroke:'#1f6f8b','stroke-width':1.5,'stroke-dasharray':'6 5'});
+    S('circle',{cx:q1[0],cy:q1[1],r:4.8,fill:'#1f6f8b'});
+    S('line',{x1:p[0],y1:p[1],x2:q2[0],y2:q2[1],stroke:'#9b5b38','stroke-width':1.4,'stroke-dasharray':'3 4'});
+    S('circle',{cx:q2[0],cy:q2[1],r:4.5,fill:'#9b5b38'});
+    drawPoint(d,i,f);
+  }
+
+  function drawPC1Residual(d,f,deg,i){
+    const {u}=angleVec(deg),s1=d.x*u.x+d.y*u.y;const p=f.map(d.x,d.y),q=f.map(s1*u.x,s1*u.y);
+    S('line',{x1:p[0],y1:p[1],x2:q[0],y2:q[1],stroke:'#a14a4a','stroke-width':2.1,'stroke-dasharray':'6 5'});
+    S('circle',{cx:q[0],cy:q[1],r:4.8,fill:'#1f6f8b'});drawPoint(d,i,f);
+  }
+
+  function miniSSECurve(){
+    const w=320,h=125,pad={l:38,r:10,t:12,b:25};const vals=[];let max=0;
+    for(let a=0;a<=180;a+=2){const s=metricsFor(a).sse;vals.push({a,s});max=Math.max(max,s);}
+    const x=a=>pad.l+a/180*(w-pad.l-pad.r),y=s=>pad.t+(max-s)/max*(h-pad.t-pad.b);
+    let path='';vals.forEach((d,i)=>path+=(i?'L':'M')+x(d.a)+','+y(d.s));const cur=metricsFor(state.angle).sse;
+    return `<svg class="mini-svg" viewBox="0 0 ${w} ${h}" aria-label="Perpendicular SSE as PC1 rotates"><line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${h-pad.b}" stroke="#a8b4bd"/><line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="#a8b4bd"/><path d="${path}" fill="none" stroke="#a14a4a" stroke-width="2.5"/><line x1="${x(state.angle)}" y1="${pad.t}" x2="${x(state.angle)}" y2="${h-pad.b}" stroke="#a47c2d" stroke-dasharray="4 3"/><circle cx="${x(state.angle)}" cy="${y(cur)}" r="4" fill="#a47c2d"/><text x="4" y="18" font-size="10" fill="#667684">SSE</text><text x="${pad.l}" y="${h-6}" font-size="10" fill="#667684">0°</text><text x="${x(90)-8}" y="${h-6}" font-size="10" fill="#667684">90°</text><text x="${x(180)-18}" y="${h-6}" font-size="10" fill="#667684">180°</text></svg>`;
+  }
+
+  function stageCopy(){
+    const s=state.stage;
+    if(s===0)return {title:'Two variables',note:'Education and Income',text:`<p>Each customer is one point described by <strong>two variables</strong>.</p>`,tip:''};
+    if(s===1)return {title:'Projection removes one dimension',note:'Project onto X or Y',text:`<p>Projecting onto one axis keeps one coordinate and removes the other.</p><div class="formula">Onto X: (x, y) → (x, 0)<br>Onto Y: (x, y) → (0, y)</div>`,tip:'Watch one dimension disappear as the points move onto the selected axis.'};
+    if(s===2)return {title:'Center the data',note:'Move the mean to (0, 0)',text:`<p>Subtract each variable’s mean. The <strong>shape of the cloud stays the same</strong>; only its location changes.</p><div class="formula">Centered value = original value − variable mean</div>`,tip:'Move the slider and watch the mean travel to the origin.'};
+    if(s===3)return {title:'Rotate the coordinate system',note:'Both axes rotate together',text:`<p>The points stay fixed while the two perpendicular axes rotate. Their projections become new coordinates.</p>`,tip:'Focus on the geometry first—not yet on which rotation is best.'};
+    if(s===4)return {title:'Find PC1',note:'Minimize perpendicular SSE',text:`<p>If we keep only one axis, the perpendicular distances are the information we lose.</p><div class="formula">SSE = Σ(distance to PC1)²</div>${miniSSECurve()}`,tip:'Rotate PC1 and look for the smallest SSE.'};
+    if(s===5)return {title:'Add PC2',note:'Build the PCA coordinate system',text:`<p>PC2 is perpendicular to PC1. Each point now has a <strong>PC1 score</strong> and a <strong>PC2 score</strong>.</p>`,tip:'Click a customer to connect the picture to its two component scores.'};
+    if(s===6)return {title:'Use PC1 and PC2 as the new coordinates',note:'Rotate the whole picture',text:`<p>Rotate the <strong>data and both PCA axes together</strong>. When PC1 becomes horizontal and PC2 vertical, each point is plotted directly as <strong>(PC1 score, PC2 score)</strong>.</p>`,tip:'Then project onto PC1 or PC2 just like you projected onto X or Y.'};
+    if(s===7)return {title:'Where is the information?',note:'Variance shifts between PC1 and PC2',text:`<p>The total variance is unchanged, but rotation changes how much is captured by each component.</p>`,tip:'At the PCA rotation, PC1 captures the maximum possible variance.'};
+    return {title:'Reduce to one dimension',note:'Keep PC1 and drop PC2',text:`<p>PC1 retains about <strong>96.7%</strong> of the variance. Dropping PC2 converts the data from 2D to 1D.</p>`,tip:''};
+  }
+
+  function controlsHTML(){
+    const s=state.stage;
+    if(s===0)return ``;
+    if(s===1)return `<div class="button-row"><button id="projectX" class="${state.projectionMode==='x'?'primary':''}">Project onto X</button><button id="projectY" class="${state.projectionMode==='y'?'primary':''}">Project onto Y</button><button id="restore2D">Restore 2D</button></div>`;
+    if(s===2)return `<label class="control">Centering progress: <strong id="centerPct">${Math.round(state.centerT*100)}%</strong></label><input id="centerSlider" type="range" min="0" max="1" step="0.01" value="${state.centerT}"><div class="button-row"><button id="centerNow">Center completely</button><button id="uncenter">Original positions</button></div>`;
+    if(s===3)return `<label class="control">Coordinate rotation: <strong id="angleText">${state.angle.toFixed(1)}°</strong></label><input id="angleSlider" type="range" min="0" max="180" step="0.1" value="${state.angle}"><div class="button-row"><button id="angleReset">Reset rotation</button></div>`;
+    if(s===4)return `<label class="control">PC1 direction: <strong id="angleText">${state.angle.toFixed(1)}°</strong></label><input id="angleSlider" type="range" min="0" max="180" step="0.1" value="${state.angle}"><div class="button-row"><button id="angleReset">Reset PC1</button><button id="bestAxis" class="gold">Reveal PC1</button></div>`;
+    if(s===5)return `<div class="button-row"><button id="selectPrev">Previous customer</button><button id="selectNext">Next customer</button><button id="toggleMath">${state.showMath?'Hide':'Show'} PCA math</button></div>`;
+    if(s===6)return `<label class="control">Rotate into PCA coordinates: <strong id="pcaViewPct">${Math.round(state.pcaViewT*100)}%</strong></label><input id="pcaViewSlider" type="range" min="0" max="1" step="0.01" value="${state.pcaViewT}"><div class="button-row"><button id="rotateToPCA" class="primary">Rotate to new coordinates</button><button id="rotateBack">Original orientation</button></div><div class="button-row"><button id="projectPC1" class="${state.pcaProjectionMode==='pc1'?'primary':''}">Project onto PC1</button><button id="projectPC2" class="${state.pcaProjectionMode==='pc2'?'primary':''}">Project onto PC2</button><button id="restorePCA2D">Restore 2D</button></div>`;
+    if(s===7)return `<label class="control">Rotate component directions: <strong id="angleText">${state.angle.toFixed(1)}°</strong></label><input id="angleSlider" type="range" min="0" max="180" step="0.1" value="${state.angle}"><div class="button-row"><button id="pcaAngle">Return to PCA</button><button id="angleReset">Try 25°</button></div>`;
+    return `<div class="button-row"><button id="dropBtn" class="primary">${state.reduced?'Restore PC2':'Drop PC2'}</button></div>`;
+  }
+
+  function metricsHTML(){
+    const s=state.stage;
+    if(s===0)return ``;
+    if(s===1){const d=RAW[state.selected];return `<div class="metric-grid"><div class="metric"><div class="lab">Visible dimensions</div><div class="val" id="projDimVal">${(state.projX<0.02||state.projY<0.02)?'1D':'2D'}</div></div><div class="metric"><div class="lab">${RAW[state.selected].name} X</div><div class="val" id="projXVal">${(d.x*state.projX).toFixed(3)}</div></div><div class="metric"><div class="lab">${RAW[state.selected].name} Y</div><div class="val" id="projYVal">${(d.y*state.projY).toFixed(3)}</div></div></div>`;}
+    if(s===2){const mx=(1-state.centerT)*MEAN.x,my=(1-state.centerT)*MEAN.y;return `<div class="metric-grid"><div class="metric"><div class="lab">Current mean x</div><div class="val" id="meanX">${mx.toFixed(3)}</div></div><div class="metric"><div class="lab">Current mean y</div><div class="val" id="meanY">${my.toFixed(3)}</div></div></div>`;}
+    if(s===3){const sc=scoresFor(state.angle)[state.selected];return `<div class="metric-grid"><div class="metric"><div class="lab">Rotation angle</div><div class="val" id="angleMetric">${state.angle.toFixed(1)}°</div></div><div class="metric"><div class="lab">${RAW[state.selected].name} Axis 1</div><div class="val" id="score1Val">${sc.pc1.toFixed(3)}</div></div><div class="metric"><div class="lab">${RAW[state.selected].name} Axis 2</div><div class="val" id="score2Val">${sc.pc2.toFixed(3)}</div></div></div>`;}
+    if(s===4){const m=metricsFor(state.angle),sc=scoresFor(state.angle)[state.selected];return `<div class="metric-grid"><div class="metric"><div class="lab">Perpendicular SSE</div><div class="val" id="sseVal">${m.sse.toFixed(2)}</div></div><div class="metric"><div class="lab">${RAW[state.selected].name} PC1 score</div><div class="val" id="score1Val">${sc.pc1.toFixed(3)}</div></div><div class="metric"><div class="lab">${RAW[state.selected].name} residual</div><div class="val" id="residualVal">${Math.abs(sc.pc2).toFixed(3)}</div></div></div>`;}
+    if(s===5){const q=SCORES[state.selected];return `<div class="metric-grid"><div class="metric"><div class="lab">${RAW[state.selected].name} PC1</div><div class="val">${q.pc1.toFixed(3)}</div></div><div class="metric"><div class="lab">${RAW[state.selected].name} PC2</div><div class="val">${q.pc2.toFixed(3)}</div></div></div>${state.showMath?`<h3>Covariance matrix</h3><div class="formula">[ 6.5667 &nbsp; 6.6000 ]<br>[ 6.6000 &nbsp; 7.6000 ]</div><h3>Eigenvalues</h3><div class="formula">PC1 = 13.7035<br>PC2 = 0.4631</div><h3>Unit eigenvectors</h3><div class="formula">PC1 = (0.67895, 0.73418)<br>PC2 = (−0.73418, 0.67895)</div>`:''}`;}
+    if(s===6){const q=SCORES[state.selected];return `<div class="metric-grid"><div class="metric"><div class="lab">Visible dimensions</div><div class="val" id="pcaDimVal">${(state.pcaProj1<0.02||state.pcaProj2<0.02)?'1D':'2D'}</div></div><div class="metric"><div class="lab">${RAW[state.selected].name} PC1</div><div class="val" id="pcaCoord1">${(q.pc1*state.pcaProj1).toFixed(3)}</div></div><div class="metric"><div class="lab">${RAW[state.selected].name} PC2</div><div class="val" id="pcaCoord2">${(q.pc2*state.pcaProj2).toFixed(3)}</div></div></div>`;}
+    if(s===7){const m=metricsFor(state.angle);return `<div class="metric-grid"><div class="metric"><div class="lab">Component 1 variance</div><div class="val" id="var1Val">${m.ratio1.toFixed(1)}%</div><div class="bar"><span id="var1Bar" style="width:${m.ratio1}%"></span></div></div><div class="metric"><div class="lab">Component 2 variance</div><div class="val" id="var2Val">${m.ratio2.toFixed(1)}%</div><div class="bar"><span id="var2Bar" style="width:${m.ratio2}%;background:#9b5b38"></span></div></div><div class="metric"><div class="lab">Total variance share</div><div class="val">100.0%</div></div></div>`;}
+    return `<div class="metric-grid"><div class="metric"><div class="lab">Variance retained</div><div class="val">96.7%</div><div class="bar"><span style="width:96.7%"></span></div></div><div class="metric"><div class="lab">Dimensions kept</div><div class="val">${state.reduced?'1 of 2':'2 of 2'}</div></div></div>`;
+  }
+
+  function renderTable(){
+    const s=state.stage;let head='',rows='';
+    if(s===0){head='<tr><th>Customer</th><th>Education</th><th>Income</th></tr>';rows=RAW.map((d,i)=>`<tr class="${state.selected===i?'selected':''}"><td>${d.name}</td><td>${d.x.toFixed(0)}</td><td>${d.y.toFixed(0)}</td></tr>`).join('');}
+    else if(s===1){head='<tr><th>Customer</th><th>Current Education</th><th>Current Income</th></tr>';rows=RAW.map((d,i)=>`<tr class="${state.selected===i?'selected':''}"><td>${d.name}</td><td>${(d.x*state.projX).toFixed(3)}</td><td>${(d.y*state.projY).toFixed(3)}</td></tr>`).join('');}
+    else if(s===2){head='<tr><th>Customer</th><th>Centered Ed.</th><th>Centered Inc.</th></tr>';rows=RAW.map((d,i)=>{const x=d.x-state.centerT*MEAN.x,y=d.y-state.centerT*MEAN.y;return `<tr class="${state.selected===i?'selected':''}"><td>${d.name}</td><td>${x.toFixed(3)}</td><td>${y.toFixed(3)}</td></tr>`;}).join('');}
+    else if(s===3||s===7){const sc=scoresFor(state.angle);head='<tr><th>Customer</th><th>Axis 1</th><th>Axis 2</th></tr>';rows=sc.map((q,i)=>`<tr class="${state.selected===i?'selected':''}"><td>${RAW[i].name}</td><td>${q.pc1.toFixed(3)}</td><td>${q.pc2.toFixed(3)}</td></tr>`).join('');}
+    else if(s===4){const sc=scoresFor(state.angle);head='<tr><th>Customer</th><th>PC1 projection</th><th>Perp. dist.</th></tr>';rows=sc.map((q,i)=>`<tr class="${state.selected===i?'selected':''}"><td>${RAW[i].name}</td><td>${q.pc1.toFixed(3)}</td><td>${Math.abs(q.pc2).toFixed(3)}</td></tr>`).join('');}
+    else if(s===6){head='<tr><th>Customer</th><th>PC1</th><th>PC2</th></tr>';rows=SCORES.map((q,i)=>`<tr class="${state.selected===i?'selected':''}"><td>${RAW[i].name}</td><td>${(q.pc1*state.pcaProj1).toFixed(3)}</td><td>${(q.pc2*state.pcaProj2).toFixed(3)}</td></tr>`).join('');}
+    else{head='<tr><th>Customer</th><th>PC1</th><th>PC2</th></tr>';rows=SCORES.map((q,i)=>`<tr class="${state.selected===i?'selected':''}"><td>${RAW[i].name}</td><td>${q.pc1.toFixed(3)}</td><td>${q.pc2.toFixed(3)}</td></tr>`).join('');}
+    table.innerHTML='<thead>'+head+'</thead><tbody>'+rows+'</tbody>';
+    table.querySelectorAll('tbody tr').forEach((tr,i)=>tr.addEventListener('click',()=>{state.selected=i;renderAll(false);}));
+  }
+
+  function draw(){
+    svg.replaceChildren();const s=state.stage;
+    if(s===0){const f=frame('raw');drawGrid(f);RAW.forEach((d,i)=>drawPoint(d,i,f));return;}
+    if(s===1){const f=frame('raw');drawProjectionGrid(f);RAW.forEach((d,i)=>{const pos=f.map(d.x*state.projX,d.y*state.projY);if(state.projectionMode==='x'&&state.projY>0.02){const p=f.map(d.x,d.y);S('line',{x1:p[0],y1:p[1],x2:pos[0],y2:pos[1],stroke:'#9b5b38','stroke-width':1.4,'stroke-dasharray':'4 4',opacity:state.projY.toFixed(3)});}if(state.projectionMode==='y'&&state.projX>0.02){const p=f.map(d.x,d.y);S('line',{x1:p[0],y1:p[1],x2:pos[0],y2:pos[1],stroke:'#1f6f8b','stroke-width':1.4,'stroke-dasharray':'4 4',opacity:state.projX.toFixed(3)});}drawPoint(d,i,f,'#263e53',8,pos);});return;}
+    if(s===2){const f=frame('recenter');drawGrid(f);RAW.forEach((d,i)=>{const d2={...d,x:d.x-state.centerT*MEAN.x,y:d.y-state.centerT*MEAN.y};drawPoint(d2,i,f);});drawMean(f,(1-state.centerT)*MEAN.x,(1-state.centerT)*MEAN.y,state.centerT>.99?'mean = origin':'moving mean');return;}
+    const f=frame('centered');
+    if(s===3){drawRotatedGrid(f,state.angle,{interactive:true,labels:['Education axis','Income axis']});CENTERED.forEach((d,i)=>drawProjectionsBoth(d,f,state.angle,i));return;}
+    if(s===4){CENTERED.forEach((d,i)=>drawPC1Residual(d,f,state.angle,i));drawPC1Axis(f,state.angle,{interactive:true,label:'PC1 candidate'});const m=metricsFor(state.angle);T(f.left+12,f.top+24,'Perpendicular SSE: '+m.sse.toFixed(2),{fill:'#a14a4a','font-size':15,'font-weight':700});return;}
+    if(s===5){CENTERED.forEach((d,i)=>drawProjectionsBoth(d,f,PCA_ANGLE,i));drawPCAAxes(f,{showPC2:true,interactive:false,angle:PCA_ANGLE,label1:'PC1',label2:'PC2'});const q=SCORES[state.selected],d=CENTERED[state.selected],p=f.map(d.x,d.y);T(p[0]+18,p[1]+22,RAW[state.selected].name+': ('+q.pc1.toFixed(2)+', '+q.pc2.toFixed(2)+')',{fill:'#18385b','font-size':13,'font-weight':700});return;}
+    if(s===6){drawPCACoordinateGrid(f);CENTERED.forEach((d,i)=>drawPCAViewPoint(i,f));return;}
+    if(s===7){drawRotatedGrid(f,state.angle,{interactive:true,labels:['Candidate PC1','Candidate PC2']});CENTERED.forEach((d,i)=>drawProjectionsBoth(d,f,state.angle,i));return;}
+    CENTERED.forEach((d,i)=>drawProjectionsBoth(d,f,PCA_ANGLE,i,{collapse:state.reduced}));drawPCAAxes(f,{showPC2:!state.reduced,interactive:false,angle:PCA_ANGLE,label1:'PC1',label2:'PC2'});if(state.reduced)T(f.left+12,f.top+24,'2D → 1D: only PC1 scores remain',{fill:'#1f6f8b','font-size':16,'font-weight':700});
+  }
+
+  function renderLegend(){
+    const s=state.stage;let html=`<span><i style="background:#263e53"></i>Customers</span>`;
+    if(s===2)html+=`<span><i style="background:#a47c2d"></i>Mean</span>`;
+    if(s===1){if(state.projX>0.02)html+=`<span><i style="background:#1f6f8b"></i>X / Education dimension</span>`;if(state.projY>0.02)html+=`<span><i style="background:#9b5b38"></i>Y / Income dimension</span>`;}
+    if(s===3)html+=`<span><i style="background:#1f6f8b"></i>Rotated Education axis</span><span><i style="background:#9b5b38"></i>Rotated Income axis</span>`;
+    if(s===4)html+=`<span><i style="background:#1f6f8b"></i>PC1 candidate</span><span><i style="background:#a14a4a"></i>Perpendicular residual</span>`;
+    if(s===5)html+=`<span><i style="background:#1f6f8b"></i>PC1</span><span><i style="background:#9b5b38"></i>PC2</span>`;
+    if(s===6){if(state.pcaProj1>0.02)html+=`<span><i style="background:#1f6f8b"></i>PC1</span>`;if(state.pcaProj2>0.02)html+=`<span><i style="background:#9b5b38"></i>PC2</span>`;}
+    if(s===7)html+=`<span><i style="background:#1f6f8b"></i>Candidate PC1</span><span><i style="background:#9b5b38"></i>Candidate PC2</span>`;
+    if(s===8){html+=`<span><i style="background:#1f6f8b"></i>PC1</span>`;if(!state.reduced)html+=`<span><i style="background:#9b5b38"></i>PC2</span>`;}
+    legend.innerHTML=html;
+  }
+
+  function bindControls(){
+    const s=state.stage;
+    if(s===1){$('#projectX').addEventListener('click',()=>animateProjection('x'));$('#projectY').addEventListener('click',()=>animateProjection('y'));$('#restore2D').addEventListener('click',()=>animateProjection('none'));}
+    if(s===2){const slider=$('#centerSlider');slider.addEventListener('input',e=>{state.centerT=Number(e.target.value);updateDynamic();});$('#centerNow').addEventListener('click',()=>{state.centerT=1;renderAll(true);});$('#uncenter').addEventListener('click',()=>{state.centerT=0;renderAll(true);});}
+    if(s===3||s===4||s===7){const slider=$('#angleSlider');slider.addEventListener('input',e=>{state.angle=Number(e.target.value);updateDynamic();});$('#angleReset').addEventListener('click',()=>{state.angle=25;renderAll(true);});const best=$('#bestAxis');if(best)best.addEventListener('click',()=>{state.angle=PCA_ANGLE;renderAll(true);});const pca=$('#pcaAngle');if(pca)pca.addEventListener('click',()=>{state.angle=PCA_ANGLE;renderAll(true);});}
+    if(s===5){$('#selectPrev').addEventListener('click',()=>{state.selected=(state.selected+RAW.length-1)%RAW.length;renderAll(false);});$('#selectNext').addEventListener('click',()=>{state.selected=(state.selected+1)%RAW.length;renderAll(false);});$('#toggleMath').addEventListener('click',()=>{state.showMath=!state.showMath;renderAll(true);});}
+    if(s===6){
+      $('#pcaViewSlider').addEventListener('input',e=>{state.pcaViewT=Number(e.target.value);updateDynamic();});
+      $('#rotateToPCA').addEventListener('click',()=>animatePCAView(1));
+      $('#rotateBack').addEventListener('click',()=>{state.pcaProj1=1;state.pcaProj2=1;state.pcaProjectionMode='none';animatePCAView(0);});
+      $('#projectPC1').addEventListener('click',()=>animatePCAProjection('pc1'));
+      $('#projectPC2').addEventListener('click',()=>animatePCAProjection('pc2'));
+      $('#restorePCA2D').addEventListener('click',()=>animatePCAProjection('none'));
+    }
+    if(s===8){$('#dropBtn').addEventListener('click',()=>{state.reduced=!state.reduced;renderAll(true);});}
+  }
+
+  function updateDynamic(){
+    const s=state.stage;
+    if(s===2){const pct=$('#centerPct'),mx=$('#meanX'),my=$('#meanY');if(pct)pct.textContent=Math.round(state.centerT*100)+'%';if(mx)mx.textContent=((1-state.centerT)*MEAN.x).toFixed(3);if(my)my.textContent=((1-state.centerT)*MEAN.y).toFixed(3);draw();renderTable();return;}
+    if(s===6){draw();renderTable();updatePCACoordMetrics();return;}
+    if(s===3||s===4||s===7){
+      const angleText=$('#angleText');if(angleText)angleText.textContent=state.angle.toFixed(1)+'°';const m=metricsFor(state.angle),sc=scoresFor(state.angle)[state.selected];
+      if(s===3){const am=$('#angleMetric'),q1=$('#score1Val'),q2=$('#score2Val');if(am)am.textContent=state.angle.toFixed(1)+'°';if(q1)q1.textContent=sc.pc1.toFixed(3);if(q2)q2.textContent=sc.pc2.toFixed(3);}
+      if(s===4){const sse=$('#sseVal'),q1=$('#score1Val'),r=$('#residualVal');if(sse)sse.textContent=m.sse.toFixed(2);if(q1)q1.textContent=sc.pc1.toFixed(3);if(r)r.textContent=Math.abs(sc.pc2).toFixed(3);exText.innerHTML=stageCopy().text;}
+      if(s===7){const v1=$('#var1Val'),v2=$('#var2Val'),b1=$('#var1Bar'),b2=$('#var2Bar');if(v1)v1.textContent=m.ratio1.toFixed(1)+'%';if(v2)v2.textContent=m.ratio2.toFixed(1)+'%';if(b1)b1.style.width=m.ratio1+'%';if(b2)b2.style.width=m.ratio2+'%';}
+      draw();renderTable();
+    }
+  }
+
+  function renderAll(rebuildControls=true){
+    const c=stageCopy();titleEl.textContent=(state.stage+1)+'. '+STAGES[state.stage].name;noteEl.textContent=c.note;exTitle.textContent=c.title;exText.innerHTML=c.text;tip.textContent=c.tip;tip.style.display=c.tip?'block':'none';
+    if(rebuildControls){controls.innerHTML=controlsHTML();bindControls();}
+    const controlsCard=controls.closest('.side-card');if(controlsCard)controlsCard.style.display=controls.innerHTML.trim()?'block':'none';
+    metrics.innerHTML=metricsHTML();const metricsCard=metrics.closest('.side-card');if(metricsCard)metricsCard.style.display=metrics.innerHTML.trim()?'block':'none';
+    [...stepsEl.children].forEach((b,i)=>{b.classList.toggle('active',i===state.stage);b.classList.toggle('done',i<state.stage);});
+    $('#stageCounter').textContent=`Step ${state.stage+1} of ${STAGES.length}`;$('#prevBtn').disabled=state.stage===0;$('#nextBtn').disabled=state.stage===STAGES.length-1;
+    $('#tableTitle').textContent=state.stage>=5?'Component scores':'Customer values';draw();renderLegend();renderTable();
+  }
+
+  function setStage(i){
+    const prev=state.stage;state.stage=clamp(i,0,STAGES.length-1);
+    if(state.projectionRAF){cancelAnimationFrame(state.projectionRAF);state.projectionRAF=null;}
+    if(state.pcaViewRAF){cancelAnimationFrame(state.pcaViewRAF);state.pcaViewRAF=null;}
+    if(state.pcaProjectionRAF){cancelAnimationFrame(state.pcaProjectionRAF);state.pcaProjectionRAF=null;}
+    if(state.stage===1 && prev!==1){state.projX=1;state.projY=1;state.projectionMode='none';}
+    if(state.stage===5)state.angle=PCA_ANGLE;
+    if(state.stage===6 && prev!==6){state.pcaViewT=0;state.pcaProj1=1;state.pcaProj2=1;state.pcaProjectionMode='none';}
+    if(state.stage===7 && prev!==7)state.angle=PCA_ANGLE;
+    if(state.stage===8)state.angle=PCA_ANGLE;
+    if(state.stage<8)state.reduced=false;
+    renderAll(true);
+  }
+
+  svg.addEventListener('pointermove',e=>{
+    if(!state.dragging || ![3,4,7].includes(state.stage)) return;
+    const f=frame('centered'),pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse());
+    state.angle=normalizeAngle(Math.atan2(f.y0-p.y,p.x-f.x0)*180/Math.PI);const slider=$('#angleSlider');if(slider)slider.value=state.angle;updateDynamic();
+  });
+  const stopDrag=e=>{if(state.dragging){state.dragging=false;try{if(e.pointerId!==undefined)svg.releasePointerCapture(e.pointerId);}catch(_){}}};
+  svg.addEventListener('pointerup',stopDrag);svg.addEventListener('pointercancel',stopDrag);
+
+  $('#prevBtn').addEventListener('click',()=>setStage(state.stage-1));$('#nextBtn').addEventListener('click',()=>setStage(state.stage+1));
+  $('#resetAll').addEventListener('click',()=>{Object.assign(state,{stage:0,centerT:0,angle:25,selected:0,showMath:false,reduced:false,dragging:false,projX:1,projY:1,projectionMode:'none',projectionRAF:null,pcaViewT:0,pcaProj1:1,pcaProj2:1,pcaProjectionMode:'none',pcaViewRAF:null,pcaProjectionRAF:null});renderAll(true);});
+  $('#revealPCA').addEventListener('click',()=>{state.angle=PCA_ANGLE;state.stage=4;renderAll(true);});
+  document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT','BUTTON'].includes(document.activeElement.tagName))return;if(e.key==='ArrowRight')setStage(state.stage+1);if(e.key==='ArrowLeft')setStage(state.stage-1);});
+
+  buildSteps();renderAll(true);
+})();
+</script>
+
+</body>
+</html>

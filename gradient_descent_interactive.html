@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gradient Descent Interactive Classroom Demo</title>
+<style>
+:root{--bg:#f7f8fb;--panel:#fff;--ink:#111827;--muted:#5b6472;--border:#d9dee7;--accent:#2563eb;--good:#15803d;--warn:#b45309;--bad:#b91c1c;--purple:#7c3aed;--grid:#e7eaf0;--shadow:0 10px 30px rgba(15,23,42,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+.wrapper{max-width:1500px;margin:0 auto;padding:26px 30px 40px}.topbar{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:18px}.title h1{font-size:40px;line-height:1.05;margin:0 0 6px}.title p{font-size:21px;margin:0;color:var(--muted)}
+.stageNav{display:flex;gap:10px;flex-wrap:wrap}.stageBtn{font-size:18px;font-weight:800;border:1px solid var(--border);background:#fff;padding:12px 16px;border-radius:12px;cursor:pointer}.stageBtn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stage{display:none}.stage.active{display:block}.stageHead{display:flex;align-items:end;justify-content:space-between;gap:18px;margin:14px 0}.stageHead h2{font-size:36px;margin:0}.idea{font-size:23px;color:var(--muted);font-weight:750}.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:22px}.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}.graphCard{padding:10px 14px 14px}.side{padding:20px}.controlGroup{margin-bottom:22px}.controlGroup h3{font-size:24px;margin:0 0 10px}.bigValue{font-size:34px;font-weight:850}.metric{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #edf0f4;font-size:21px}.metric b{font-size:24px}.formula{font-size:27px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f4f6f9;border:1px solid var(--border);padding:14px;border-radius:12px;line-height:1.5;margin-top:12px}.status{font-size:26px;font-weight:900;padding:14px;border-radius:12px;text-align:center;background:#f3f4f6;margin:12px 0}.smallNote{font-size:18px;line-height:1.45;color:var(--muted)}
+button.action{width:100%;font-size:21px;font-weight:850;padding:14px 16px;margin:7px 0;border:0;border-radius:12px;cursor:pointer;background:var(--accent);color:#fff}.action.secondary{background:#eef2ff;color:#1e3a8a;border:1px solid #c7d2fe}.action.good{background:var(--good)}.action.bad{background:var(--bad)}
+input[type=range]{width:100%;height:22px;accent-color:var(--accent);cursor:pointer;margin:10px 0}.sliderLabel{display:flex;justify-content:space-between;font-size:18px;font-weight:800}.presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}.presets button{font-size:17px;font-weight:850;padding:11px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer}
+svg{width:100%;height:auto;display:block}.axisLabel{font-size:24px;font-weight:850;fill:#111827}.tick{font-size:16px;fill:#667085}.pointLabel{font-size:20px;font-weight:850;fill:#111827}.arrowLabel{font-size:21px;font-weight:850}.lossLabel{font-size:19px;font-weight:850}.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:18px;font-weight:800;margin-top:6px}.dot{display:inline-block;width:14px;height:14px;border-radius:999px;margin-right:7px;vertical-align:-1px}
+.history{max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:12px}.history table{width:100%;border-collapse:collapse;font-size:17px}.history th,.history td{padding:8px 10px;border-bottom:1px solid #edf0f4;text-align:right}.history th:first-child,.history td:first-child{text-align:center}.history th{position:sticky;top:0;background:#f8fafc}.twoCol{display:grid;grid-template-columns:1fr 1fr;gap:20px}.miniCard{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px}.miniCard h3{font-size:25px;margin:0 0 8px}.miniCard p{font-size:18px;color:var(--muted);margin:0 0 10px}
+@media(max-width:1050px){.layout{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.wrapper{padding:18px}.title h1{font-size:32px}.stageHead{align-items:flex-start;flex-direction:column}.stageHead h2{font-size:30px}.idea{font-size:20px}.twoCol{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="title"><h1>Gradient Descent — Interactive Demo</h1><p>One update · repeated updates · learning-rate behavior</p></div>
+    <div class="stageNav">
+      <button class="stageBtn active" data-stage="1">1. One update</button>
+      <button class="stageBtn" data-stage="2">2. Learning rate</button>
+      <button class="stageBtn" data-stage="3">3. Regression connection</button>
+    </div>
+  </div>
+
+  <section class="stage active" id="stage1">
+    <div class="stageHead"><h2>1. How does the weight move?</h2><div class="idea">w<sub>new</sub> = w<sub>old</sub> − η × gradient</div></div>
+    <div class="layout">
+      <div class="card graphCard"><svg id="svg1" viewBox="0 0 980 700" aria-label="One gradient descent update on a loss curve"></svg></div>
+      <aside class="card side">
+        <div class="controlGroup"><h3>Start with a gradient sign</h3><div class="presets"><button id="negGrad">Negative gradient</button><button id="posGrad">Positive gradient</button></div></div>
+        <div class="controlGroup"><h3>Current weight, w</h3><input id="w1" type="range" min="-3" max="5" value="-1.5" step="0.05"><div class="sliderLabel"><span>-3</span><span id="w1val" class="bigValue">-1.50</span><span>5</span></div></div>
+        <div class="controlGroup"><h3>Learning rate, η</h3><input id="lr1" type="range" min="0.05" max="1.5" value="0.40" step="0.05"><div class="sliderLabel"><span>0.05</span><span id="lr1val" class="bigValue">0.40</span><span>1.50</span></div></div>
+        <button class="action" id="apply1">Apply one update</button><button class="action secondary" id="reset1">Reset</button>
+        <div id="sign1" class="status"></div>
+        <div class="metric"><span>Gradient</span><b id="grad1"></b></div>
+        <div class="metric"><span>Change in weight, Δw</span><b id="dw1"></b></div>
+        <div class="formula" id="formula1"></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="stage" id="stage2">
+    <div class="stageHead"><h2>2. Learning rate controls the movement</h2><div class="idea">Small → slow · Moderate → converge · Very large → bounce/diverge</div></div>
+    <div class="layout">
+      <div class="card graphCard"><svg id="svg2" viewBox="0 0 980 610" aria-label="Repeated gradient descent updates for different learning rates"></svg></div>
+      <aside class="card side">
+        <div class="controlGroup"><h3>Choose a learning rate</h3>
+          <div class="presets"><button data-lr="0.15">Too small</button><button data-lr="0.80">Good</button><button data-lr="2.00">Keeps bouncing</button><button data-lr="2.02">Diverges</button></div>
+          <input id="lr2" type="range" min="0.05" max="2.02" value="0.80" step="0.01"><div class="sliderLabel"><span>0.05</span><span id="lr2val" class="bigValue">0.80</span><span>2.02</span></div>
+        </div>
+        <button class="action good" id="run2">Run 12 steps</button><button class="action" id="step2">Take one step</button><button class="action secondary" id="reset2">Reset</button>
+        <div id="status2" class="status">Ready</div>
+        <div class="metric"><span>Current w</span><b id="w2now"></b></div><div class="metric"><span>Current loss</span><b id="loss2now"></b></div>
+        <div class="history"><table><thead><tr><th>Step</th><th>w</th><th>Loss</th></tr></thead><tbody id="hist2"></tbody></table></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="stage" id="stage3">
+    <div class="stageHead"><h2>3. Connect gradient descent to regression</h2><div class="idea">Changing the slope changes RSS; gradient descent searches for a better slope</div></div>
+    <div class="twoCol">
+      <div class="miniCard"><h3>Regression line</h3><p>Residuals change as the slope changes.</p><svg id="svg3a" viewBox="0 0 720 520"></svg></div>
+      <div class="miniCard"><h3>RSS as a function of slope</h3><p>The current slope is a point on the loss curve.</p><svg id="svg3b" viewBox="0 0 720 520"></svg></div>
+    </div>
+    <div class="card side" style="margin-top:20px;display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:18px;align-items:end">
+      <div><h3 style="margin:0 0 8px;font-size:22px">Slope</h3><input id="m3" type="range" min="-1" max="3.5" value="-0.2" step="0.02"><div class="bigValue" id="m3val">-0.20</div></div>
+      <div><button class="action" id="step3">One GD step</button></div><div><button class="action good" id="run3">Auto fit</button></div><div><button class="action secondary" id="reset3">Reset</button></div>
+    </div>
+  </section>
+</div>
+<script>
+(() => {
+const NS='http://www.w3.org/2000/svg', q=s=>document.querySelector(s), qa=s=>[...document.querySelectorAll(s)];
+function E(tag,attrs={},txt=''){const n=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))n.setAttribute(k,v);if(txt)n.textContent=txt;return n}
+function clear(svg){svg.replaceChildren()} function line(svg,x1,y1,x2,y2,stroke='#111',w=2,dash=''){const n=E('line',{x1,y1,x2,y2,stroke,'stroke-width':w});if(dash)n.setAttribute('stroke-dasharray',dash);svg.appendChild(n);return n}
+function text(svg,x,y,t,cls='',anchor='start',fill='#111827'){svg.appendChild(E('text',{x,y,class:cls,'text-anchor':anchor,fill},t))} function circle(svg,cx,cy,r,fill,stroke='#fff',sw=2){const n=E('circle',{cx,cy,r,fill,stroke,'stroke-width':sw});svg.appendChild(n);return n}
+function poly(svg,pts,stroke,w=3,fill='none'){svg.appendChild(E('polyline',{points:pts.map(p=>p.join(',')).join(' '),stroke,'stroke-width':w,fill,'stroke-linejoin':'round','stroke-linecap':'round'}))}
+function arrow(svg,x1,y1,x2,y2,color,label){line(svg,x1,y1,x2,y2,color,5);const a=Math.atan2(y2-y1,x2-x1),L=16,p1=[x2-L*Math.cos(a-.5),y2-L*Math.sin(a-.5)],p2=[x2-L*Math.cos(a+.5),y2-L*Math.sin(a+.5)];svg.appendChild(E('polygon',{points:`${x2},${y2} ${p1[0]},${p1[1]} ${p2[0]},${p2[1]}`,fill:color}));if(label)text(svg,(x1+x2)/2,(y1+y2)/2-12,label,'arrowLabel','middle',color)}
+// Clean quadratic bowl: minimum at w=1. Update is w_new = w - eta*(w-1).
+function J(w){return 0.5*(w-1)*(w-1)+0.5} function G(w){return w-1}
+const X0=95,X1=920,Y0=455,Y1=45,xmap=w=>X0+(w+4)/10*(X1-X0),ymap=v=>Y0-(Math.min(v,18)/18)*(Y0-Y1);
+function axes(svg){
+  for(let i=-3;i<=5;i+=2){const x=xmap(i);line(svg,x,Y1,x,Y0,'#e7eaf0',1);text(svg,x,Y0+30,String(i),'tick','middle')}
+  for(let v=2;v<=16;v+=4){const y=ymap(v);line(svg,X0,y,X1,y,'#e7eaf0',1);text(svg,X0-12,y+5,String(v),'tick','end')}
+  line(svg,X0,Y0,X1,Y0,'#667085',2);line(svg,X0,Y1,X0,Y0,'#667085',2);
+  text(svg,(X0+X1)/2,Y0+62,'Weight w','axisLabel','middle');
+  const yl=E('text',{x:34,y:(Y0+Y1)/2,class:'axisLabel','text-anchor':'middle',fill:'#111827',transform:`rotate(-90 34 ${(Y0+Y1)/2})`},'Loss J(w)');svg.appendChild(yl);
+  line(svg,X0,Y0+88,X1,Y0+88,'#d0d5dd',1);
+}
+function drawBase(svg){clear(svg);axes(svg);const pts=[];for(let w=-3.8;w<=5.8;w+=.04)pts.push([xmap(w),ymap(J(w))]);poly(svg,pts,'#1f2937',4);circle(svg,xmap(1),ymap(J(1)),7,'#15803d');text(svg,xmap(1),ymap(J(1))-18,'minimum','lossLabel','middle','#15803d')}
+// Stage 1
+let old1=null,new1=null;
+function render1(){const svg=q('#svg1');drawBase(svg);const w=+q('#w1').value,lr=+q('#lr1').value,g=G(w),dw=-lr*g;circle(svg,xmap(w),ymap(J(w)),12,'#2563eb');text(svg,xmap(w),ymap(J(w))-22,`w = ${w.toFixed(2)}`,'pointLabel','middle');
+ const x=xmap(w),y=ymap(J(w));const gradDir=g>=0?1:-1;arrow(svg,x,y-58,x+gradDir*95,y-58,'#b91c1c','gradient');arrow(svg,x,y-103,x-gradDir*95,y-103,'#15803d','update');
+ if(old1!==null&&new1!==null){
+   circle(svg,xmap(old1),ymap(J(old1)),10,'#94a3b8');
+   circle(svg,xmap(new1),ymap(J(new1)),13,'#7c3aed');
+   const bandY=Y0+128;
+   arrow(svg,xmap(old1),bandY,xmap(new1),bandY,'#7c3aed','');
+   text(svg,(xmap(old1)+xmap(new1))/2,bandY+38,`Weight change  Δw = ${(new1-old1).toFixed(2)}`,'arrowLabel','middle','#7c3aed');
+   text(svg,xmap(new1),ymap(J(new1))-24,`new w = ${new1.toFixed(2)}`,'pointLabel','middle','#7c3aed')
+ }
+ q('#w1val').textContent=w.toFixed(2);q('#lr1val').textContent=lr.toFixed(2);q('#grad1').textContent=g.toFixed(2);q('#dw1').textContent=dw.toFixed(2);q('#formula1').innerHTML=`w<sub>new</sub> = ${w.toFixed(2)} − ${lr.toFixed(2)} × (${g.toFixed(2)})<br>= ${(w+dw).toFixed(2)}`;q('#sign1').textContent=Math.abs(g)<.02?'Gradient ≈ 0: no movement':g>0?'Positive gradient → w decreases':'Negative gradient → w increases';q('#sign1').style.color=Math.abs(g)<.02?'#15803d':g>0?'#b91c1c':'#1d4ed8'}
+function apply1(){old1=+q('#w1').value;new1=old1-(+q('#lr1').value)*G(old1);render1()} function setW1(v){q('#w1').value=v;old1=null;new1=null;render1()}
+q('#w1').oninput=()=>{old1=null;new1=null;render1()};q('#lr1').oninput=()=>{old1=null;new1=null;render1()};q('#apply1').onclick=apply1;q('#reset1').onclick=()=>setW1(-1.5);q('#negGrad').onclick=()=>setW1(-1.5);q('#posGrad').onclick=()=>setW1(3.5);
+// Stage 2
+let w2=-2.5,path2=[-2.5],timer2=null;
+function statusFor(lr){if(lr<.35)return['Too small: moves toward the minimum very slowly','#b45309'];if(lr<1.6)return['Converges toward the minimum','#15803d'];if(lr<2.0)return['Converges, but oscillates across the minimum','#7c3aed'];if(Math.abs(lr-2.0)<.001)return['η = 2: keeps bouncing forever','#b91c1c'];return['η > 2: oscillations grow — divergence','#b91c1c']}
+const X20=75,X21=920,Y20=535,Y21=55,xmap2=w=>X20+(w+3.6)/9.2*(X21-X20),ymap2=v=>Y20-(Math.min(v,11.6)/11.6)*(Y20-Y21);
+function axes2(svg){for(let i=-3;i<=5;i+=2){const x=xmap2(i);line(svg,x,Y21,x,Y20,'#e7eaf0',1);text(svg,x,Y20+30,String(i),'tick','middle')}for(let v=2;v<=10;v+=2){const y=ymap2(v);line(svg,X20,y,X21,y,'#e7eaf0',1);text(svg,X20-12,y+5,String(v),'tick','end')}line(svg,X20,Y20,X21,Y20,'#667085',2);line(svg,X20,Y21,X20,Y20,'#667085',2);text(svg,(X20+X21)/2,590,'Weight w','axisLabel','middle');text(svg,25,(Y20+Y21)/2,'Loss J(w)','axisLabel','middle')}
+function drawBase2(svg){clear(svg);axes2(svg);const pts=[];for(let w=-3.6;w<=5.6;w+=.035)pts.push([xmap2(w),ymap2(J(w))]);poly(svg,pts,'#1f2937',4);circle(svg,xmap2(1),ymap2(J(1)),7,'#15803d');text(svg,xmap2(1),ymap2(J(1))-18,'minimum','lossLabel','middle','#15803d')}
+function render2(){const svg=q('#svg2');drawBase2(svg);for(let i=1;i<path2.length;i++){const a=path2[i-1],b=path2[i];line(svg,xmap2(a),ymap2(J(a)),xmap2(b),ymap2(J(b)),i===path2.length-1?'#7c3aed':'#c4b5fd',4)}path2.forEach((w,i)=>{circle(svg,xmap2(w),ymap2(J(w)),i===path2.length-1?11:6,i===path2.length-1?'#7c3aed':'#c4b5fd')});q('#lr2val').textContent=(+q('#lr2').value).toFixed(2);q('#w2now').textContent=w2.toFixed(3);q('#loss2now').textContent=J(w2).toFixed(3);q('#hist2').innerHTML=[...path2].map((w,i)=>`<tr><td>${i}</td><td>${w.toFixed(3)}</td><td>${J(w).toFixed(3)}</td></tr>`).reverse().join('');const [m,c]=statusFor(+q('#lr2').value);q('#status2').textContent=m;q('#status2').style.color=c}
+function reset2(){if(timer2)clearInterval(timer2);timer2=null;w2=-2.5;path2=[w2];render2()} function one2(){const lr=+q('#lr2').value;w2=w2-lr*G(w2);path2.push(w2);if(path2.length>16)path2.shift();render2()}
+function run2(){if(timer2)clearInterval(timer2);w2=-2.5;path2=[w2];let k=0;render2();timer2=setInterval(()=>{one2();k++;if(k>=12||Math.abs(w2)>50){clearInterval(timer2);timer2=null}},500)}
+q('#lr2').oninput=render2;q('#run2').onclick=run2;q('#step2').onclick=one2;q('#reset2').onclick=reset2;qa('[data-lr]').forEach(b=>b.onclick=()=>{q('#lr2').value=b.dataset.lr;reset2();run2()});
+// Stage 3 regression connection
+const data3=[[-2,-2.1],[-1.2,-.8],[-.2,.5],[.8,2.2],[1.8,3.8],[2.8,5.2]],b3=.8;let m3=-.2,t3=null;function rss(m){return data3.reduce((s,[x,y])=>{const e=y-(b3+m*x);return s+e*e},0)}function gradM(m){return -2*data3.reduce((s,[x,y])=>s+x*(y-(b3+m*x)),0)}
+function render3a(){const svg=q('#svg3a');clear(svg);const L=65,R=675,T=35,B=455,xm=x=>L+(x+3)/6.5*(R-L),ym=y=>B-(y+3)/10*(B-T);for(let x=-2;x<=3;x++){line(svg,xm(x),T,xm(x),B,'#e7eaf0',1);text(svg,xm(x),B+28,String(x),'tick','middle')}for(let y=-2;y<=6;y+=2){line(svg,L,ym(y),R,ym(y),'#e7eaf0',1);text(svg,L-10,ym(y)+5,String(y),'tick','end')}line(svg,L,B,R,B,'#667085',2);line(svg,L,T,L,B,'#667085',2);data3.forEach(([x,y])=>{const yh=b3+m3*x;line(svg,xm(x),ym(y),xm(x),ym(yh),'#ef4444',2,'5 4');circle(svg,xm(x),ym(y),7,'#111827')});line(svg,xm(-3),ym(b3+m3*(-3)),xm(3.5),ym(b3+m3*3.5),'#2563eb',4);text(svg,(L+R)/2,505,'x','axisLabel','middle');text(svg,20,(T+B)/2,'y','axisLabel','middle')}
+function render3b(){const svg=q('#svg3b');clear(svg);const L=70,R=670,T=35,B=455,xm=m=>L+(m+1)/4.5*(R-L);let max=0;for(let m=-1;m<=3.5;m+=.02)max=Math.max(max,rss(m));const ym=v=>B-v/(max*1.02)*(B-T);for(let m=-1;m<=3;m++){line(svg,xm(m),T,xm(m),B,'#e7eaf0',1);text(svg,xm(m),B+28,String(m),'tick','middle')}const pts=[];for(let m=-1;m<=3.5;m+=.02)pts.push([xm(m),ym(rss(m))]);poly(svg,pts,'#1f2937',4);circle(svg,xm(m3),ym(rss(m3)),11,'#7c3aed');text(svg,xm(m3),ym(rss(m3))-18,`m=${m3.toFixed(2)}`,'pointLabel','middle');text(svg,(L+R)/2,505,'Slope m','axisLabel','middle');text(svg,22,(T+B)/2,'RSS','axisLabel','middle')}
+function render3(){q('#m3').value=m3;q('#m3val').textContent=m3.toFixed(2);render3a();render3b()} function step3(){m3=m3-.015*gradM(m3);render3()}q('#m3').oninput=e=>{m3=+e.target.value;render3()};q('#step3').onclick=step3;q('#reset3').onclick=()=>{if(t3)clearInterval(t3);t3=null;m3=-.2;render3()};q('#run3').onclick=()=>{if(t3){clearInterval(t3);t3=null;q('#run3').textContent='Auto fit';return}q('#run3').textContent='Pause';t3=setInterval(()=>{step3();if(Math.abs(gradM(m3))<.03){clearInterval(t3);t3=null;q('#run3').textContent='Auto fit'}},420)};
+qa('.stageBtn').forEach(b=>b.onclick=()=>{qa('.stageBtn').forEach(x=>x.classList.remove('active'));qa('.stage').forEach(x=>x.classList.remove('active'));b.classList.add('active');q('#stage'+b.dataset.stage).classList.add('active')});
+render1();reset2();render3();
+})();
+</script>
+</body>
+</html>
