@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Neural Networks • Interactive Classroom Playground</title>
+<style>
+:root{--green:#28845b;--deep:#153b2d;--mint:#e7f4eb;--cream:#fcfaf2;--paper:#fffefb;--ink:#172e26;--soft:#587269;--line:#cbded0;--orange:#da7a2f;--blue:#346fc3;--pink:#b34a78;--violet:#7349ac}*{box-sizing:border-box}body{margin:0;background:#e9eee8;color:var(--ink);font:18px/1.4 system-ui,-apple-system,'Segoe UI',sans-serif}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.38;cursor:not-allowed}.app{max-width:1580px;margin:auto;padding:14px 22px 24px}.mast{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}.brand{font-size:16px;letter-spacing:.11em;color:var(--deep);font-weight:850;text-transform:uppercase}.tag{font-size:14px;color:var(--soft)}.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:9px 0 12px}.tabs{display:flex;gap:7px;overflow-x:auto;max-width:100%;padding-bottom:4px}.tab{border:1px solid #bed1c1;background:white;border-radius:12px;min-width:114px;padding:10px 12px;color:var(--deep);font-weight:720;font-size:15px}.tab.active{background:var(--deep);color:white}.utility{display:flex;gap:8px}.screen{background:var(--cream);border-radius:18px;border:1px solid #d5e0d2;min-height:650px;box-shadow:0 10px 30px #2436280b;padding:24px 28px}.slide{display:none}.slide.active{display:block}.eyebrow{color:var(--green);font-weight:850;text-transform:uppercase;font-size:14px;letter-spacing:.12em;margin:0 0 4px}h1{font-size:clamp(30px,3.35vw,51px);line-height:1.07;margin:2px 0 8px;letter-spacing:-.035em}h2{font-size:clamp(21px,2vw,30px);margin:0 0 9px}h3{font-size:22px;margin:5px 0 8px}.lede{color:var(--soft);font-size:clamp(18px,1.5vw,23px);margin:0 0 22px;max-width:1160px}.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.85fr);gap:22px;align-items:start}.layout.equal{grid-template-columns:1fr 1fr}.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:17px 19px;min-width:0}.panel.sage{background:#f0f6ed}.panel h3{margin-top:0}.panel>svg,.network{width:100%;height:auto;display:block}.highlight{color:var(--green);font-weight:800}.small{color:var(--soft);font-size:15px}.note{background:#f0f7ed;border-left:5px solid var(--green);padding:12px 17px;border-radius:6px;margin-top:12px;font-size:18px}.controls{display:flex;gap:11px;flex-wrap:wrap;margin:13px 0}.btn{border:2px solid var(--green);border-radius:11px;padding:11px 15px;background:white;color:var(--deep);font-weight:750;min-height:48px}.btn.primary,.btn.selected{background:var(--green);color:white}.btn.secondary{border-color:#a5b9ad}.btn:focus-visible,.tab:focus-visible,input:focus-visible,.click-node:focus-visible{outline:3px solid var(--orange);outline-offset:3px}input[type=range]{width:100%;height:15px;accent-color:var(--green);cursor:pointer;touch-action:pan-y}.rangeRow{margin:14px 0 20px}.rangeTop{display:flex;justify-content:space-between;gap:12px;font-size:20px;font-weight:650}.value{color:var(--green);font-weight:820;font-variant-numeric:tabular-nums}.chip{display:inline-block;background:var(--mint);border-radius:10px;padding:5px 10px;font-weight:750;margin:3px 5px 3px 0}.metric{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin:10px 0}.big{font-size:clamp(26px,3vw,44px);font-weight:840;color:var(--deep);font-variant-numeric:tabular-nums}.math{font:700 clamp(21px,2vw,30px)/1.45 ui-monospace,Consolas,monospace;background:#f0f5ef;border-radius:12px;padding:12px 15px;overflow-wrap:anywhere}.mathtiny{font:650 17px/1.5 ui-monospace,Consolas,monospace;overflow-wrap:anywhere}.mono{font-family:ui-monospace,Consolas,monospace}.results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.result{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafdf9;text-align:center;min-width:0}.result strong{display:block;font-size:29px;color:var(--deep);font-variant-numeric:tabular-nums}.result span{font-size:15px;color:var(--soft)}.spritewrap{display:flex;gap:20px;align-items:center;justify-content:center;min-height:340px}.pixel{width:min(100%,340px);height:auto;image-rendering:pixelated;border-radius:14px;background:#e3ece2}.flowrow{display:flex;gap:15px;align-items:center;justify-content:center;flex-wrap:wrap}.flowitem{padding:12px 15px;border-radius:12px;background:#f1f7ed;min-width:160px;flex:1;text-align:center}.flowitem strong{display:block;font-size:24px}.arrow{font-size:35px;color:var(--green);font-weight:900}.meter{height:17px;background:#e1e9e0;border-radius:99px;overflow:hidden;margin:9px 0}.meter>div{height:100%;background:var(--green);border-radius:99px;transition:width .35s}.dim{opacity:.26;filter:grayscale(.5)}.gridTable{width:100%;border-collapse:collapse;font-size:19px}.gridTable th,.gridTable td{border-bottom:1px solid var(--line);padding:9px 12px;text-align:right}.gridTable th:first-child,.gridTable td:first-child{text-align:left}.gridTable tr.choice{cursor:pointer}.gridTable tr.choice:hover,.gridTable tr.chosen{background:#e8f2e6}.network text{font-family:system-ui,sans-serif}.foot{margin-top:11px;color:#597168;font-size:14px}.bottom{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:12px}.footertext{font-size:15px;color:var(--soft)}.navbtn{border:2px solid var(--deep);border-radius:11px;padding:11px 16px;background:white;font-weight:800;min-height:48px}.navbtn.next{background:var(--deep);color:white}.path{height:130px;display:block;width:100%}.slidercols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.featurecard{border:1px solid var(--line);border-radius:13px;padding:12px;background:white}.vsum{font-size:22px;line-height:1.6}.stepbuttons{display:flex;gap:8px;flex-wrap:wrap}.phase{border:1px solid #b4ceb9;border-radius:11px;padding:7px 10px;font-weight:750;font-size:16px}.phase.on{background:var(--deep);color:white}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}.track{display:flex;flex-wrap:wrap;gap:10px;margin:9px 0}.trace{padding:8px 13px;border-radius:9px;background:#e6efe7;font-weight:800}.plot{width:100%;height:auto;display:block}.toggle{display:flex;gap:7px;align-items:center}.glow{color:var(--orange);font-weight:850}.toggleInput{accent-color:var(--green);width:22px;height:22px}.contrib{display:grid;grid-template-columns:110px 1fr 95px;gap:8px;align-items:center;font-size:18px;margin:13px 0}.progressbar{background:#e1eadf;border-radius:10px;height:17px;overflow:hidden}.progressbar>div{height:100%;background:var(--blue)}.progressbar.negative>div{background:var(--pink)}.cbutton{border:1px solid var(--line);padding:6px 11px;border-radius:10px;background:white}.cbutton.active{background:var(--green);color:white}.slide#slide-0 .flowrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:stretch}.slide#slide-0 .flowitem{min-width:0;padding:9px 3px;flex:auto;font-size:15px}.slide#slide-0 .flowitem strong{font-size:22px}.slide#slide-0 .arrow{display:none}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@media(max-width:1000px){.screen{padding:19px}.layout,.layout.equal{grid-template-columns:1fr}.panel{padding:14px}.screen{min-height:unset}.tab{min-width:95px}.slidercols{grid-template-columns:1fr}.results{grid-template-columns:repeat(3,1fr)}}@media(max-width:560px){.app{padding:8px}.screen{padding:13px}.result strong{font-size:20px}.results{gap:4px}.bar{display:block}.compare{grid-template-columns:1fr}.panel h3{font-size:20px}.pixel{width:230px}.flowitem{min-width:130px}.btn{padding:9px 10px}.gridTable{font-size:14px}.gridTable th,.gridTable td{padding:7px 5px}.contrib{grid-template-columns:75px 1fr 70px;font-size:14px}}
+
+/* Interaction study and classroom legibility */
+.comparison-stat{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:12px 10px;border-bottom:1px solid var(--line);font-size:19px}
+.comparison-stat strong{font-size:31px;font-variant-numeric:tabular-nums;color:var(--deep)}
+.comparison-stat.contrast{background:#e1f0e2;border-radius:12px;border:2px solid #7baa81;margin:10px 0 14px}
+.comparison-stat.contrast strong{color:#20764f}
+.math.guide{font-size:clamp(17px,1.6vw,23px)}
+#slide-interaction .panel .note{font-size:17px}
+@media(max-width:640px){.comparison-stat{font-size:16px}.comparison-stat strong{font-size:23px}}
+
+.concept-calculation{padding:9px 0;border-bottom:1px solid var(--line);line-height:1.53;font-size:17px}
+#slide-4 .panel.sage .math{font-size:20px}
+#slide-4 .mathtiny{font-size:17px}
+#slide-1 .guide{margin:3px 0 8px;padding:7px 11px}
+
+/* Classroom-scale concept demonstrations. */
+.buy-signal{margin:12px 0 18px}.buy-signal .latent-signal-head{font-size:21px}.buy-signal .latent-signal-head b{font-size:24px}#buy-math:not([hidden]){margin-top:12px;border-top:1px solid var(--line);padding-top:9px}#slide-4 .panel.sage #buy-toggle-math{margin:7px 0}
+.image-hero{padding:15px 20px 17px}
+.image-network-layout{display:grid;grid-template-columns:minmax(200px,.31fr) minmax(0,1fr);gap:8px;align-items:center}
+.image-demo{display:flex;flex-direction:column;align-items:center;gap:9px;color:#365846;font-size:21px;letter-spacing:.12em}
+.image-demo .pixel{width:min(100%,260px);border:2px solid #cbded0}
+#image-network{max-height:470px}
+.image-bottom{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:5px}
+.image-insight{font-size:clamp(19px,1.7vw,26px);font-weight:730;background:#e8f3e5;padding:12px 17px;border-radius:11px;min-height:58px}
+.concept-choice .btn{font-size:17px;padding:9px 12px}
+.concept-input-row{display:grid;grid-template-columns:145px 1fr 63px;align-items:center;gap:13px;font-size:19px;margin:20px 0}
+.concept-input-row .progressbar{height:23px}
+.concept-input-row strong{font-variant-numeric:tabular-nums;font-size:20px}
+.latent-signal{border:1px solid #b6d0bf;border-radius:13px;padding:15px 16px;margin:12px 0;background:white}
+.latent-signal-head{display:flex;align-items:baseline;justify-content:space-between;font-size:24px}
+.latent-signal-head strong{font-size:29px;color:#225b40}
+.latent-story{font-size:18px;color:#577062;margin:4px 0 13px}
+.large-meter{height:24px}
+.concept-final{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;font-size:21px;font-weight:700}
+.teaching-line{background:#e0edda;border-radius:10px;margin-top:18px;padding:12px 16px;font-size:21px;font-weight:740;color:#214934}
+#slide-interaction .layout{grid-template-columns:minmax(0,1.45fr) minmax(330px,.86fr)}
+#slide-interaction .lede{margin-bottom:14px}
+#slide-interaction .rangeRow{margin:7px 0 10px}
+#slide-interaction .rangeTop{font-size:19px}
+.interaction-legend{display:flex;justify-content:space-evenly;flex-wrap:wrap;gap:15px;font-size:20px;font-weight:730;margin-top:7px}
+.legend-dot{display:inline-block;width:15px;height:15px;border-radius:50%;margin-right:7px;vertical-align:middle}.legend-dot.low{background:#4a7cb5}.legend-dot.high{background:#27895c}
+.interaction-scenarios{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.interaction-case{padding:12px;background:white;border:2px solid #ceded1;border-radius:12px}
+.interaction-case.low{border-color:#9ab9dc}.interaction-case.high{border-color:#8bc1a1}
+.interaction-case-title{display:flex;flex-direction:column;font-size:19px}.interaction-case-title span{font-size:15px;color:#607c6b}
+.interaction-before{display:flex;gap:5px;justify-content:space-between;align-items:center;font-size:19px;margin:12px 0 6px}.interaction-before strong{font-size:25px}
+.interaction-mini-bars>div{height:13px;margin:7px 0;background:#4a7cb5;border-radius:6px}.interaction-case.high .interaction-mini-bars>div{background:#27895c}
+.interaction-change{font-size:19px;font-weight:800;margin-top:10px}
+@media(max-width:1050px){.image-network-layout{grid-template-columns:1fr}.image-demo .pixel{width:160px}.image-demo{flex-direction:row;justify-content:center}#slide-interaction .layout{grid-template-columns:1fr}}
+@media(max-width:650px){.concept-input-row{grid-template-columns:115px 1fr 50px;font-size:15px}.interaction-scenarios{grid-template-columns:1fr}.image-demo .pixel{width:140px}.image-insight{font-size:18px}}
+
+
+/* v4: clean projector-friendly image connections, four business inputs, and one intuitive interaction control */
+#slide-4 .slidercols{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#slide-4 .featurecard{padding:10px 12px}
+#slide-4 .rangeRow{margin:6px 0}
+#slide-4 .rangeTop{font-size:18px}
+#slide-4 .network{max-height:460px}
+#slide-interaction .interaction-scenarios{grid-template-columns:1fr 1fr;gap:10px}
+#slide-interaction .interaction-case{padding:11px}
+#slide-interaction .interaction-before strong{font-size:29px}
+.scenario-fixed{font-size:18px;color:#446955;margin:3px 0 14px}
+#slide-0 .image-hero{padding:13px 17px}
+#slide-0 .image-demo .pixel{width:min(100%,250px)}
+#slide-0 #image-network{max-height:535px}
+#slide-0 .image-network-layout{grid-template-columns:minmax(170px,.26fr) minmax(0,1fr)}
+#slide-0 .image-demo .pixel{max-width:245px}
+@media(max-width:700px){#slide-4 .slidercols{grid-template-columns:1fr 1fr}#slide-interaction .interaction-scenarios{grid-template-columns:1fr}}
+
+/* Classroom: prediction against fixed teaching labels (Slide 2). */
+.one-table-wrap{width:100%;overflow-x:auto}
+#neuron-table{font-size:18px;font-variant-numeric:tabular-nums}
+#neuron-table th,#neuron-table td{padding:8px 8px;white-space:nowrap}
+#neuron-table thead th{color:#244638;font-weight:800}
+#neuron-table .wrong{color:#9e3754;font-weight:800}
+#neuron-table .right{color:#257149;font-weight:800}
+#neuron-table tr.mismatch{background:#fff0f1}
+#neuron-table tr.mismatch.chosen{background:#f6dde0}
+.one-accuracy{margin:12px 0 8px;padding:10px 13px;background:#eaf4e9;border:1px solid #bfd8c3;border-radius:11px;display:flex;gap:7px;flex-direction:column}
+.one-accuracy b{color:#153b2d;font-size:21px}
+.one-accuracy span:not(#one-accuracy){color:#536a5e;font-size:15px}
+.one-verdict{background:#e5f3e5;border:1px solid #b9d6be;color:#235b3f;padding:10px 14px;border-radius:10px;font-size:20px;font-weight:750}
+.one-verdict.wrong{background:#fae9ed;border-color:#e7c1cd;color:#982e51}
+/* Classroom: persistent transparent weight matrix (Slide 3). */
+.forward-weights{margin:16px 0 12px;padding:11px 13px;border:1px solid #bfd5c4;border-radius:11px;background:#fffefa}
+.forward-weights h3{font-size:21px;margin:0 0 5px}
+.lecture-weights-table{font-variant-numeric:tabular-nums;font-size:18px}
+.lecture-weights-table td,.lecture-weights-table th{padding:4px 9px}
+.lecture-weights-table td:nth-child(2),.lecture-weights-table td:nth-child(3){font-family:ui-monospace,Consolas,monospace;font-weight:740}
+.forward-weights h4{font-size:18px;line-height:1.2;margin:8px 0 5px;color:var(--deep)}
+.forward-weights h4:first-child{margin-top:0}
+.forward-output-table{margin-top:12px;border-top:2px solid #d8e8db;padding-top:8px}
+.forward-weights .lecture-weights-table td,.forward-weights .lecture-weights-table th{padding:4px 9px}
+@media(max-width:650px){#neuron-table{font-size:15px}.one-accuracy b{font-size:18px}.forward-weights h4{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="app" id="nn-app">
+<header class="mast"><div><div class="brand">Neural Networks · Interactive Classroom Lab</div></div><div class="utility"><button class="btn secondary" id="fullscreen" type="button">⛶ Full screen</button></div></header>
+<div class="bar"><nav aria-label="Choose a slide" class="tabs" id="tabs"></nav><span class="tag" id="counter">1 / 6</span></div>
+<main class="screen">
+<section class="slide active" data-title="1 · Image network" id="slide-0">
+<div class="eyebrow">01 / Big picture · image classification</div><h1>From image pixels to hidden concepts</h1>
+<p class="lede">Switch among <b>House, Tree, and Other</b>. The same pixels feed shared shape detectors; several higher-level concepts contribute to every class.</p>
+<div class="panel image-hero">
+  <div class="image-network-layout">
+    <div class="image-demo"><svg aria-label="Illustrative pixel image" class="pixel" id="pixel-art" role="img" viewBox="0 0 320 320"><rect width="320" height="320" fill="#eff5ed"></rect></svg><strong>IMAGE</strong></div>
+    <svg class="network" id="image-network" role="img" aria-label="Illustrative network with 16 pixel inputs, six low-level detectors, five higher-level concepts, and three softmax classification outputs. All adjacent layers are fully connected, with positive and negative contributions." viewBox="0 0 970 600"></svg>
+  </div>
+  <div class="image-bottom">
+    <div class="controls" style="margin:4px 0"><button class="btn selected" data-animal="house" type="button">🏠 House</button><button class="btn" data-animal="tree" type="button">🌳 Tree</button><button class="btn" data-animal="other" type="button">⚪ Other (ball)</button></div>
+    <div class="controls" style="margin:4px 0"><button class="btn primary" type="button" id="image-next">Light up next layer →</button><button class="btn secondary" type="button" id="image-all">Show all</button><button class="btn secondary" type="button" id="image-reset">Start over</button></div>
+  </div>
+  <div class="image-insight" id="image-details" aria-live="polite">Pixels carry information. Reveal the layers to see which pathways each image activates.</div>
+</div>
+<p class="foot"><strong style="color:#187b51">Green = positive contribution (+)</strong> · <strong style="color:#b54569">Pink = negative contribution (−)</strong> · Thicker = stronger signal. <b>Weights stay fixed</b>; images change the signals through the connections. This is a conceptual, hand-designed model.</p>
+</section>
+<section class="slide" data-title="2 · One neuron" id="slide-2">
+<div class="eyebrow">02 / The mathematics</div><h1>Inside one neuron: multiply → add → activate</h1><p class="lede">Compare fixed example labels with predicted classes. Adjust the weights to see which predictions still match.</p>
+<div class="layout"><div class="panel"><h3>Choose an observation</h3><div class="one-table-wrap"><table class="gridTable" id="neuron-table"><thead><tr><th>Row</th><th>x₁</th><th>x₂</th><th>x₃</th><th>True y</th><th>P(y=1)</th><th>Pred. ŷ</th><th>Match?</th></tr></thead><tbody></tbody></table></div><div class="one-accuracy"><b>Correct predictions: <span id="one-accuracy">4 of 4</span></b><span>True labels (1, 1, 1, 0) are illustrative teaching labels, not observed data. Classification threshold: 0.50.</span></div><div class="controls"><button class="btn secondary" id="reset-lecture">Restore lecture weights</button></div><div class="slidercols" id="neuron-weights"></div><div class="rangeRow"><div class="rangeTop"><label for="neuron-bias">Bias b</label><span class="value" id="neuron-bias-v"></span></div><input id="neuron-bias" max="2" min="-6" step="0.1" type="range" value="-3.5"/></div></div><div class="panel sage"><h3>Follow the calculation</h3><div class="vsum" id="one-products"></div><div class="math" id="one-z"></div><div style="font-size:31px;text-align:center;padding:17px 0">↓ sigmoid activation ↓</div><div class="math" id="one-sig"></div><div class="metric"><span>Neuron's output</span><span class="big" id="one-out"></span></div><div class="one-verdict" id="one-verdict" aria-live="polite"></div><div class="note">The weights and bias determine <b>z</b>. The activation turns z into the neuron's output. Here σ(z) = 1 / (1 + e<sup>−z</sup>).</div></div></div>
+</section>
+<section class="slide" data-title="3 · Forward pass" id="slide-3">
+<div class="eyebrow">03 / Information through layers</div><h1>One layer's outputs become the next layer's inputs</h1><p class="lede">Step through your lecture's <b>3-input → 2-hidden-neuron</b> example and see the weighted connections light up.</p>
+<div class="layout"><div class="panel"><svg aria-label="Three inputs flow through two hidden sigmoid neurons and into one output neuron" class="network" id="lecture-network" role="img" viewbox="0 0 850 490"></svg><div class="stepbuttons"><button class="btn primary" id="forward-next">Next calculation →</button><button class="btn secondary" id="forward-back">← Back</button><button class="btn secondary" id="forward-reset">Reset</button><button class="btn secondary" id="forward-auto">▶ Play</button></div><div class="track" id="forward-track"></div></div><div class="panel sage"><h3 id="forward-heading">Inputs</h3><div class="math" id="forward-math"></div><div class="metric"><span>Selected value</span><strong class="big" id="forward-value"></strong></div>
+<div class="forward-weights" aria-label="Fixed connection weights and biases for both layers">
+ <h4>Input → Hidden Layer</h4>
+ <table class="gridTable lecture-weights-table" aria-label="Weights and biases from inputs to hidden neurons"><thead><tr><th>From</th><th>To h₁</th><th>To h₂</th></tr></thead>
+ <tbody><tr><td>x₁</td><td>0.5</td><td>0.1</td></tr><tr><td>x₂</td><td>1.0</td><td>0.3</td></tr><tr><td>x₃</td><td>0.1</td><td>0.4</td></tr><tr><td>Bias</td><td>−3.5</td><td>−2.0</td></tr></tbody></table>
+ <div class="forward-output-table">
+  <h4>Hidden Layer → Output</h4>
+  <table class="gridTable lecture-weights-table" aria-label="Weights and bias from hidden neurons to output"><thead><tr><th>From</th><th>To output ŷ</th></tr></thead>
+   <tbody><tr><td>h₁</td><td>0.2</td></tr><tr><td>h₂</td><td>0.8</td></tr><tr><td>Bias</td><td>−0.5</td></tr></tbody></table>
+ </div>
+</div><div class="note" id="forward-comment"></div></div></div>
+</section>
+<section class="slide" data-title="4 · Purchase network" id="slide-4">
+<div class="eyebrow">04 / An interactive numerical business example</div><h1>How the network predicts a purchase</h1><p class="lede">All four customer inputs influence both hidden concepts. <b>Visits and cart activity</b> matter more for intent; <b>loyalty and reviews</b> matter more for trust.</p>
+<div class="layout"><div class="panel"><div class="slidercols"><div class="featurecard"><div class="rangeTop"><label for="buy-visit">Website visits</label><b id="buy-visit-v"></b></div><input id="buy-visit" max="6" min="0" step="1" type="range" value="2"/></div><div class="featurecard"><div class="rangeTop"><label for="buy-cart">Cart actions</label><b id="buy-cart-v"></b></div><input id="buy-cart" max="5" min="0" step="1" type="range" value="3"/></div><div class="featurecard"><div class="rangeTop"><label for="buy-loyal">Customer loyalty</label><b id="buy-loyal-v"></b></div><input id="buy-loyal" max="5" min="0" step="1" type="range" value="2"/></div><div class="featurecard"><div class="rangeTop"><label for="buy-review">Positive reviews</label><b id="buy-review-v"></b></div><input id="buy-review" max="5" min="0" step="1" type="range" value="2"/></div></div><svg aria-label="Interactive four-input two-hidden one-output purchase network; all four inputs connect to both latent concepts with unequal positive weights" class="network" id="buy-network" role="img" viewbox="0 0 850 455"></svg><div class="controls"><button class="btn" type="button" data-profile="engaged">High intent</button><button class="btn" type="button" data-profile="loyal">High trust</button><button class="btn" type="button" data-profile="new">Low signals</button><button class="btn secondary" id="buy-reset">Reset all weights</button></div></div><div class="panel sage"><h3>Hidden activations → prediction</h3><p class="small" style="margin:-3px 0 8px">These are <b>independent neuron outputs (0–1)</b>, not percentages and not probabilities.</p><div id="buy-concept-bars"></div><button class="btn secondary" type="button" id="buy-toggle-math" aria-expanded="false">Show calculations</button><div class="mathtiny" id="buy-math" hidden></div><div class="metric"><span>Predicted P(purchase)</span><strong class="big" id="buy-p"></strong></div><div class="meter"><div id="buy-meter"></div></div><div class="panel" id="edge-editor" style="margin-top:15px;background:white"><strong>Click an arrow in the network</strong><p class="small">Adjust the selected connection's weight to see its downstream effect.</p></div><p class="small">These two hidden concepts are intentionally designed for teaching. Actual trained networks may distribute such concepts across many units.</p></div></div>
+</section>
+<section class="slide" data-title="5 · Interactions" id="slide-interaction">
+<div class="eyebrow">05 / Why nonlinear hidden layers matter</div><h1>The effect of browsing depends on cart activity</h1>
+<p class="lede">Two customers have the <b>same loyalty and reviews</b>. Only cart activity differs. Move their <b>website visits</b> together and compare the predictions.</p>
+<div class="layout">
+ <div class="panel"><h3>Two purchase-prediction curves</h3>
+  <svg class="plot" id="interaction-plot" role="img" aria-label="Purchase probability versus website visits for an empty cart and an active cart, with selected visit number" viewBox="0 0 730 405"></svg>
+  <div class="interaction-legend"><span><i class="legend-dot low"></i> Empty cart · 0 actions</span><span><i class="legend-dot high"></i> Active cart · 3 actions</span></div>
+ </div>
+ <div class="panel sage"><h3>Change just one thing: visits</h3>
+  <div class="rangeRow"><div class="rangeTop"><label for="interaction-visits">Website visits</label><strong class="value" id="interaction-visits-v">4</strong></div><input id="interaction-visits" type="range" min="1" max="6" step="1" value="4"></div>
+  <p class="scenario-fixed">Fixed for both: <b>Loyalty 2 / 5</b> · <b>Positive reviews 2 / 5</b></p>
+  <div class="interaction-scenarios" id="interaction-scenarios" aria-live="polite"></div>
+  <div class="teaching-line" id="interaction-story">Both people visit the same number of times, but the network interprets that behavior in context.</div>
+ </div>
+</div>
+<p class="foot">A nonlinear hidden layer can represent context-dependent responses. The final sigmoid also makes probabilities nonlinear; this is an illustrative, not trained, purchase model.</p>
+</section>
+<section class="slide" data-title="6 · Activations" id="slide-5">
+<div class="eyebrow">06 / Why activation functions matter</div><h1>Without nonlinearity, stacking layers adds no new shape</h1><p class="lede">Change the neuron's input z and compare <b>identity</b>, <b>sigmoid</b>, and <b>ReLU</b>—the functions in your lecture.</p>
+<div class="layout equal"><div class="panel"><div class="rangeRow"><div class="rangeTop"><label for="activation-z">Input to activation: z</label><span class="value" id="activation-z-v"></span></div><input id="activation-z" max="5" min="-5" step="0.1" type="range" value="1.0"/></div><div class="controls"><button class="btn selected" data-act="sigmoid">Sigmoid</button><button class="btn" data-act="relu">ReLU</button><button class="btn" data-act="identity">Identity</button></div><svg aria-label="Interactive activation function plot" class="plot" id="activation-plot" role="img" viewbox="0 0 630 375"></svg></div><div class="panel sage"><h3>Current transformation</h3><div class="math" id="activation-formula"></div><div class="metric"><span>Output φ(z)</span><strong class="big" id="activation-result"></strong></div><div class="note"><b>Hidden layers need nonlinear activations.</b> If every hidden layer is just a weighted sum, those layers collapse mathematically into one weighted sum. Nonlinearity allows more flexible patterns.</div><p class="small">Identity: φ(z)=z · Sigmoid: φ(z)=1/(1+e<sup>−z</sup>) · ReLU: φ(z)=max(0,z)</p></div></div>
+</section>
+</main>
+<div class="bottom"><button class="navbtn" id="prev">← Previous</button><span class="footertext">← → to move between slides • Click/tap or drag the controls • Fully offline</span><button class="navbtn next" id="next">Next →</button></div>
+</div>
+<script>
+(()=>{'use strict';
+const root=document.getElementById('nn-app'); if(root.dataset.ready)return;root.dataset.ready='1';const q=s=>root.querySelector(s), qa=s=>[...root.querySelectorAll(s)];
+const fmt=(v,n=2)=>Number.isFinite(v)?v.toFixed(n):'—',sig=z=>1/(1+Math.exp(-z)),clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const svgNS='http://www.w3.org/2000/svg';function S(t,a={},txt){const e=document.createElementNS(svgNS,t);Object.entries(a).forEach(([k,v])=>e.setAttribute(k,String(v)));if(txt!=null)e.textContent=txt;return e}
+function line(svg,x1,y1,x2,y2,color,width=2,extra={}){const e=S('line',{x1,y1,x2,y2,stroke:color,'stroke-width':width,...extra});svg.appendChild(e);return e}
+function label(svg,x,y,str,size=20,color='#244638',anchor='middle',weight='600'){const e=S('text',{x,y,'font-size':size,fill:color,'text-anchor':anchor,'font-weight':weight,'dominant-baseline':'middle'},str);svg.appendChild(e);return e}
+const slides=qa('.slide');let index=0;function show(i){index=clamp(i,0,slides.length-1);slides.forEach((s,j)=>s.classList.toggle('active',j===index));qa('.tab').forEach((b,j)=>{b.classList.toggle('active',j===index);b.setAttribute('aria-current',j===index?'step':'false')});q('#counter').textContent=(index+1)+' / '+slides.length;q('#prev').disabled=index===0;q('#next').disabled=index===slides.length-1;stopForwardAuto();window.scrollTo({top:0,behavior:'instant'});}slides.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b.className='tab';b.textContent=s.dataset.title;b.addEventListener('click',()=>show(i));q('#tabs').append(b)});q('#prev').addEventListener('click',()=>show(index-1));q('#next').addEventListener('click',()=>show(index+1));document.addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;if(e.key==='ArrowRight'){e.preventDefault();show(index+1)}if(e.key==='ArrowLeft'){e.preventDefault();show(index-1)}});q('#fullscreen').addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen?.();else document.documentElement.requestFullscreen?.().catch(()=>{});});
+// 1. Three-class demonstration: one FIXED set of dense positive and negative
+// connections, different activated pathways as the input pixels change.
+// All weights below are hand-designed for illustration, not trained on pictures.
+let animal='house',imageStage=0;
+const imageInputs={
+  house:[0,1,1,0, 1,0,0,1, 1,0,0,1, 1,1,1,1],
+  tree: [0,1,1,0, 1,1,1,1, 0,1,1,0, 0,1,1,0],
+  other:[0,1,1,0, 1,0,0,1, 1,0,0,1, 0,1,1,0]
+};
+// 6 low-level detectors; all 16 pixels connect to every detector, even when weak.
+const pixelPatterns=[
+  {positive:[1,2,4,7],negative:[5,6,9,10]},             // angled/diagonal strokes
+  {positive:[4,7,8,11],negative:[5,6,9,10]},            // side edges
+  {positive:[12,15],negative:[9,10]},                  // bottom corners
+  {positive:[4,5,6,7],negative:[8,11,12,15]},          // leaf texture / filled canopy
+  {positive:[9,10,13,14],negative:[8,11,12,15]},       // middle vertical stem
+  {positive:[1,2,4,7,8,11,13,14],negative:[5,6,9,10,12,15]} // curved outline
+];
+const firstW=Array.from({length:16},(_,i)=>pixelPatterns.map((pat,j)=>
+  pat.positive.includes(i)?3.4/pat.positive.length:
+  pat.negative.includes(i)?-2.4/pat.negative.length:
+  (((i+j)%4)-1.5)*.018
+));
+const firstB=[-1.75,-1.8,-1.75,-1.65,-1.6,-1.65];
+// 6 low-level features → 5 higher-level concepts; ALL links are present.
+// Each feature is composed of evidence across multiple lower-level neurons.
+const conceptW=[
+  [ 2.4, .9,-.7,-.2, .3],  // diagonal strokes
+  [ .4, 2.2,-.5,-.1, .9], // straight sides
+  [1.1, 2.2,-.5,-.5,-1.5],// lower corners
+  [-.8,-.8, 3.2, .6,-.4],// leafy texture
+  [-.3,-.4, 1.1, 3.0,-.8],// central stem
+  [-.2, .3, .2,-.5, 2.9] // rounded contour
+];
+const conceptB=[-1.6,-2.25,-1.8,-1.45,-1.65];
+// Each output combines ALL five high-level concepts. Positive and negative
+// evidence determines House / Tree / Other logits, then a TRUE 3-class softmax.
+const imageOutputW=[
+  [1.5,-1.2,-.6],   // peaked top
+  [3.6,-1.4,-2.0],  // rectangular frame
+  [-1.3,2.8,-.4],   // dense crown
+  [-1.1,2.3,-.4],   // upright support
+  [-3.0,-1.2,5.2]   // closed round loop
+];
+const imageOutputB=[-.2,-.2,-.2];
+function drawPicture(type){
+  const svg=q('#pixel-art');svg.replaceChildren();
+  svg.append(S('rect',{width:320,height:320,fill:'#edf4ee',rx:18}));
+  const edge='#315749',green='#75ab89',accent='#d69c53';
+  if(type==='house'){
+    svg.append(S('rect',{x:105,y:87,width:110,height:88,rx:6,fill:'#d5e8dc',stroke:edge,'stroke-width':7}));
+    svg.append(S('path',{d:'M89 94 L160 26 L231 94 Z',fill:accent,stroke:edge,'stroke-width':8,'stroke-linejoin':'round'}));
+    svg.append(S('rect',{x:149,y:123,width:27,height:52,rx:3,fill:'#86b4cb',stroke:edge,'stroke-width':5}));
+  }else if(type==='tree'){
+    svg.append(S('rect',{x:149,y:98,width:25,height:78,rx:5,fill:'#b07d54',stroke:edge,'stroke-width':4}));
+    [[128,94,36],[177,95,35],[158,63,45]].forEach(([cx,cy,r])=>svg.append(S('circle',{cx,cy,r,fill:green,stroke:edge,'stroke-width':6})));
+  }else{
+    svg.append(S('circle',{cx:160,cy:103,r:74,fill:'#b7d8ec',stroke:edge,'stroke-width':8}));
+    svg.append(S('path',{d:'M120 50 Q160 103 115 155 M200 50 Q160 103 205 155',fill:'none',stroke:'#5b8ca7','stroke-width':5}));
+  }
+  svg.append(S('line',{x1:36,y1:186,x2:284,y2:186,stroke:'#c7dfcc','stroke-width':2}));
+  svg.append(S('text',{x:160,y:204,'text-anchor':'middle','font-family':'system-ui','font-size':14,'font-weight':750,fill:'#456751'},'16 SAMPLED PIXELS'));
+  const grid=imageInputs[type],cell=23,gx=114,gy=216;
+  for(let i=0;i<16;i++){
+    const x=gx+(i%4)*cell,y=gy+Math.floor(i/4)*cell;
+    svg.append(S('rect',{x,y,width:cell-2,height:cell-2,rx:2,fill:grid[i]?'#3b7b59':'#f8fcf8',stroke:'#b3cdb7','stroke-width':1.3}));
+  }
+}
+function renderImage(){
+  drawPicture(animal);
+  qa('[data-animal]').forEach(b=>b.classList.toggle('selected',b.dataset.animal===animal));
+  const svg=q('#image-network');svg.replaceChildren();
+  const X=[72,318,609,900];
+  const yi=Array.from({length:16},(_,i)=>72+i*30.5);
+  const yh=[91,185,279,373,467,561],yc=[110,210,310,410,510],yo=[160,310,460];
+  const inp=imageInputs[animal];
+  const feat=Array.from({length:6},(_,j)=>sig(firstB[j]+inp.reduce((sum,v,i)=>sum+v*firstW[i][j],0)));
+  const concept=Array.from({length:5},(_,j)=>sig(conceptB[j]+feat.reduce((sum,v,i)=>sum+v*conceptW[i][j],0)));
+  const logits=Array.from({length:3},(_,j)=>imageOutputB[j]+concept.reduce((sum,v,i)=>sum+v*imageOutputW[i][j],0));
+  const maxLogit=Math.max(...logits),exps=logits.map(v=>Math.exp(v-maxLogit));
+  const denom=exps.reduce((a,b)=>a+b,0),prob=exps.map(v=>v/denom);
+  // Largest-remainder percentage rounding ensures ALL THREE visible values sum to 100%.
+  const exact=prob.map(v=>100*v),percentage=exact.map(v=>Math.floor(v));
+  const residual=100-percentage.reduce((a,b)=>a+b,0);
+  const order=exact.map((v,i)=>({i,r:v-percentage[i]})).sort((a,b)=>b.r-a.r);
+  for(let k=0;k<residual;k++)percentage[order[k].i]++;
+  [['16 PIXELS',X[0]],['HIDDEN 1 · STROKES',X[1]],['HIDDEN 2 · PARTS',X[2]],['3-CLASS SOFTMAX',X[3]]].forEach(([t,x])=>label(svg,x,26,t,16,'#234837'));
+  const wire=(x1,y1,x2,y2,activation,weight,stage,scale)=>{
+    const on=imageStage>=stage,strength=clamp(Math.abs(activation*weight)/scale,0,1);
+    const opacity=on?(0.06+0.83*strength):.17;
+    const color=on?(weight<0?`rgba(181,69,105,${opacity.toFixed(3)})`:`rgba(27,135,83,${opacity.toFixed(3)})`):'#d6e4d9';
+    line(svg,x1,y1,x2,y2,color,on?(0.65+3.35*strength):.75);
+  };
+  for(let i=0;i<16;i++)for(let j=0;j<6;j++)wire(X[0]+9,yi[i],X[1]-28,yh[j],inp[i],firstW[i][j],1,1.7);
+  for(let i=0;i<6;i++)for(let j=0;j<5;j++)wire(X[1]+28,yh[i],X[2]-33,yc[j],feat[i],conceptW[i][j],2,2.8);
+  for(let i=0;i<5;i++)for(let j=0;j<3;j++)wire(X[2]+33,yc[i],X[3]-37,yo[j],concept[i],imageOutputW[i][j],3,3.6);
+  // Inputs stay neutral; the colored, weighted SIGNALS along their links are emphasized.
+  for(let i=0;i<16;i++)svg.append(S('circle',{cx:X[0],cy:yi[i],r:7.1,fill:'#f4f6f0',stroke:'#769586','stroke-width':1.6}));
+  const glow=(v,phase)=>imageStage>=phase?`rgba(44,170,100,${(.07+.86*clamp(v,0,1)).toFixed(2)})`:'#f1f6f0';
+  const circle=(x,y,r,v,phase)=>svg.append(S('circle',{cx:x,cy:y,r,fill:glow(v,phase),stroke:imageStage>=phase?'#167445':'#afc5b5','stroke-width':imageStage>=phase?3:2}));
+  const lowLabels=['Diagonals','Side edges','Bottom corners','Leaf texture','Center line','Curved edges'];
+  const lowIcons=['╱','│','⌞','⋯','┃','◡'];
+  for(let j=0;j<6;j++){
+    circle(X[1],yh[j],26,feat[j],1);
+    label(svg,X[1],yh[j],imageStage>=1?lowIcons[j]:'?',25);
+    label(svg,X[1],yh[j]+36,lowLabels[j],15,imageStage>=1?'#1e5135':'#95ac9c');
+  }
+  const highLabels=['Peaked top','Box frame','Dense crown','Upright support','Closed loop'];
+  const highIcons=['⌃','▭','☁','┴','◯'];
+  for(let j=0;j<5;j++){
+    circle(X[2],yc[j],30,concept[j],2);
+    label(svg,X[2],yc[j],imageStage>=2?highIcons[j]:'?',25);
+    label(svg,X[2],yc[j]+42,highLabels[j],15,imageStage>=2?'#1e5135':'#95ac9c');
+  }
+  const classes=['House','Tree','Other'];
+  for(let j=0;j<3;j++){
+    circle(X[3],yo[j],36,prob[j],3);
+    label(svg,X[3],yo[j]-10,classes[j],18,imageStage>=3?'#1b4e31':'#91a998');
+    label(svg,X[3],yo[j]+16,imageStage>=3?percentage[j]+'%':'?',21,imageStage>=3?'#1b4e31':'#91a998');
+  }
+  label(svg,X[0],582,'4 × 4 example',16,'#657e6b');
+  if(imageStage>=3)label(svg,X[3],568,`Total = ${percentage.reduce((a,b)=>a+b,0)}%`,17,'#275f43');
+  const stories=[
+    'Every pixel connects to every stroke detector. Switch images to change the strengths of signals—not the fixed weights.',
+    animal==='house'?'The slanted strokes, vertical edges, and bottom corners provide useful evidence.':animal==='tree'?'Filled canopy and central-stem patterns stand out among the same six detectors.':'Rounded outlines stay strong, but the bottom-corner evidence is weaker.',
+    'Five higher-level concepts combine evidence across ALL six lower-level detectors. No single concept is the class label.',
+    `House ${percentage[0]}% · Tree ${percentage[1]}% · Other ${percentage[2]}%. Each output combines all five concepts; softmax totals 100%.`
+  ];
+  q('#image-details').textContent=stories[imageStage];
+  q('#image-next').disabled=imageStage>=3;
+}
+qa('[data-animal]').forEach(b=>b.addEventListener('click',()=>{animal=b.dataset.animal;renderImage()}));
+q('#image-next').addEventListener('click',()=>{imageStage=Math.min(3,imageStage+1);renderImage()});
+q('#image-all').addEventListener('click',()=>{imageStage=3;renderImage()});
+q('#image-reset').addEventListener('click',()=>{imageStage=0;renderImage()});
+// 5. One clear visit slider: compare predictions with/without cart activity.
+function interactionPredict(visits,cart){const f=forward([visits,cart,2,2],buyW,buyB,buyV,buyOutB);return f.p;}
+function renderInteraction(){
+ const visits=+q('#interaction-visits').value,previous=visits-1;
+ q('#interaction-visits-v').textContent=visits;
+ const svg=q('#interaction-plot');svg.replaceChildren();const x0=75,x1=684,y0=43,y1=322;
+ const X=v=>x0+(x1-x0)*v/6,Y=v=>y1-v*(y1-y0);
+ for(let t=0;t<=4;t++){let v=t/4;line(svg,x0,Y(v),x1,Y(v),'#e4ede5',1);label(svg,40,Y(v),Math.round(v*100)+'%',17,'#3e6554');}
+ for(let t=0;t<=6;t++){line(svg,X(t),y0,X(t),y1,'#eaf1e9',1);label(svg,X(t),y1+25,t,17,'#446b53');}
+ line(svg,x0,y1,x1,y1,'#486b5a',2);line(svg,x0,y0,x0,y1,'#486b5a',2);
+ for(const [cart,color] of [[0,'#4a7cb5'],[3,'#27895c']]){
+   let d='';for(let i=0;i<=100;i++){let v=6*i/100;d+=(i?'L':'M')+fmt(X(v),1)+' '+fmt(Y(interactionPredict(v,cart)),1)+' ';}
+   svg.append(S('path',{d,fill:'none',stroke:color,'stroke-width':5,'stroke-linecap':'round'}));
+   // One filled marker per customer: their prediction at the SELECTED visit count.
+   svg.append(S('circle',{cx:X(visits),cy:Y(interactionPredict(visits,cart)),r:10,fill:color,stroke:'#fff','stroke-width':3}));
+ }
+ line(svg,X(visits),y0,X(visits),y1,'#668071',2,{'stroke-dasharray':'7 8'});
+ label(svg,365,387,'Website visits',21);label(svg,92,18,'Purchase probability',21,'#224b37','start');label(svg,X(visits),y0-16,visits+' visits',16,'#264b39');
+ const cases=[{cart:0,cls:'low',name:'Empty cart',caption:'0 cart actions'},{cart:3,cls:'high',name:'Active cart',caption:'3 cart actions'}];
+ q('#interaction-scenarios').innerHTML=cases.map(({cart,cls,name,caption})=>{
+  const old=interactionPredict(previous,cart),next=interactionPredict(visits,cart),delta=(next-old)*100;
+  return `<div class="interaction-case ${cls}"><div class="interaction-case-title"><b>${name}</b><span>${caption}</span></div><div class="interaction-before"><span>At ${visits} visit${visits===1?'':'s'}</span><strong>${fmt(next*100,0)}%</strong></div><div class="interaction-mini-bars"><div style="width:${clamp(next*100,0,100)}%"></div></div><div class="interaction-change">${delta>=0?'+':''}${fmt(delta,1)} points vs. ${previous} visits</div></div>`;
+ }).join('');
+ const lo=100*(interactionPredict(visits,0)-interactionPredict(previous,0));
+ const hi=100*(interactionPredict(visits,3)-interactionPredict(previous,3));
+ q('#interaction-story').textContent=`One more visit (${previous} → ${visits}) changes the prediction by ${fmt(lo,1)} points with an empty cart, versus ${fmt(hi,1)} points with an active cart. ${hi<lo?'The active-cart response is flattening as purchase probability approaches its upper limit.':'Browsing and cart activity reinforce each other here.'}`;
+}
+q('#interaction-visits').addEventListener('input',renderInteraction);
+// 3: exact one-neuron lecture values
+const rows=[[2,3,4],[5,2,3],[3,2,4],[2,1,1]];let row=0;const neuronW=[.5,1,.1];let neuronB=-3.5;const fieldNames=['w₁','w₂','w₃'];// The original slide specifies input rows and initial class decisions, not observed labels.
+// Fixed illustrative truth labels let students evaluate changed model weights.
+const teachingTruth=[1,1,1,0];
+function renderOne(){
+ q('#neuron-table tbody').replaceChildren();
+ let correct=0;
+ rows.forEach((xs,i)=>{
+  const z=xs.reduce((a,x,j)=>a+x*neuronW[j],neuronB), probability=sig(z), predicted=probability>=0.5?1:0, truth=teachingTruth[i], match=predicted===truth;
+  if(match)correct++;
+  const tr=document.createElement('tr');
+  tr.className='choice'+(i===row?' chosen':'')+(match?'':' mismatch');tr.tabIndex=0;
+  tr.setAttribute('aria-label',`Observation ${i+1}: true label ${truth}, predicted class ${predicted}, ${match?'correct':'incorrect'}`);
+  tr.innerHTML=`<td>i${i+1}</td><td>${xs[0]}</td><td>${xs[1]}</td><td>${xs[2]}</td><td><b>${truth}</b></td><td>${fmt(probability,3)}</td><td><b>${predicted}</b></td><td class="${match?'right':'wrong'}">${match?'✓ Yes':'✕ No'}</td>`;
+  tr.addEventListener('click',()=>{row=i;renderOne()});
+  tr.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();row=i;renderOne()}});
+  q('#neuron-table tbody').append(tr)
+ });
+ q('#one-accuracy').textContent=`${correct} of ${rows.length}`;
+ const x=rows[row],products=x.map((v,i)=>v*neuronW[i]),z=products.reduce((a,b)=>a+b,neuronB),p=sig(z);
+ const predicted=p>=.5?1:0,truth=teachingTruth[row],match=predicted===truth;
+ q('#one-products').innerHTML=x.map((v,i)=>`<div class="contrib"><b>x${i+1} × w${i+1}</b><span>${fmt(v,1)} × ${fmt(neuronW[i],1)}</span><b>${fmt(products[i])}</b></div>`).join('');
+ q('#one-z').textContent=`z = ${products.map(v=>fmt(v)).join(' + ')} + (${fmt(neuronB)}) = ${fmt(z)}`;
+ q('#one-sig').textContent=`σ(${fmt(z)}) = ${fmt(p,3)}`;
+ q('#one-out').textContent=fmt(p,3);
+ const verdict=q('#one-verdict');verdict.classList.toggle('wrong',!match);
+ verdict.textContent=`Row i${row+1} • Predicted ${predicted} vs. true ${truth} • ${match?'✓ Match':'✕ Mismatch'}`;
+ q('#neuron-bias-v').textContent=fmt(neuronB,1);if(document.activeElement!==q('#neuron-bias'))q('#neuron-bias').value=neuronB;
+ qa('#neuron-weights input').forEach((e,i)=>{if(document.activeElement!==e)e.value=neuronW[i];e.closest('.featurecard').querySelector('b').textContent=fmt(neuronW[i],1)})
+}
+fieldNames.forEach((name,i)=>{const d=document.createElement('div');d.className='featurecard';d.innerHTML=`<div class="rangeTop"><label for="nw-${i}">${name}</label><b>${neuronW[i]}</b></div><input type="range" id="nw-${i}" min="-1" max="2" step="0.1" value="${neuronW[i]}">`;q('#neuron-weights').append(d);d.querySelector('input').addEventListener('input',e=>{neuronW[i]=+e.target.value;renderOne()})});q('#neuron-bias').addEventListener('input',e=>{neuronB=+e.target.value;renderOne()});q('#reset-lecture').addEventListener('click',()=>{neuronW.splice(0,3,.5,1,.1);neuronB=-3.5;renderOne()});
+// Lecture network exact two hidden weights, second output weights; sigmoid with an explicitly new output bias
+const W0=[[.5,.1],[1,.3],[.1,.4]],B0=[-3.5,-2],V0=[.2,.8],OUT_B=-.5;function forward(x,W=W0,B=B0,V=V0,b=OUT_B){const z=[0,1].map(j=>B[j]+x.reduce((s,xi,i)=>s+xi*W[i][j],0)), h=z.map(sig),s=V.reduce((a,v,j)=>a+v*h[j],0),p=sig(s+b);return{z,h,s,p,zo:s+b}};
+const coords={in:[{x:115,y:96},{x:115,y:240},{x:115,y:384}],h:[{x:465,y:164},{x:465,y:319}],out:{x:755,y:240}};
+function drawNetwork(svg,x,W,B,V,b,phase=5,selected=null,clickEdge=null,hiddenNames=null){svg.replaceChildren();const f=forward(x,W,B,V,b);label(svg,115,35,'INPUTS',21);label(svg,465,35,'HIDDEN LAYER',21);label(svg,758,35,'OUTPUT',21);const col=(v)=>v>=0?'#268a66':'#b95075';for(let i=0;i<3;i++)for(let j=0;j<2;j++){const a=coords.in[i],c=coords.h[j],active=phase>=1,edge=S('line',{x1:a.x+37,y1:a.y,x2:c.x-38,y2:c.y,stroke:active?col(W[i][j]):'#c5d8cb','stroke-width':active?3.7:2,opacity:active?.9:.4});if(clickEdge){edge.classList.add('click-node');edge.setAttribute('tabindex','0');edge.style.cursor='pointer';edge.setAttribute('aria-label',`Edit weight from input ${i+1} to hidden neuron ${j+1}`);edge.addEventListener('click',()=>clickEdge({type:'W',i,j}));edge.addEventListener('keydown',e=>{if(e.key==='Enter')clickEdge({type:'W',i,j})})}if(selected?.type==='W'&&selected.i===i&&selected.j===j){edge.setAttribute('stroke','#d9801e');edge.setAttribute('stroke-width',7)}svg.append(edge)}for(let j=0;j<2;j++){const a=coords.h[j],c=coords.out,active=phase>=3,edge=S('line',{x1:a.x+37,y1:a.y,x2:c.x-41,y2:c.y,stroke:active?col(V[j]):'#c5d8cb','stroke-width':active?4:2,opacity:active?.9:.4});if(clickEdge){edge.classList.add('click-node');edge.setAttribute('tabindex','0');edge.style.cursor='pointer';edge.setAttribute('aria-label',`Edit weight from hidden ${j+1} to output`);edge.addEventListener('click',()=>clickEdge({type:'V',j}));edge.addEventListener('keydown',e=>{if(e.key==='Enter')clickEdge({type:'V',j})})}if(selected?.type==='V'&&selected.j===j){edge.setAttribute('stroke','#d9801e');edge.setAttribute('stroke-width',7)}svg.append(edge)}x.forEach((v,i)=>{const c=coords.in[i];svg.append(S('circle',{cx:c.x,cy:c.y,r:38,fill:'#e1efe5',stroke:'#357a5c','stroke-width':3}));label(svg,c.x,c.y-10,'x'+(i+1),18);label(svg,c.x,c.y+14,fmt(v,0),21,'#173b2a')});for(let j=0;j<2;j++){const c=coords.h[j];svg.append(S('circle',{cx:c.x,cy:c.y,r:40,fill:phase>=2?'#9bd9b5':'#e1efe5',stroke:'#29845a','stroke-width':3}));label(svg,c.x,c.y-13,'h'+(j+1),20);label(svg,c.x,c.y+17,phase>=2?fmt(f.h[j],3):(phase>=1?'z='+fmt(f.z[j]):'—'),phase>=2?23:17);if(hiddenNames){label(svg,c.x,c.y-58,hiddenNames[j],21,'#225d42')}}svg.append(S('circle',{cx:coords.out.x,cy:coords.out.y,r:42,fill:phase>=4?'#f7d8a8':'#e6eee4',stroke:'#c88339','stroke-width':3}));label(svg,coords.out.x,coords.out.y-13,'p',23);label(svg,coords.out.x,coords.out.y+15,phase>=4?fmt(f.p,3):phase>=3?fmt(f.s,3):'—',23);label(svg,330,447,'Each connection carries: value × weight',20,'#4b6557');return f;}
+let phase=0,forwardTimer=null;function stopForwardAuto(){if(forwardTimer){clearInterval(forwardTimer);forwardTimer=null;q('#forward-auto').textContent='▶ Play'}}const forwardMessages=[['Inputs','x = (2, 3, 4)','The original features enter the network.'],['Multiply, sum, add bias','z₁ = 2×0.5 + 3×1 + 4×0.1 − 3.5 = 0.9\nz₂ = 2×0.1 + 3×0.3 + 4×0.4 − 2 = 0.7','Each hidden neuron has its own incoming weights and bias.'],['Apply activation','h₁ = σ(0.9) = 0.711\nh₂ = σ(0.7) = 0.668','The hidden outputs become the NEXT layer’s input values.'],['Combine hidden outputs','s = 0.2×h₁ + 0.8×h₂ ≈ 0.677','This is the weighted sum on lecture page 23.'],['Final classification probability','p = σ(s − 0.5) ≈ 0.544','For this demo we add an output bias (−0.5) and a final sigmoid to produce a probability.']];function renderForward(){const f=drawNetwork(q('#lecture-network'),rows[0],W0,B0,V0,OUT_B,phase);q('#forward-heading').textContent=forwardMessages[phase][0];q('#forward-math').textContent=forwardMessages[phase][1].replace('≈ 0.677',`≈ ${fmt(f.s,3)}`).replace('≈ 0.544',`≈ ${fmt(f.p,3)}`);q('#forward-math').style.whiteSpace='pre-line';q('#forward-comment').textContent=forwardMessages[phase][2];q('#forward-value').textContent=[ '2, 3, 4',fmt(f.z[0])+' / '+fmt(f.z[1]),fmt(f.h[0],3)+' / '+fmt(f.h[1],3),fmt(f.s,3),fmt(f.p,3)][phase];q('#forward-track').replaceChildren();['Inputs','z = Wx + b','h = σ(z)','s = Vh','p = σ(s + b)'].forEach((str,i)=>{const e=document.createElement('span');e.className='phase'+(phase===i?' on':'');e.textContent=str;q('#forward-track').append(e)});q('#forward-next').disabled=phase===4;q('#forward-back').disabled=phase===0;}
+q('#forward-next').addEventListener('click',()=>{stopForwardAuto();phase=Math.min(4,phase+1);renderForward()});q('#forward-back').addEventListener('click',()=>{stopForwardAuto();phase=Math.max(0,phase-1);renderForward()});q('#forward-reset').addEventListener('click',()=>{stopForwardAuto();phase=0;renderForward()});q('#forward-auto').addEventListener('click',()=>{if(forwardTimer){stopForwardAuto();return}phase=0;renderForward();q('#forward-auto').textContent='⏸ Pause';forwardTimer=setInterval(()=>{if(phase>=4){stopForwardAuto();return}phase++;renderForward()},1250)});
+// 4. Purchase model: all 4 inputs reach both concepts, with differing influences.
+// Intentionally hand-designed weights (not learned from real customers).
+const BUY_W0=[[.80,.50],[1.05,.36],[.40,.95],[.35,1.25]],BUY_B0=[-5.3,-6.8],BUY_V0=[3.1,2.9],BUY_OUT_B0=-2.8;
+let buyX=[2,3,2,2],buyW=BUY_W0.map(a=>[...a]),buyB=[...BUY_B0],buyV=[...BUY_V0],buyOutB=BUY_OUT_B0,selectedEdge=null;
+const BUY_NAMES=['Visits','Cart','Loyalty','Reviews'];
+function drawPurchaseNetwork(svg,x,W,B,V,outB,chosen,clickEdge){
+ const f=forward(x,W,B,V,outB);svg.replaceChildren();
+ const xp=125,xh=473,xo=765,ys=[65,170,275,380],yh=[150,310],yo=225;
+ label(svg,xp,19,'CUSTOMER INPUTS',19);label(svg,xh,19,'HIDDEN CONCEPTS',19);label(svg,xo,19,'PREDICTION',19);
+ function edge(x1,y1,x2,y2,weight,magnitude,obj){
+   const alpha=.20+.75*clamp(magnitude/5,0,1),width=1.9+4.5*clamp(magnitude/5,0,1);
+   const e=line(svg,x1,y1,x2,y2,weight<0?`rgba(181,69,105,${alpha})`:`rgba(34,132,87,${alpha})`,width);
+   if(obj){const hit=line(svg,x1,y1,x2,y2,'transparent',17);hit.style.cursor='pointer';hit.style.pointerEvents='stroke';hit.setAttribute('tabindex','0');hit.setAttribute('aria-label',`Edit ${obj.type==='W'?BUY_NAMES[obj.i]+' to '+(obj.j?'Trust':'Intent'):'hidden unit to output'} connection`);hit.addEventListener('click',()=>clickEdge(obj));hit.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();clickEdge(obj)}});}
+   if(chosen && chosen.type===obj?.type && chosen.i===obj.i && chosen.j===obj.j)line(svg,x1,y1,x2,y2,'#de8c22',2,{'stroke-dasharray':'4 9','pointer-events':'none'});
+ }
+ for(let i=0;i<4;i++)for(let j=0;j<2;j++)edge(xp+36,ys[i],xh-41,yh[j],W[i][j],Math.abs(x[i]*W[i][j]),{type:'W',i,j});
+ for(let j=0;j<2;j++)edge(xh+41,yh[j],xo-43,yo,V[j],Math.abs(f.h[j]*V[j])*1.8,{type:'V',j});
+ for(let i=0;i<4;i++){svg.append(S('circle',{cx:xp,cy:ys[i],r:34,fill:'#e2f0e6',stroke:'#398a65','stroke-width':3}));label(svg,xp,ys[i]-7,BUY_NAMES[i],15);label(svg,xp,ys[i]+15,String(x[i]),21);}
+ for(let j=0;j<2;j++){svg.append(S('circle',{cx:xh,cy:yh[j],r:43,fill:j?'#c6dfed':'#bce7cf',stroke:j?'#4e7daf':'#29845a','stroke-width':3.5}));label(svg,xh,yh[j]-9,j?'TRUST':'INTENT',18);label(svg,xh,yh[j]+19,fmt(f.h[j],2),23);}
+ svg.append(S('circle',{cx:xo,cy:yo,r:43,fill:'#f2e5c6',stroke:'#b27c30','stroke-width':3.5}));label(svg,xo,yo-11,'BUY?',21);label(svg,xo,yo+17,fmt(100*f.p,0)+'%',23);
+ label(svg,430,449,'Bright connections carry stronger weighted signals',18,'#577160');return f;
+}
+function renderBuy(){
+ const f=drawPurchaseNetwork(q('#buy-network'),buyX,buyW,buyB,buyV,buyOutB,selectedEdge,edge=>{selectedEdge=edge;renderBuy()});
+ ['visit','cart','loyal','review'].forEach((name,i)=>{const el=q('#buy-'+name);if(document.activeElement!==el)el.value=buyX[i];q('#buy-'+name+'-v').textContent=`${buyX[i]}/${i===0?6:5}`;});
+ const ex=j=>buyX.map((x,i)=>`${fmt(x,0)}×(${fmt(buyW[i][j],2)})`).join(' + ')+` + (${fmt(buyB[j],2)})`;
+ q('#buy-math').innerHTML=`<div class="concept-calculation"><b>Hidden 1 · Purchase intent</b><br>z₁ = ${ex(0)} = <b>${fmt(f.z[0],2)}</b><br>σ(z₁) = <b>${fmt(f.h[0],3)}</b></div>
+ <div class="concept-calculation"><b>Hidden 2 · Customer trust</b><br>z₂ = ${ex(1)} = <b>${fmt(f.z[1],2)}</b><br>σ(z₂) = <b>${fmt(f.h[1],3)}</b></div>
+ <div class="concept-calculation"><b>Output layer</b><br>z = ${fmt(buyV[0],2)} × ${fmt(f.h[0],3)} + ${fmt(buyV[1],2)} × ${fmt(f.h[1],3)} + (${fmt(buyOutB,2)}) = <b>${fmt(f.zo,3)}</b><br>p = σ(z) = <b>${fmt(f.p,3)}</b></div>`;
+ q('#buy-concept-bars').innerHTML=[['Purchase intent',f.h[0]],['Customer trust',f.h[1]]].map(([name,v],i)=>`<div class="buy-signal"><div class="latent-signal-head"><span>${name}</span><b>${fmt(v,3)}</b></div><div class="meter large-meter"><div style="width:${clamp(v*100,0,100)}%;background:${i?'#517db0':'#328763'}"></div></div></div>`).join('');
+ q('#buy-p').textContent=fmt(100*f.p,1)+'%';q('#buy-meter').style.width=100*f.p+'%';renderEdgeEditor();renderInteraction();
+}
+q('#buy-toggle-math').addEventListener('click',()=>{const el=q('#buy-math');el.hidden=!el.hidden;q('#buy-toggle-math').textContent=el.hidden?'Show calculations':'Hide calculations';q('#buy-toggle-math').setAttribute('aria-expanded',String(!el.hidden));});
+function renderEdgeEditor(){
+ const el=q('#edge-editor');if(!selectedEdge){el.dataset.key='';el.innerHTML='<strong>Click a connection in the network</strong><p class="small">Change its weight and see the hidden concept and prediction respond.</p>';return}
+ const edge=selectedEdge,v=edge.type==='W'?buyW[edge.i][edge.j]:buyV[edge.j],str=edge.type==='W'?`${BUY_NAMES[edge.i]} → ${['Intent','Trust'][edge.j]}`:`${['Intent','Trust'][edge.j]} → Output`,key=edge.type+':'+(edge.i??'-')+':'+edge.j;
+ if(el.dataset.key===key){const value=el.querySelector('.value');if(value)value.textContent=fmt(v,2);const slider=el.querySelector('input');if(slider&&document.activeElement!==slider)slider.value=v;return;}
+ el.dataset.key=key;el.replaceChildren();const title=document.createElement('div');title.className='rangeTop';const a=document.createElement('strong');a.textContent=str;const b=document.createElement('span');b.className='value';b.textContent=fmt(v,2);title.append(a,b);
+ const input=document.createElement('input');input.type='range';input.min=-2;input.max=4;input.step=.05;input.value=v;input.setAttribute('aria-label',`Weight of ${str}`);
+ input.addEventListener('input',()=>{if(edge.type==='W')buyW[edge.i][edge.j]=+input.value;else buyV[edge.j]=+input.value;renderBuy()});el.append(title,input);
+}
+['visit','cart','loyal','review'].forEach((name,i)=>q('#buy-'+name).addEventListener('input',e=>{buyX[i]=+e.target.value;renderBuy()}));
+qa('[data-profile]').forEach(b=>b.addEventListener('click',()=>{buyX=[...{engaged:[5,5,2,2],loyal:[2,1,5,5],new:[1,0,0,0]}[b.dataset.profile]];renderBuy()}));
+q('#buy-reset').addEventListener('click',()=>{buyW=BUY_W0.map(a=>[...a]);buyB=[...BUY_B0];buyV=[...BUY_V0];buyOutB=BUY_OUT_B0;selectedEdge=null;buyX=[2,3,2,2];renderBuy()});
+// 6: activations
+let currentAct='sigmoid';const funcs={sigmoid:sig,relu:z=>Math.max(0,z),identity:z=>z};function renderAct(){const z=+q('#activation-z').value,f=funcs[currentAct],value=f(z);q('#activation-z-v').textContent=fmt(z,1);q('#activation-result').textContent=fmt(value,3);q('#activation-formula').textContent=({sigmoid:`σ(${fmt(z,1)}) = 1 / (1 + e^(−${fmt(z,1)}))`,relu:`ReLU(${fmt(z,1)}) = max(0, ${fmt(z,1)})`,identity:`Identity(${fmt(z,1)}) = ${fmt(z,1)}`})[currentAct];qa('[data-act]').forEach(b=>b.classList.toggle('selected',b.dataset.act===currentAct));const svg=q('#activation-plot');svg.replaceChildren();const X=n=>75+490*(n+5)/10,Y=n=>330-(n+5)*28;for(let t=-5;t<=5;t++){line(svg,X(t),35,X(t),330,'#e3eae0',1);if(t%2===0)label(svg,X(t),345,t,14)}for(let t=-5;t<=5;t++){line(svg,75,Y(t),570,Y(t),'#e3eae0',1);if(t%2===0)label(svg,52,Y(t),t,14)}line(svg,X(-5),Y(0),X(5),Y(0),'#71897b',2);line(svg,X(0),35,X(0),330,'#71897b',2);let d='';for(let i=0;i<=250;i++){const xx=-5+10*i/250;d+=(i?'L':'M')+X(xx).toFixed(2)+' '+Y(f(xx)).toFixed(2)+' '}svg.append(S('path',{d,fill:'none',stroke:'#29875e','stroke-width':5}));svg.append(S('circle',{cx:X(z),cy:Y(value),r:10,fill:'#d97939',stroke:'white','stroke-width':3}));label(svg,592,329,'z',19);label(svg,76,17,'φ(z)',20)}q('#activation-z').addEventListener('input',renderAct);qa('[data-act]').forEach(b=>b.addEventListener('click',()=>{currentAct=b.dataset.act;renderAct()}));
+renderImage();renderOne();renderForward();renderBuy();renderAct();show(0);
+})();
+</script>
+</body></html>
