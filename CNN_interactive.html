@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>CNN Pattern Detective — Interactive Teaching Slides</title>
+<style>
+:root{--ink:#14263d;--muted:#4b6177;--line:#d2e0eb;--soft:#f1f6f9;--green:#087e70;--blue:#315da2;--orange:#cc811e;--rose:#ae4973;--white:#fff;--navy:#183556}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f8fa;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:4px solid #e9a53a;outline-offset:2px}button:disabled{opacity:.42;cursor:default}
+.top{background:#fff;position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);padding:12px clamp(12px,2.2vw,32px);display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{font-size:21px;font-weight:900;white-space:nowrap}.tabs{display:flex;gap:8px;flex:1;flex-wrap:wrap}
+.navtab{font-size:16px;font-weight:800;border-radius:11px;border:1.5px solid #becfdd;padding:12px 18px;background:#fff;color:#314e69;min-height:46px}
+.navtab.active{background:var(--navy);color:white;border-color:var(--navy)}.navtab:hover:not(.active){background:#e9f3fa}
+.slide{display:none;max-width:1540px;padding:clamp(14px,1.7vw,26px) clamp(13px,2.4vw,34px) 40px;margin:auto}.slide.active{display:block}
+h1{font-size:clamp(30px,2.7vw,44px);line-height:1.13;letter-spacing:-.04em;margin:0 0 7px}
+.sub{font-size:clamp(17px,1.35vw,21px);color:var(--muted);margin:0 0 17px;line-height:1.37}
+.card{border:1px solid var(--line);border-radius:17px;background:white;padding:clamp(12px,1.2vw,19px);min-width:0;box-shadow:0 2px 5px #2947620d}
+.card h2{font-size:clamp(19px,1.5vw,25px);margin:0 0 12px}.kicker{font-size:15px;letter-spacing:.07em;text-transform:uppercase;font-weight:900;color:var(--muted);margin:0 0 9px}
+.layout1{display:grid;grid-template-columns:minmax(370px,1.1fr) minmax(205px,.56fr) minmax(275px,.77fr);gap:15px;align-items:start}
+.layout2{display:grid;grid-template-columns:minmax(355px,.95fr) minmax(490px,1.1fr);gap:17px}
+.layout3{display:grid;grid-template-columns:minmax(220px,.60fr) minmax(250px,1fr) minmax(250px,1fr);gap:15px;align-items:start}
+.imageGrid{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(16,minmax(0,1fr));grid-template-rows:repeat(16,minmax(0,1fr));position:relative;max-width:490px;margin:auto;background:#e9f0f6;border:2px solid #8ba0b2;border-radius:7px;overflow:hidden;touch-action:pan-y}
+.pix{border:1px solid #cedae4;background:#fff}.pix.on{background:#263d51;border-color:#768c9e}
+.window{position:absolute;border:4px solid #eeab3c;box-shadow:0 0 0 2px #fff8;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);cursor:grab;touch-action:none;border-radius:2px;pointer-events:auto}.window.grab{cursor:grabbing}
+.cellOverlay{border:1px solid #fefefe77}.cellOverlay.hit{background:#00a38a88}.cellOverlay.miss{background:#f1a13d8c}.cellOverlay.extra{background:#d2549288}.cellOverlay.blank{background:#c7e0f126}
+.eyebrow{font-size:16px;font-weight:850;color:var(--muted);margin:9px 0 6px}.flexrow{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.controls{margin:14px 0 10px}
+.btn{border:1.6px solid #aebfd0;background:white;border-radius:11px;font-size:17px;padding:11px 14px;color:var(--ink);font-weight:800;min-height:46px;white-space:normal}
+.btn:hover{background:#ebf3f8}.btn.primary,.btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.stride{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:19px;font-weight:800;margin:12px 0}.stride .btn{padding:8px 16px;min-height:42px}
+.range{width:100%;height:32px;accent-color:#148d7b;cursor:pointer;touch-action:pan-y}
+.position{font-size:18px;font-weight:850;padding:7px 11px;background:#eaf3fb;border-radius:9px;color:#254a72;display:inline-block}
+.note{font-size:16px;color:#4a6278;line-height:1.45;margin:10px 0}.focusNote{font-size:19px;font-weight:700;line-height:1.4;margin:12px 0}
+.kernelGrid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);aspect-ratio:1;max-width:155px;width:100%;margin:8px auto 18px;border:2px solid #91a6b9;border-radius:6px;overflow:hidden}
+.kernelGrid span{border:1px solid #cbd8e1;background:#fff}.kernelGrid span.on{background:#263d51}
+.kernelOpt{width:100%;text-align:left;display:flex;align-items:center;gap:10px}
+.mini{width:29px;height:29px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:1px;flex-shrink:0}.mini i{background:#e0e8ef}.mini i.on{background:currentColor}
+.evidenceSwatch{width:min(100%,190px);height:82px;margin:10px 0 8px;border:2px solid #b4c7d6;border-radius:12px;background:#f2f5f8;box-shadow:inset 0 0 0 3px #ffffff55;transition:background-color .18s}.score{font-size:clamp(42px,4vw,60px);font-weight:900;color:var(--green);line-height:1.05;margin:7px 0}.scoreCaption{font-size:21px;font-weight:800}.bar{height:17px;background:#e7edf2;border-radius:50px;margin:12px 0;overflow:hidden}.bar div{height:100%;background:linear-gradient(90deg,#efba67,#0d9d88);width:0;transition:width .1s}
+.legend{font-size:15px;font-weight:650;color:var(--muted);display:flex;flex-wrap:wrap;gap:9px}.sw{display:inline-block;width:13px;height:13px;border-radius:3px;margin-right:3px;vertical-align:middle}.sw.match{background:#00a38a}.sw.missing{background:#f1a13d}.sw.extra{background:#d25492}
+.mapWrap{margin:10px auto;max-width:380px}.mapGrid{display:grid;gap:1px;aspect-ratio:1;background:#d3e0e8;border:1px solid #a9c4d4;width:100%;border-radius:6px;overflow:hidden}.mapCell{position:relative;min-width:0;min-height:0;border:0;padding:0;background:#f3f6f9;display:grid;place-items:center;color:#17324d;font-weight:800;font-size:clamp(10px,.9vw,15px)}.mapCell.visited{background:var(--vcolor)}.mapCell.chosen{outline:3px solid #eea134;outline-offset:-3px;z-index:4}.mapCell:hover{outline:2px solid var(--navy);outline-offset:-2px}.mapCell.noVisit{background:#eff3f7}
+.mapCaption{font-size:15px;color:var(--muted);font-weight:700;text-align:center;margin:8px 0 0}
+.mathLabels{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:7px}.mathLabels strong{font-size:20px}
+.mathMatrices{display:flex;align-items:center;gap:9px;justify-content:space-around;margin:15px 0}.matBox{min-width:0;flex:1}.matBox b{font-size:17px;display:block;text-align:center;margin-bottom:7px}.matrix{display:grid;grid-template-columns:repeat(3,1fr);aspect-ratio:1;gap:3px;width:min(100%,165px);margin:auto}.matrix div{display:grid;place-items:center;background:#eef3f8;font-size:clamp(17px,2vw,26px);font-weight:800;border-radius:5px}.matrix div.pos{background:#cbeee3;color:#005849}.matrix div.neg{background:#f9dfe6;color:#9a315b}.matrix div.mathHidden{background:#eef3f8;color:#8296a7;border:2px dashed #cad8e4}.mathRevealActions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 4px}.mathRevealHint{font-size:15px;font-weight:700;color:#566d83;line-height:1.4}.mathOp{font-size:32px;font-weight:850;color:#60758a}
+.sumCard{margin-top:12px;border:1px solid var(--line);background:#f1f7fa;padding:13px;border-radius:11px;text-align:center}.sumMath{font-size:clamp(17px,1.5vw,22px);font-weight:800;line-height:1.55;word-wrap:break-word}.answer{color:var(--green);font-weight:900;font-size:33px;margin:8px 0}.callout{border-left:6px solid #2c9c89;background:#e9f7f2;border-radius:5px;padding:12px 15px;font-size:19px;line-height:1.4;margin-top:13px}
+.mathSide{display:grid;grid-template-columns:minmax(180px,1fr) minmax(180px,1fr);gap:13px}.mathSide .imageGrid{max-width:350px}.mathSide .mapWrap{max-width:350px}
+.stagebtn{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px}.panelHead{display:flex;gap:6px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.resultKernel{width:56px;height:56px;margin:0;flex-shrink:0;border-width:1px}.resultCol .mapWrap{max-width:310px}.resultCol h2{margin:0}
+.poolSourceWrap{position:relative;margin:10px auto;max-width:285px;width:100%;min-width:0}.poolSourceWrap .mapWrap{margin:0;max-width:none}.poolWindow{position:absolute;z-index:5;border:4px solid #e39d31;box-shadow:0 0 0 2px #fff8;pointer-events:none;transition:left .12s,top .12s}
+.poolDestWrap{max-width:175px;width:100%;min-width:0;margin:8px auto}.poolInfo{font-size:17px;font-weight:800;color:#285172;text-align:center;margin-top:8px}.poolFlow{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.8fr);gap:8px;align-items:center;width:100%}
+.stageStatus{font-size:clamp(18px,1.6vw,24px);font-weight:800;margin:16px 0;color:#1e5068}.footer{max-width:1540px;padding:0 30px 18px;margin:auto;color:var(--muted);font-size:14px}
+@media(max-width:1150px){.layout1{grid-template-columns:minmax(350px,1.3fr) minmax(240px,.8fr)}.layout1>.card:last-child{grid-column:1/-1}.layout2{grid-template-columns:1fr}.layout3{grid-template-columns:1fr 1fr}.layout3>.card:first-child{grid-column:1/-1}.layout3 .imageGrid{max-width:340px}.tabs{order:2;flex-basis:100%}}
+@media(max-width:680px){.layout1,.layout2,.layout3{grid-template-columns:1fr}.layout3>.card:first-child,.layout1>.card:last-child{grid-column:auto}.top{gap:10px}.tabs{gap:5px}.navtab{padding:8px 9px;font-size:13px;flex:1}.brand{font-size:18px}.mathSide{grid-template-columns:1fr 1fr}.mathMatrices{gap:3px}.matrix div{font-size:17px}.mathOp{font-size:22px}.poolFlow{gap:4px}}
+
+.biasControls{display:grid;grid-template-columns:1fr 1fr;gap:11px;background:#f3f7fa;border:1px solid var(--line);border-radius:12px;padding:12px;margin:14px 0}
+.biasControls label,.fcControl label{display:block;font-size:17px;font-weight:850}.biasControls strong,.fcControl strong{color:var(--green)}
+.layout4{display:grid;grid-template-columns:minmax(350px,.88fr) minmax(420px,1.12fr);gap:16px;align-items:start}
+.flatMapPair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.flatMapPair .mapGrid{max-width:270px;margin:auto}.flatMapPair .kicker{text-align:center}
+.flatVector{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin:12px 0;padding:11px;background:#f4f7fa;border:1px solid #d7e3ee;border-radius:13px;max-height:495px;overflow:auto}
+.flatEntry{border:1px solid #c6d6e3;padding:5px 2px;background:#fff;border-radius:6px;min-width:0;min-height:45px;font-size:clamp(12px,1vw,15px);font-weight:850;color:#264767;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.flatEntry small{font-size:10px;color:#687f94;font-weight:750}.flatEntry.selected,.flatMapPair .mapCell.selected{background:#fff0c9!important;outline:3px solid #d99018;outline-offset:-3px;position:relative;z-index:2}
+.flatEntry.windowEntry{border-bottom:3px solid #6387c4}.flatEntry.roofEntry{border-bottom:3px solid #2b9a85}
+.layout5{display:grid;grid-template-columns:minmax(460px,1.25fr) minmax(300px,.75fr);gap:17px;align-items:start}
+#denseSvg5{display:block;width:100%;max-width:760px;margin:auto;border-radius:12px;background:#f5f9fc;border:1px solid #dce7ef}
+#denseSvg5 text{font-family:Inter,system-ui,sans-serif;fill:#20364b;font-weight:800}
+.denseReadout{border:1px solid var(--line);border-radius:11px;padding:11px 14px;margin:10px 0;background:#f4f8fa}
+.denseNumber{font-size:clamp(26px,2.7vw,40px);font-weight:900;color:var(--green)}.denseTwo{font-size:20px;font-weight:850;line-height:1.45}
+.fcControl{margin:9px 0}.fcControl .range{height:25px}
+@media(max-width:1150px){.layout4,.layout5{grid-template-columns:1fr}.flatVector{max-height:none}}
+@media(max-width:680px){.flatVector{grid-template-columns:repeat(7,minmax(0,1fr))}.flatMapPair{gap:6px}.biasControls{grid-template-columns:1fr}.flatEntry{min-height:40px}}
+
+/* Six-stage classroom pipeline */
+.biasTop{margin-bottom:15px}.biasTop .stagebtn{margin:0}.biasTop .biasControls{margin:12px 0 0;display:grid;grid-template-columns:1fr 1fr minmax(220px,.85fr)}.biasGrid{display:grid;grid-template-columns:minmax(290px,1fr) minmax(290px,1fr) minmax(275px,.8fr);gap:14px;align-items:start}
+.largeMap{max-width:435px;margin:auto}.largeMap .mapCell{font-size:clamp(11px,.88vw,15px)}.biasDetails{height:100%}.mathTimeline{margin-top:15px;display:grid;gap:9px}.mathTimeline>div{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #dce7ee;padding:10px 4px;font-size:18px}.mathTimeline strong{font-size:27px;color:#146e66}
+.poolOptions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:14px}.optionField label{display:block;font-size:17px;font-weight:850;margin:0 0 7px}.optionField select{width:100%;font-size:18px;font-weight:700;border:2px solid #bbcedb;background:#fff;border-radius:10px;padding:11px;min-height:48px;color:var(--ink)}.poolLayout{display:grid;grid-template-columns:minmax(280px,1.08fr) minmax(270px,.9fr) minmax(280px,.83fr);gap:14px;align-items:start}.poolBigSource{max-width:450px;margin:auto;position:relative}.poolBigOutput{max-width:380px;margin:auto}.poolBigSource .mapCell{font-size:clamp(11px,.9vw,16px)}.poolBigOutput .mapCell{font-size:clamp(18px,1.5vw,27px)}.poolAnswer{color:var(--green);font-size:clamp(29px,2.9vw,43px);font-weight:900;margin:19px 0 4px}.poolLayout .poolWindow{border-width:5px}
+.flatVectorLine{display:flex;align-items:center;gap:7px;margin-top:12px;min-width:0}.vectorSymbol{font-size:21px;color:#264767;font-weight:900;flex:none;white-space:nowrap}.flatReveal{display:grid;grid-template-columns:repeat(18,35px);gap:3px;align-items:center;align-content:center;max-height:none;min-height:94px;overflow-x:auto;overflow-y:hidden;flex:1;min-width:0;margin:0;padding:9px 6px;scrollbar-width:thin}.flatReveal .flatEntry{min-width:0;max-width:none;width:35px;min-height:52px;font-size:11px;padding:4px 1px;gap:3px}.flatReveal .flatEntry small{font-size:11px;font-weight:900;color:#35516b}.flatPrompt{font-size:17px;color:var(--muted);font-weight:750;align-self:center;text-align:left;width:max-content;grid-column:1/-1;padding:9px 6px}.flatMapPair .mapGrid .mapCell{font-size:25px}.flatReveal .flatEntry:last-child{outline:2px solid #eca739;outline-offset:1px}.largeMap.sigmoidMap .mapCell,.poolBigSource.sigmoidMap .mapCell{font-size:10px;letter-spacing:-.03em}.activationChoiceLabel{font-size:17px;font-weight:850;margin:0 0 7px}.activationChoices{display:flex;gap:7px;flex-wrap:wrap}.activationChoices .btn{padding:7px 13px;font-size:16px;min-height:42px}.activationGuide{font-size:16px;color:#48647c;margin:12px 5px 0;line-height:1.4}
+.denseLayout{display:grid;grid-template-columns:minmax(560px,1.45fr) minmax(300px,.65fr);gap:16px;align-items:start}#denseSvg6{width:100%;height:auto;min-height:430px}.denseFacts .denseReadout{padding:13px;margin:12px 0}.denseLine{font-size:clamp(17px,1.5vw,24px);font-weight:850;line-height:1.6;color:#1d6980;overflow-wrap:anywhere}.denseFacts .sumCard{font-size:18px;line-height:1.45;text-align:left}
+@media(max-width:1200px){.biasGrid,.poolLayout{grid-template-columns:1fr 1fr}.biasGrid .biasDetails,.poolLayout>.card:last-child{grid-column:1/-1}.denseLayout{grid-template-columns:1fr}.denseFacts{display:grid;grid-template-columns:1fr 1fr;column-gap:18px}.denseFacts h2,.denseFacts #denseExplanation6,.denseFacts #denseMath6{grid-column:1/-1}}
+@media(max-width:1060px){.biasTop .biasControls{grid-template-columns:1fr 1fr}.biasTop .activationChoice{grid-column:1/-1}}@media(max-width:680px){.biasGrid,.poolLayout,.poolOptions,.biasTop .biasControls{grid-template-columns:1fr}.biasGrid .biasDetails,.poolLayout>.card:last-child{grid-column:auto}.biasTop .activationChoice{grid-column:auto}.denseFacts{grid-template-columns:1fr}.denseFacts h2,.denseFacts #denseExplanation6,.denseFacts #denseMath6{grid-column:auto}.poolOptions{gap:6px}.flatReveal .flatEntry{min-width:0}.mathTimeline strong{font-size:23px}.vectorSymbol{font-size:16px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand">CNN · Pattern Detective</div><nav aria-label="Jump to slide" class="tabs"><button class="navtab active" data-go="0">1 · Pattern overlap</button><button class="navtab" data-go="1">2 · Convolution math</button><button class="navtab" data-go="2">3 · Bias + activation</button><button class="navtab" data-go="3">4 · Pooling</button><button class="navtab" data-go="4">5 · Flatten</button><button class="navtab" data-go="5">6 · Dense network</button></nav></header>
+<main>
+<section class="slide active" id="slide1">
+<h1>1. Find meaningful patterns in a street scene</h1><p class="sub">A small picture travels across the image. Where does it match exactly? Where does it partly resemble another object?</p>
+<div class="layout1">
+<div class="card"><h2>House, doorway, and tree</h2><div aria-label="Pixel art of a house with a roof and window, a doorway, and a tree" class="imageGrid" id="scene1"></div>
+<div class="flexrow controls"><span class="position" id="position1">Row 1 · Col 1</span><span class="legend"><span><i class="sw match"></i>Match</span><span><i class="sw missing"></i>Missing</span><span><i class="sw extra"></i>Unexpected</span></span></div>
+<div class="flexrow controls"><button class="btn" id="prevPos1">◀ Step</button><button class="btn primary" id="play1">▶ Scan scene</button><button class="btn" id="nextPos1">Step ▶</button><button class="btn" id="reset1">Reset</button></div>
+<div class="stride"><span>Stride (↓ rows, → columns)</span><button class="btn active" data-stride="1" aria-label="Vertical stride 1, horizontal stride 1">(1, 1)</button><button class="btn" data-stride="2" aria-label="Vertical stride 2, horizontal stride 2">(2, 2)</button><button class="btn" data-stride="3" aria-label="Vertical stride 3, horizontal stride 3">(3, 3)</button></div>
+<div class="eyebrow">Kernel position · <span id="scanCounter1">1 / 196</span></div><input aria-label="Kernel position" class="range" id="slider1" max="195" min="0" type="range" value="0"/>
+<p class="note">Drag the gold square, click the image, or scan automatically. Stride is written (vertical, horizontal): <strong>(3, 3)</strong> moves down 3 rows between row positions and right 3 columns between column positions.</p></div>
+<div class="card"><h2>Two visual kernels</h2><div class="kernelGrid" id="kernelPic1"></div><div class="flexrow" id="kernelButtons1" style="flex-direction:column;align-items:stretch"></div>
+<div class="eyebrow">Pattern evidence at this location</div><div class="evidenceSwatch" id="responseColor1" role="img" aria-label="Color representing the current pattern-match strength"></div><div class="scoreCaption" id="scoreText1"></div><p class="note">The color matches this location on the feature map; we will calculate the number on Slide 2.</p>
+<div class="eyebrow" style="margin-top:17px">Natural comparisons</div><div class="flexrow"><button class="btn" id="exact1">Exact on house</button><button class="btn" id="partial1">Similar elsewhere</button></div><p class="note" id="matchExplanation"></p></div>
+<div class="card"><h2>Feature map: where was it found?</h2><div class="mapWrap"><div class="mapGrid" id="feature1"></div></div><p class="mapCaption" id="mapSize1"></p><p class="focusNote">Brighter green = stronger evidence for this pattern at that location.</p></div>
+</div></section>
+<section class="slide" id="slide2">
+<h1>2. How does the kernel calculate its match?</h1><p class="sub">Same picture, same position. Each image pixel (0 or 1) is multiplied by a kernel weight; all nine products are added.</p>
+<div class="layout2">
+<div class="card"><h2>One selected image patch</h2><div class="mathSide"><div><p class="kicker">Full street image</p><div class="imageGrid" id="scene2"></div></div><div><p class="kicker">Feature map</p><div class="mapWrap"><div class="mapGrid" id="feature2"></div></div><p class="mapCaption" id="mapSize2"></p></div></div>
+<div class="flexrow controls" id="kernelButtons2"></div><div class="flexrow controls"><button class="btn" id="prevPos2">◀ Position</button><button class="btn" id="nextPos2">Position ▶</button><button class="btn" id="reveal2">Reveal full map</button></div>
+<div class="stride"><span>Stride (↓ rows, → columns)</span><button class="btn active" data-stride="1" aria-label="Vertical stride 1, horizontal stride 1">(1, 1)</button><button class="btn" data-stride="2" aria-label="Vertical stride 2, horizontal stride 2">(2, 2)</button><button class="btn" data-stride="3" aria-label="Vertical stride 3, horizontal stride 3">(3, 3)</button></div>
+<p class="note">Stride is (vertical ↓, horizontal →). For example, (2, 3) means 2 rows down and 3 columns right per step.</p><p class="eyebrow">Location <span id="position2">Row 1 · Col 1</span></p><input aria-label="Choose patch for calculation" class="range" id="slider2" max="195" min="0" type="range" value="0"/></div>
+<div class="card"><div class="mathLabels"><strong>One feature-map cell = one weighted sum</strong><span class="position" id="scoreMini2"></span></div>
+<div class="mathMatrices"><div class="matBox"><b>Image patch (0/1)</b><div class="matrix" id="patch2"></div></div><div class="mathOp">×</div><div class="matBox"><b>Kernel weights</b><div class="matrix" id="weights2"></div></div><div class="mathOp">=</div><div class="matBox"><b>Products (hidden first)</b><div class="matrix" id="products2"></div></div></div>
+<div class="mathRevealActions"><button class="btn primary" id="revealProducts2" type="button" aria-pressed="false">Reveal products + result</button><span class="mathRevealHint">Have students calculate the nine multiplications before revealing the answer.</span></div>
+<div class="sumCard"><div class="sumMath" id="sum2"></div><div class="answer" id="answer2"></div><div class="note">This raw response is stored at the selected location in the convolution map.</div></div>
+<div class="callout">Next, add the filter bias: <b id="mathBias2">0</b>. Pre-activation <b id="mathZ2">z = 0</b> → <span id="mathActivationName2">ReLU</span> <b id="mathRelu2">0</b>.</div><p class="note">Image pixels are <b>0 or 1</b>; kernel weights may be <b>1 or −1</b>. The bias shifts the score before activation. Adjust biases on Slide 3.</p>
+<p class="note">These filters and their biases are illustrative, handcrafted values. A trained CNN learns them from data. No padding is used.</p></div>
+</div></section>
+<section class="slide" id="slide3">
+<h1>3. Add bias, then apply an activation function</h1>
+<p class="sub">Each kernel scans with <strong>convolution stride (1, 1)</strong>. Add one shared bias to its responses, then compare <strong>ReLU</strong> (clips negatives to zero) with <strong>Sigmoid</strong> (compresses values between 0 and 1).</p>
+<div class="biasTop card">
+<div class="stagebtn">
+<button class="btn active" data-bias-stage="0">1 · Raw convolution</button>
+<button class="btn" data-bias-stage="1">2 · Add bias</button>
+<button class="btn" data-bias-stage="2" id="biasActivateButton3">3 · Apply ReLU</button>
+</div>
+<div class="biasControls"><div><label for="biasRoof3">Roof kernel bias: <strong id="biasRoofValue3">−1</strong></label><input class="range" id="biasRoof3" max="4" min="-4" step="1" type="range" value="-1"/></div><div><label for="biasWindow3">Window kernel bias: <strong id="biasWindowValue3">−2</strong></label><input class="range" id="biasWindow3" max="4" min="-4" step="1" type="range" value="-2"/></div><div class="activationChoice"><div class="activationChoiceLabel" id="activationLabel3">Activation function</div><div class="activationChoices" role="group" aria-labelledby="activationLabel3"><button type="button" class="btn active" data-activation3="relu" aria-pressed="true">ReLU</button><button type="button" class="btn" data-activation3="sigmoid" aria-pressed="false">Sigmoid</button></div></div></div><p class="activationGuide" id="activationGuide3">ReLU(z) = max(0, z). Negative responses become 0; positive responses stay unchanged.</p>
+</div>
+<div class="biasGrid">
+<div class="card"><h2>Roof feature map</h2><div class="largeMap" id="biasMapRoof3"></div></div>
+<div class="card"><h2>Window feature map</h2><div class="largeMap" id="biasMapWindow3"></div></div>
+<div class="card biasDetails"><h2>Follow one location</h2><div class="position" id="biasSelected3">Roof · row 3, column 5</div><div class="mathTimeline"><div><span>Raw convolution</span><strong id="biasRaw3">—</strong></div><div><span>+ Kernel bias</span><strong id="biasOffset3">—</strong></div><div><span>Weighted sum + bias</span><strong id="biasZ3">—</strong></div><div><span id="biasFormula3">ReLU = max(0, z)</span><strong id="biasA3">—</strong></div></div><p class="focusNote" id="biasSlideStatus">Select a feature-map position to inspect its calculation.</p></div>
+</div>
+</section>
+<section class="slide" id="slide4">
+<h1>4. Pool the activated feature map</h1>
+<p class="sub">Move a pooling window over the <strong>activated feature map</strong> from Slide 3. Max pooling keeps the strongest response; mean pooling summarizes the average response. For stride (v, h), v moves vertically and h horizontally.</p>
+<div class="poolOptions card">
+<div class="optionField"><label for="poolKernel4">Feature map</label><select id="poolKernel4"><option value="roof">Roof detector</option><option value="window">Window detector</option></select></div>
+<div class="optionField"><label for="poolMethod4">Pooling method</label><select id="poolMethod4"><option value="max">Maximum</option><option value="mean">Mean (average)</option></select></div>
+<div class="optionField"><label for="poolSize4">Window size</label><select id="poolSize4"><option value="2">2 × 2</option><option value="3">3 × 3</option><option selected="" value="4">4 × 4</option></select></div>
+<div class="optionField"><label for="poolStride4">Pooling stride (↓ rows, → columns)</label><select id="poolStride4" aria-label="Pooling stride, vertical first and horizontal second"><option value="1">(1, 1)</option><option value="2">(2, 2)</option><option value="3">(3, 3)</option><option selected="" value="4">(4, 4)</option></select></div>
+</div>
+<div class="poolLayout">
+<div class="card"><h2><span id="poolActivationLabel4">ReLU</span> feature map · 14 × 14</h2><div class="poolBigSource" id="poolSource4"></div><p class="mapCaption">Gold outline: current pooling window</p></div>
+<div class="card"><h2>Pooled output · <span id="poolOutShape4">3 × 3</span></h2><div class="poolBigOutput" id="poolOutput4"></div><p class="mapCaption">One cell is produced for each window position</p></div>
+<div class="card"><h2>Inspect the window</h2><div class="position" id="poolPos4">Window 1/9</div><div class="poolAnswer" id="poolValue4">—</div><p class="focusNote" id="poolMath4">Select max or mean to compare methods.</p><div class="flexrow controls"><button class="btn" id="poolPrev">◀ Step</button><button class="btn primary" id="poolPlay">▶ Animate</button><button class="btn" id="poolNext">Step ▶</button><button class="btn" id="poolReset">Reset</button></div><label class="eyebrow" for="poolSlider">Move pooling window</label><input class="range" id="poolSlider" max="8" min="0" type="range" value="0"/></div>
+</div>
+</section><section class="slide" id="slide5">
+<h1>5. Flatten two pooled maps into one vector</h1>
+<p class="sub">For clarity, use <strong>two fixed 3 × 3 pooled maps</strong> (convolution stride (1, 1), max-pool window 4 × 4, pooling stride (4, 4), with the activation chosen on Slide 3). Reveal the <strong>18 input variables one by one</strong>.</p>
+<div class="layout4">
+<div class="card"><h2>Two pooled feature maps</h2><div class="flatMapPair"><div><div class="kicker">Roof detector</div><div id="flatRoof5"></div></div><div><div class="kicker">Window detector</div><div id="flatWindow5"></div></div></div><div class="callout">Two <strong>3 × 3 maps</strong> → one <strong>18-value vector</strong></div></div>
+<div class="card"><div class="panelHead"><h2>Build the vector</h2><span class="position" id="flatCount5">0 / 18 revealed</span></div><div class="flatVectorLine"><span class="vectorSymbol">x = [</span><div class="flatVector flatReveal" id="flatVector5"><div class="flatPrompt">Click <strong>Reveal next</strong> to begin.</div></div><span class="vectorSymbol">]</span></div><div class="flexrow controls"><button class="btn" id="flatPrev">◀ Undo</button><button class="btn primary" id="flatNext">Reveal next ▶</button><button class="btn" id="flatPlay">▶ Animate</button><button class="btn" id="flatReset">Reset</button></div><div class="stageStatus" id="flatDetail5">The vector starts empty. No values have been copied yet.</div></div>
+</div>
+</section>
+<section class="slide" id="slide6">
+<h1>6. Fully connected layers make the prediction</h1>
+<p class="sub">The <strong>18 pooled features</strong> become the inputs to a small network: <strong>18 → 4 → 3 → 1</strong>. Each layer transforms the values before passing them forward.</p>
+<div class="denseLayout">
+<div class="card"><div class="panelHead"><h2>Follow the information</h2><span class="position">Two hidden layers</span></div><svg aria-label="18 input nodes connected to 4 nodes in first hidden layer, 3 nodes in second hidden layer, and one output node" id="denseSvg6" role="img" viewbox="0 0 900 510"></svg><div class="flexrow controls"><button class="btn" id="densePrev">◀ Back</button><button class="btn primary" id="denseNext">Next layer ▶</button><button class="btn" id="denseAll">Show full pass</button><button class="btn" id="denseReset">Reset</button></div></div>
+<div class="card denseFacts"><h2>Forward pass</h2><div class="denseReadout"><div class="kicker">Flattened inputs</div><div class="denseNumber" id="denseInputs6">18</div></div><div class="denseReadout"><div class="kicker">Hidden layer 1 (4 neurons)</div><div class="denseLine" id="denseH16">—</div></div><div class="denseReadout"><div class="kicker">Hidden layer 2 (3 neurons)</div><div class="denseLine" id="denseH26">—</div></div><div class="denseReadout"><div class="kicker">Output · house detection probability</div><div class="denseNumber" id="densePrediction6">—</div></div><div class="focusNote" id="denseExplanation6">Start with the 18 pooled feature values, then advance layer by layer.</div><div class="sumCard" id="denseMath6">Fixed, illustrative weights are used for this demonstration.</div></div>
+</div><p class="note">This is a forward-pass demonstration, not a trained image classifier. The displayed output is computed from the pooled features using fixed example weights.</p>
+</section>
+</main><footer class="footer">Illustrative pattern-matching example · Use the numbered slide buttons to jump directly to any demonstration.</footer>
+<script>
+(()=>{'use strict';
+const N=16, K=3;
+const data=Array.from({length:N},()=>Array(N).fill(0));
+function dot(r,c){if(r>=0&&r<N&&c>=0&&c<N)data[r][c]=1;}
+function hline(r,a,b){for(let c=a;c<=b;c++)dot(r,c)}
+function vline(c,a,b){for(let r=a;r<=b;r++)dot(r,c)}
+// A street scene: a house, an intact window, a three-sided doorframe, and a naturally asymmetrical tree.
+[[2,5],[3,4],[3,6],[4,3],[4,7],[5,2],[5,8]].forEach(p=>dot(...p));
+hline(6,2,8);vline(2,6,13);vline(8,6,13);hline(13,2,8);
+for(let r=8;r<=10;r++)for(let c=3;c<=5;c++)if(r===8||r===10||c===3||c===5)dot(r,c);
+hline(10,6,8);vline(6,10,12);vline(8,10,12); // a natural open-bottom doorframe
+[[3,12],[4,11],[4,12],[4,13],[5,10],[5,14],[6,10],[6,14],[7,11],[7,13],[8,12],[9,12],[10,12],[11,12],[12,12]].forEach(p=>dot(...p));
+hline(14,0,15);
+const patterns={roof:{name:'Peaked roof',mask:[[0,1,0],[1,0,1],[0,0,0]],exact:[2,4],partial:[3,11],description:'The roof is a complete peaked outline. The tree canopy also has a pointed top, but the extra filled center means the roof kernel responds less strongly.'},window:{name:'Square window',mask:[[1,1,1],[1,0,1],[1,1,1]],exact:[8,3],partial:[10,6],description:'The window has all four sides. The open-bottom doorway shares much of the outline, but is not a complete window.'}};
+const $=id=>document.getElementById(id);
+let mathRevealed=false;
+let kernel='roof',stride=1,selected=32,seen=new Set([32]),reveal=false,stage=0,poolIndex=0,poolSeen=new Set([0]),scanTimer=null,poolTimer=null,activeSlide=0,biases={roof:-1,window:-2},flatIndex=0,flatTimer=null,denseStep=0,fcOut={roof:2.2,window:2.4,bias:-1.7};
+function positions(){const ps=[];for(let r=0;r<=N-K;r+=stride)for(let c=0;c<=N-K;c+=stride)ps.push([r,c]);return ps;}
+function gridSide(){return Math.floor((N-K)/stride)+1}
+function poolSide(){return Math.floor(gridSide()/2)}
+function poolTotal(){return poolSide()**2}
+function stopScan(){if(scanTimer!==null){clearInterval(scanTimer);scanTimer=null;} $('play1').textContent='▶ Scan scene'}
+function stopPool(){if(poolTimer!==null){clearInterval(poolTimer);poolTimer=null;} $('poolPlay').textContent='▶ Animate'}
+function stopFlat(){if(flatTimer!==null){clearInterval(flatTimer);flatTimer=null;} $('flatPlay').textContent='▶ Animate'}
+function pVal(name,r,c){const w=patterns[name].mask;let z=0;for(let i=0;i<3;i++)for(let j=0;j<3;j++)z+=data[r+i][c+j]*(w[i][j]?1:-1);return z}
+function calcMap(name){return positions().map(([r,c])=>pVal(name,r,c))}
+function color(v){if(v<=-5)return '#cf7392';if(v<=-3)return '#e6a9bc';if(v<0)return '#f7e0e7';if(v===0)return '#f2f5f8';const sat=Math.min(1,v/8);return `hsl(162 45% ${88-53*sat}%)`}
+function imageBuild(id,interactive){const root=$(id);root.replaceChildren();for(let r=0;r<N;r++)for(let c=0;c<N;c++){const d=document.createElement('div');d.className='pix'+(data[r][c]?' on':'');root.appendChild(d)}
+ if(interactive){const box=document.createElement('div');box.className='window';box.style.width=(K/N*100)+'%';box.style.height=(K/N*100)+'%';for(let i=0;i<9;i++){const d=document.createElement('div');d.className='cellOverlay';box.appendChild(d)}root.appendChild(box);root._box=box;
+ const locate=e=>{const rect=root.getBoundingClientRect();const cr=Math.max(0,Math.min(N-K,Math.round((e.clientY-rect.top)/rect.height*N-1.5)));const cc=Math.max(0,Math.min(N-K,Math.round((e.clientX-rect.left)/rect.width*N-1.5)));const gr=Math.max(0,Math.min(gridSide()-1,Math.round(cr/stride)));const gc=Math.max(0,Math.min(gridSide()-1,Math.round(cc/stride)));setPosition(gr*gridSide()+gc)};
+ box.addEventListener('pointerdown',e=>{e.preventDefault();box.setPointerCapture(e.pointerId);box.classList.add('grab');locate(e)});
+ box.addEventListener('pointermove',e=>{if(box.hasPointerCapture(e.pointerId))locate(e)});
+ box.addEventListener('pointerup',()=>box.classList.remove('grab'));box.addEventListener('pointercancel',()=>box.classList.remove('grab'));
+ root.addEventListener('click',e=>{if(e.target===box||box.contains(e.target))return;locate(e)});
+ }}
+function updateOverlay(id){const root=$(id),box=root._box;if(!box)return;const [r,c]=positions()[selected];box.style.top=(r/N*100)+'%';box.style.left=(c/N*100)+'%';const mask=patterns[kernel].mask;Array.from(box.children).forEach((d,k)=>{const i=Math.floor(k/3),j=k%3,px=data[r+i][c+j],wanted=mask[i][j];d.className='cellOverlay '+(px&&wanted?'hit':!px&&wanted?'miss':px&&!wanted?'extra':'blank')})}
+function kernelDraw(id,kind){const root=$(id);root.replaceChildren();patterns[kind].mask.flat().forEach(n=>{const d=document.createElement('span');if(n)d.className='on';root.appendChild(d)})}
+function kernelButtons(id){const root=$(id);root.replaceChildren();for(const kind of ['roof','window']){const b=document.createElement('button');b.type='button';b.className='btn kernelOpt'+(kernel===kind?' active':'');const icon=document.createElement('span');icon.className='mini';patterns[kind].mask.flat().forEach(n=>{const z=document.createElement('i');if(n)z.className='on';icon.appendChild(z)});b.appendChild(icon);b.appendChild(document.createTextNode(patterns[kind].name));b.addEventListener('click',()=>{stopScan();kernel=kind;setMatch('exact');kernelButtons('kernelButtons1');kernelButtons('kernelButtons2');kernelDraw('kernelPic1',kernel)});root.appendChild(b)}}
+function setMatch(which){if(stride!==1)setStride(1);const [r,c]=patterns[kernel][which];setPosition(r*gridSide()+c)}
+function setPosition(n){selected=Math.max(0,Math.min(positions().length-1,Number(n)||0));mathRevealed=false;seen.add(selected);renderPrimary()}
+function setStride(n){stopScan();stride=n;selected=0;mathRevealed=false;seen=new Set([0]);reveal=false;$('reveal2').textContent='Reveal full map';document.querySelectorAll('[data-stride]').forEach(b=>b.classList.toggle('active',Number(b.dataset.stride)===stride));renderPrimary();}
+function makeMap(rootId,vals,side,opts={}){const root=$(rootId);root.replaceChildren();root.style.gridTemplateColumns=`repeat(${side},minmax(0,1fr))`;root.style.gridTemplateRows=`repeat(${side},minmax(0,1fr))`;for(let i=0;i<vals.length;i++){const val=vals[i],cell=document.createElement(opts.click?'button':'div');if(opts.click)cell.type='button';cell.className='mapCell'+(opts.full||seen.has(i)?' visited':' noVisit')+(opts.active===i?' chosen':'');if(opts.full||seen.has(i))cell.style.setProperty('--vcolor',color(val));if(opts.numbers&&(opts.full||seen.has(i)))cell.textContent=val;if(opts.click)cell.addEventListener('click',()=>{stopScan();if(rootId==='feature2')reveal=true;setPosition(i)});cell.title=rootId==='feature1'?`Position ${i+1} — color shows pattern evidence`:`Position ${i+1}: ${val}`;root.appendChild(cell)}}
+function renderPrimary(){const ps=positions(),[r,c]=ps[selected],v=pVal(kernel,r,c),best=patterns[kernel].mask.flat().filter(Boolean).length;updateOverlay('scene1');updateOverlay('scene2');kernelDraw('kernelPic1',kernel);const text=`Row ${r+1} · Col ${c+1}`;
+ $('position1').textContent=text;$('position2').textContent=text;$('responseColor1').style.backgroundColor=color(v);$('scoreText1').textContent=v===best?'Exact pattern match':v>=best*.56?'Strong partial match':v>0?'Some shared pixels':v===0?'No clear match':'Conflicting pixels';$('responseColor1').setAttribute('aria-label','Pattern evidence: '+$('scoreText1').textContent);$('matchExplanation').textContent=patterns[kernel].description;
+ $('scanCounter1').textContent=`${selected+1} / ${ps.length}`;const vals=calcMap(kernel),s=gridSide();makeMap('feature1',vals,s,{click:true,active:selected});makeMap('feature2',vals,s,{click:true,active:selected,full:reveal,numbers:true});$('mapSize1').textContent=`${s} × ${s} feature map · stride (${stride}, ${stride})`;$('mapSize2').textContent=`${s} × ${s} feature map · stride (${stride}, ${stride})`;
+ for(const id of ['slider1','slider2']){$(id).max=ps.length-1;$(id).value=selected}updateArithmetic()}
+function updateArithmetic(){
+ const [r,c]=positions()[selected],w=patterns[kernel].mask,P=$('patch2'),W=$('weights2'),V=$('products2');
+ for(const e of [P,W,V])e.replaceChildren();
+ const products=[];
+ for(let i=0;i<3;i++)for(let j=0;j<3;j++){
+  const x=data[r+i][c+j],a=w[i][j]?1:-1,p=x*a;products.push(p);
+  for(const [root,value,isProduct] of [[P,x,false],[W,a,false],[V,p,true]]){
+   const node=document.createElement('div');
+   if(isProduct&&!mathRevealed){node.textContent='?';node.className='mathHidden';}
+   else {node.textContent=value;if(value>0)node.className='pos';if(value<0)node.className='neg';}
+   root.appendChild(node);
+  }
+ }
+ const total=products.reduce((a,b)=>a+b,0);
+ $('sum2').textContent=mathRevealed?products.join(' + ').replace(/\+ -/g,'− ')+' = '+total:'Calculate each cell first, then reveal the nine products and their sum.';
+ $('answer2').textContent=mathRevealed?`Response = ${total}`:'Response = ?';
+ const b=biases[kernel],z=total+b;
+ $('mathBias2').textContent=b;
+ $('mathZ2').textContent=mathRevealed?`z = ${z}`:'z = ?';
+ $('mathActivationName2').textContent=activationName();
+ $('mathRelu2').textContent=mathRevealed?(activation3==='relu'?`max(0, ${z}) = ${Math.max(0,z)}`:`σ(${z}) = ${displayActivation(activate(z))}`):'?';
+ $('scoreMini2').textContent=patterns[kernel].name;
+ $('revealProducts2').textContent=mathRevealed?'Hide products + result':'Reveal products + result';
+ $('revealProducts2').setAttribute('aria-pressed',String(mathRevealed));
+}
+
+
+/* Slide 3: one-pixel convolution stride, fixed independently of slides 1/2. */
+const CONV_SIDE=N-K+1;
+const convValues=kind=>{const arr=[];for(let r=0;r<CONV_SIDE;r++)for(let c=0;c<CONV_SIDE;c++)arr.push(pVal(kind,r,c));return arr};
+let activation3='relu';
+const activationName=()=>activation3==='relu'?'ReLU':'Sigmoid';
+const activate=z=>activation3==='relu'?Math.max(0,z):sigmoid(z);
+const activatedValues=kind=>convValues(kind).map(v=>activate(v+biases[kind]));
+const activatedColor=v=>activation3==='sigmoid'?`hsl(162 48% ${90-49*v}%)`:color(v);
+const displayActivation=v=>activation3==='sigmoid'?v.toFixed(3):fnum(v);
+const displayMapActivation=v=>activation3==='sigmoid'?v.toFixed(2):fnum(v);
+let biasStep=0,biasKind='roof',biasCell=patterns.roof.exact[0]*CONV_SIDE+patterns.roof.exact[1];
+function fnum(v){return Number.isInteger(v)?String(v):v.toFixed(2).replace(/0+$/,'').replace(/\.$/,'')}
+function setBiasStep(n){biasStep=n;renderBias()}
+function gridNode(values,side,opts={}){
+ const g=document.createElement('div');g.className='mapGrid';g.style.gridTemplateColumns=`repeat(${side},minmax(0,1fr))`;g.style.gridTemplateRows=`repeat(${side},minmax(0,1fr))`;
+ values.forEach((v,i)=>{const c=document.createElement(opts.click?'button':'div');if(opts.click)c.type='button';c.className='mapCell'+(opts.reveal===false&&!opts.visited?.has(i)?' noVisit':' visited')+(i===opts.selected?' chosen':'');
+ if(opts.reveal!==false||opts.visited?.has(i)){c.style.setProperty('--vcolor',opts.colorFn?opts.colorFn(v):color(v));c.textContent=opts.valueFormat?opts.valueFormat(v):fnum(v)}
+ if(opts.click)c.addEventListener('click',()=>opts.click(i));g.append(c)});return g;
+}
+function renderBias(){document.querySelectorAll('[data-bias-stage]').forEach(b=>b.classList.toggle('active',Number(b.dataset.biasStage)===biasStep));
+ document.querySelectorAll('[data-activation3]').forEach(b=>{const on=b.dataset.activation3===activation3;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
+ $('biasActivateButton3').textContent=`3 · Apply ${activationName()}`;
+ $('activationGuide3').textContent=activation3==='relu'?'ReLU(z) = max(0, z). Negative responses become 0; positive responses stay unchanged.':'Sigmoid(z) = 1 / (1 + e^(−z)). Every response becomes a number strictly between 0 and 1.';
+ $('biasFormula3').textContent=activation3==='relu'?'ReLU = max(0, z)':'Sigmoid = 1 / (1 + e^(−z))';
+ for(const kind of ['roof','window']){
+  const vals=convValues(kind).map(v=>biasStep===0?v:biasStep===1?v+biases[kind]:activate(v+biases[kind]));
+  const root=$('biasMap'+(kind==='roof'?'Roof':'Window')+'3');root.classList.toggle('sigmoidMap',activation3==='sigmoid'&&biasStep===2);root.replaceChildren(gridNode(vals,CONV_SIDE,{selected:kind===biasKind?biasCell:-1,colorFn:biasStep===2?activatedColor:color,valueFormat:biasStep===2?displayMapActivation:fnum,click:i=>{biasCell=i;biasKind=kind;renderBias()}}));
+ }
+ const raw=convValues(biasKind)[biasCell],b=biases[biasKind],z=raw+b,a=activate(z);const rr=Math.floor(biasCell/CONV_SIDE),cc=biasCell%CONV_SIDE;
+ $('biasSelected3').textContent=`${biasKind==='roof'?'Roof':'Window'} kernel · row ${rr+1}, col ${cc+1}`;$('biasRaw3').textContent=fnum(raw);$('biasOffset3').textContent=fnum(b);$('biasZ3').textContent=fnum(z);$('biasA3').textContent=displayActivation(a);
+ const msg=['Raw convolution responses can be positive or negative. Click any feature-map cell.','The same bias is added at every location for a given kernel.',activation3==='relu'?'ReLU outputs 0 for negative pre-activations; positive values remain unchanged.':'Sigmoid smoothly maps negative scores toward 0, positive scores toward 1, and z = 0 to 0.5.'];$('biasSlideStatus').textContent=msg[biasStep];
+ $('biasRoofValue3').textContent=fnum(biases.roof);$('biasWindowValue3').textContent=fnum(biases.window);
+}
+/* Slide 4: flexible pooling of stride-1 ReLU maps. */
+const poolCfg={kind:'roof',method:'max',size:4,stride:4};let poolAt=0,poolVisited=new Set([0]);
+function poolCalc(kind=poolCfg.kind,method=poolCfg.method,size=poolCfg.size,step=poolCfg.stride){
+ const src=activatedValues(kind),side=Math.floor((CONV_SIDE-size)/step)+1,rows=[],values=[],locations=[];
+ for(let r=0;r<side;r++)for(let c=0;c<side;c++){
+ const patch=[];for(let i=0;i<size;i++)for(let j=0;j<size;j++)patch.push(src[(r*step+i)*CONV_SIDE+(c*step+j)]);
+ const value=method==='max'?Math.max(...patch):patch.reduce((a,b)=>a+b,0)/patch.length;
+ values.push(value);rows.push(patch);locations.push([r*step,c*step]);
+ }return {src,values,rows,locations,side};
+}
+function pausePool(){if(poolTimer!==null){clearInterval(poolTimer);poolTimer=null}$('poolPlay').textContent='▶ Animate'}
+function resetPool(){pausePool();poolAt=0;poolVisited=new Set([0]);renderPool()}
+function renderPool(){const {src,values,rows,locations,side}=poolCalc();poolAt=Math.min(poolAt,values.length-1);const [r,c]=locations[poolAt];
+ const root=$('poolSource4');root.replaceChildren();root.classList.toggle('sigmoidMap',activation3==='sigmoid');$('poolActivationLabel4').textContent=activationName();const grid=gridNode(src,CONV_SIDE,{colorFn:activatedColor,valueFormat:displayMapActivation});root.append(grid);const mark=document.createElement('div');mark.className='poolWindow';mark.style.left=100*c/CONV_SIDE+'%';mark.style.top=100*r/CONV_SIDE+'%';mark.style.width=100*poolCfg.size/CONV_SIDE+'%';mark.style.height=100*poolCfg.size/CONV_SIDE+'%';root.append(mark);
+ const dest=$('poolOutput4');dest.replaceChildren(gridNode(values,side,{selected:poolAt,reveal:false,visited:poolVisited,colorFn:activatedColor,valueFormat:displayActivation,click:i=>{pausePool();poolAt=i;poolVisited.add(i);renderPool()}}));
+ $('poolOutShape4').textContent=`${side} × ${side}`;$('poolSlider').max=values.length-1;$('poolSlider').value=poolAt;$('poolPos4').textContent=`Window ${poolAt+1} / ${values.length} · row ${r+1}, col ${c+1}`;
+ $('poolValue4').textContent=`${poolCfg.method==='max'?'Max':'Mean'} = ${fnum(values[poolAt])}`;
+ $('poolMath4').textContent=`Patch values: ${rows[poolAt].map(fnum).join(', ')}. ${poolCfg.method==='max'?'Keep the largest value.':'Add them and divide by '+rows[poolAt].length+'.'}`;
+}
+function setPoolAt(n){poolAt=Math.max(0,Math.min(poolCalc().values.length-1,Number(n)||0));poolVisited.add(poolAt);renderPool()}
+/* Slides 5–6: one deliberately fixed, small pooling configuration. */
+function fixedMaps(){const roof=poolCalc('roof','max',4,4).values,windowVals=poolCalc('window','max',4,4).values;return {roof,windowVals,values:[...roof,...windowVals]}}
+let flatShown=0;
+function pauseFlat(){if(flatTimer!==null){clearInterval(flatTimer);flatTimer=null}$('flatPlay').textContent='▶ Animate'}
+function renderFlat(){const {roof,windowVals,values}=fixedMaps(),hi=flatShown-1;
+ for(const [name,vals,offset] of [['flatRoof5',roof,0],['flatWindow5',windowVals,9]]){
+ const root=$(name);root.replaceChildren(gridNode(vals,3,{selected:hi>=offset&&hi<offset+9?hi-offset:-1,colorFn:activatedColor,valueFormat:displayActivation}));
+ }
+ const container=$('flatVector5');container.replaceChildren();if(flatShown===0){const prompt=document.createElement('div');prompt.className='flatPrompt';prompt.innerHTML='Click <strong>Reveal next</strong> to begin.';container.append(prompt)}
+ else for(let i=0;i<flatShown;i++){const cell=document.createElement('div');cell.className='flatEntry '+(i<9?'roofEntry':'windowEntry');const lab=document.createElement('small');lab.textContent='x'+String(i+1).replace(/[0-9]/g,d=>'₀₁₂₃₄₅₆₇₈₉'[Number(d)]);const val=document.createElement('span');val.textContent=displayMapActivation(values[i]);cell.title=`${lab.textContent} = ${displayActivation(values[i])} (${i<9?'roof':'window'} pooled map)`;cell.append(lab,val);container.append(cell)}
+ $('flatCount5').textContent=`${flatShown} / 18 revealed`;
+ if(flatShown===0)$('flatDetail5').textContent='The vector starts empty. No values have been copied yet.';
+ else{const j=(flatShown-1)%9,from=flatShown<=9?'Roof':'Window';$('flatDetail5').textContent=`${from} map, row ${Math.floor(j/3)+1}, col ${j%3+1} → input variable x${flatShown} = ${displayActivation(values[flatShown-1])}`}
+ $('flatNext').disabled=flatShown===18;$('flatPrev').disabled=flatShown===0;
+}
+function sigmoid(x){return 1/(1+Math.exp(-x))}
+/* Every layer uses fixed illustrative weights. All numbers originate in fixedMaps(). */
+function forwardPass(){const x=fixedMaps().values;
+ const W1=x.map((v,i)=>[0.026*(i<9?1.7:0.6),0.024*(i<9?0.6:1.5),0.017*((i%3)-1),0.014*(i%2===0?1:-1)]);
+ const b1=[-0.25,-0.22,0.13,0.08];const z1=b1.map((b,j)=>x.reduce((s,v,i)=>s+v*W1[i][j],b));const h1=z1.map(sigmoid);
+ const W2=[[1.0,-0.6,0.45],[0.8,0.9,-0.2],[-0.3,0.35,0.8],[0.5,0.4,0.7]];const b2=[-0.6,-0.28,-0.5];const z2=b2.map((b,j)=>h1.reduce((s,v,i)=>s+v*W2[i][j],b));const h2=z2.map(sigmoid);
+ const W3=[1.2,0.9,-0.65],b3=-0.85;const z3=h2.reduce((s,v,i)=>s+v*W3[i],b3);return {x,h1,h2,z1,z2,z3,p:sigmoid(z3),W1,W2,W3};
+}
+let denseStage=0;
+function svgElem(tag,attrs={},text){const n=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,String(v)));if(text!==undefined)n.textContent=text;return n}
+function renderDense(){const v=forwardPass(),svg=$('denseSvg6');svg.replaceChildren();const cols=[v.x,v.h1,v.h2,[v.p]],posx=[90,345,565,795], positions=cols.map((arr,col)=>arr.map((num,i)=>({x:posx[col],y:arr.length===1?275:75+i*(385/(arr.length-1))})));
+ svg.append(svgElem('rect',{x:6,y:12,width:888,height:488,rx:14,fill:'#f5f9fc'}));const heads=['Input · 18 values','Hidden layer 1','Hidden layer 2','Output'];posx.forEach((x,i)=>svg.append(svgElem('text',{x,y:37,'font-size':21,'text-anchor':'middle',fill:'#193754','font-weight':700},heads[i])));
+ for(let L=0;L<3;L++)if(denseStage>=L+1){for(let i=0;i<positions[L].length;i++)for(let j=0;j<positions[L+1].length;j++){
+ const p=positions[L][i],q=positions[L+1][j],weight=L===0?v.W1[i][j]:L===1?v.W2[i][j]:v.W3[i];svg.append(svgElem('line',{x1:p.x+13,y1:p.y,x2:q.x-16,y2:q.y,stroke:weight>=0?'#1a8c78':'#c0647c','stroke-width':Math.min(2.9,1+Math.abs(weight)*.8),opacity:L===0?.18:.36}));}}
+ positions.forEach((col,L)=>col.forEach((node,i)=>{const active=L===0||denseStage>=L;svg.append(svgElem('circle',{cx:node.x,cy:node.y,r:L===0?8:L===3?34:27,fill:active?(L===0?(i<9?'#168e78':'#648abd'):'#cff0e4'):'#e2e9f0',stroke:active?'#147d70':'#a2b7c6','stroke-width':2}));
+ if(L>0)svg.append(svgElem('text',{x:node.x,y:node.y+6,'text-anchor':'middle','font-size':L===3?24:18,'font-weight':800,fill:'#153550'},active?(L===3?(v.p*100).toFixed(1)+'%':cols[L][i].toFixed(2)):'?'));
+ }));
+ $('denseInputs6').textContent='18 pooled values';$('denseH16').textContent=denseStage>=1?v.h1.map(n=>n.toFixed(3)).join('  ·  '):'—';$('denseH26').textContent=denseStage>=2?v.h2.map(n=>n.toFixed(3)).join('  ·  '):'—';$('densePrediction6').textContent=denseStage>=3?(v.p*100).toFixed(1)+'%':'—';
+ const messages=['The 18 pooled features form one input vector.','Hidden layer 1: every input connects to all four neurons.','Hidden layer 2: all four activations become inputs to three new neurons.','The output neuron combines hidden layer 2 and applies sigmoid.'];$('denseExplanation6').textContent=messages[denseStage];
+ const math=['Select Next layer to perform forward propagation.',`Layer 1 example: sigmoid(${v.z1[0].toFixed(3)}) = ${v.h1[0].toFixed(3)}` ,`Layer 2 example: sigmoid(${v.z2[0].toFixed(3)}) = ${v.h2[0].toFixed(3)}`,`Output: sigmoid(${v.z3.toFixed(3)}) = ${(v.p*100).toFixed(1)}%`];$('denseMath6').textContent=math[denseStage];
+ $('denseNext').disabled=denseStage===3;$('densePrev').disabled=denseStage===0;
+}
+function navigate(n){if(n<0||n>5)return;stopScan();pausePool();pauseFlat();activeSlide=n;document.querySelectorAll('.slide').forEach((a,i)=>a.classList.toggle('active',i===n));document.querySelectorAll('.navtab').forEach(b=>b.classList.toggle('active',Number(b.dataset.go)===n));window.scrollTo({top:0,behavior:'auto'})}
+for(const id of ['scene1','scene2'])imageBuild(id,true);
+kernelButtons('kernelButtons1');kernelButtons('kernelButtons2');renderPrimary();renderBias();renderPool();renderFlat();renderDense();
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>navigate(Number(b.dataset.go))));
+document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||''))return;if(e.key==='ArrowRight')navigate(activeSlide+1);if(e.key==='ArrowLeft')navigate(activeSlide-1)});
+document.querySelectorAll('[data-stride]').forEach(b=>b.addEventListener('click',()=>setStride(Number(b.dataset.stride))));
+$('nextPos1').addEventListener('click',()=>{stopScan();setPosition((selected+1)%positions().length)});$('prevPos1').addEventListener('click',()=>{stopScan();setPosition((selected+positions().length-1)%positions().length)});$('reset1').addEventListener('click',()=>{stopScan();selected=0;seen=new Set([0]);renderPrimary()});
+$('play1').addEventListener('click',()=>{if(scanTimer!==null){stopScan();return}selected=0;seen=new Set([0]);renderPrimary();$('play1').textContent='❚❚ Pause';scanTimer=setInterval(()=>{if(selected>=positions().length-1){stopScan();return}setPosition(selected+1)},stride===1?85:200)});
+$('slider1').addEventListener('input',e=>{stopScan();setPosition(e.target.value)});$('slider2').addEventListener('input',e=>{stopScan();setPosition(e.target.value)});
+$('nextPos2').addEventListener('click',()=>{stopScan();setPosition((selected+1)%positions().length)});$('prevPos2').addEventListener('click',()=>{stopScan();setPosition((selected+positions().length-1)%positions().length)});
+$('reveal2').addEventListener('click',()=>{reveal=!reveal;$('reveal2').textContent=reveal?'Show visited positions':'Reveal full map';renderPrimary()});
+$('revealProducts2').addEventListener('click',()=>{mathRevealed=!mathRevealed;updateArithmetic()});
+for(const which of ['exact','partial'])$(which+'1').addEventListener('click',()=>{stopScan();setMatch(which)});
+document.querySelectorAll('[data-bias-stage]').forEach(b=>b.addEventListener('click',()=>setBiasStep(Number(b.dataset.biasStage))));
+document.querySelectorAll('[data-activation3]').forEach(b=>b.addEventListener('click',()=>{if(activation3===b.dataset.activation3)return;activation3=b.dataset.activation3;resetPool();flatShown=0;pauseFlat();renderFlat();denseStage=0;renderDense();renderBias();renderPrimary()}));
+for(const [id,k] of [['biasRoof3','roof'],['biasWindow3','window']])$(id).addEventListener('input',e=>{biases[k]=Number(e.target.value);resetPool();flatShown=0;pauseFlat();renderFlat();denseStage=0;renderDense();renderBias()});
+for(const [id,k] of [['poolKernel4','kind'],['poolMethod4','method'],['poolSize4','size'],['poolStride4','stride']])$(id).addEventListener('change',e=>{poolCfg[k]=['size','stride'].includes(k)?Number(e.target.value):e.target.value;resetPool()});
+$('poolPrev').addEventListener('click',()=>{pausePool();setPoolAt((poolAt-1+poolCalc().values.length)%poolCalc().values.length)});
+$('poolNext').addEventListener('click',()=>{pausePool();setPoolAt((poolAt+1)%poolCalc().values.length)});
+$('poolReset').addEventListener('click',resetPool);
+$('poolSlider').addEventListener('input',e=>{pausePool();setPoolAt(e.target.value)});
+$('poolPlay').addEventListener('click',()=>{if(poolTimer!==null){pausePool();return}poolAt=0;poolVisited=new Set([0]);renderPool();$('poolPlay').textContent='❚❚ Pause';poolTimer=setInterval(()=>{if(poolAt>=poolCalc().values.length-1){pausePool();return}setPoolAt(poolAt+1)},450)});
+$('flatPrev').addEventListener('click',()=>{pauseFlat();flatShown=Math.max(0,flatShown-1);renderFlat()});
+$('flatNext').addEventListener('click',()=>{pauseFlat();flatShown=Math.min(18,flatShown+1);renderFlat()});
+$('flatReset').addEventListener('click',()=>{pauseFlat();flatShown=0;renderFlat()});
+$('flatPlay').addEventListener('click',()=>{if(flatTimer!==null){pauseFlat();return}flatShown=0;renderFlat();$('flatPlay').textContent='❚❚ Pause';flatTimer=setInterval(()=>{flatShown=Math.min(18,flatShown+1);renderFlat();if(flatShown===18)pauseFlat()},450)});
+$('densePrev').addEventListener('click',()=>{denseStage=Math.max(0,denseStage-1);renderDense()});$('denseNext').addEventListener('click',()=>{denseStage=Math.min(3,denseStage+1);renderDense()});$('denseAll').addEventListener('click',()=>{denseStage=3;renderDense()});$('denseReset').addEventListener('click',()=>{denseStage=0;renderDense()});
+})();
+</script>
+</body>
+</html>
