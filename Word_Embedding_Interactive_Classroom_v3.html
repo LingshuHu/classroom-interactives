@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Word Embedding Lab — Interactive Word2Vec</title>
+<style>
+:root{--ink:#152e42;--teal:#118c84;--green:#e4f4ef;--blue:#26759d;--gold:#ca8431;--amber:#fff1da;--muted:#526977;--line:#d6e2e8;--panel:#f8fbfc;--red:#af5360}
+*{box-sizing:border-box}body{margin:0;font:18px/1.38 Arial,Helvetica,sans-serif;color:var(--ink);background:#eef3f5}header{background:var(--ink);color:white;padding:15px max(24px,calc((100vw - 1480px)/2 + 24px));display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:26px;font-weight:850}.subtitle{font-size:14px;opacity:.84}
+nav{display:flex;gap:9px;max-width:1480px;margin:15px auto 10px;padding:0 16px;flex-wrap:wrap}nav button{flex:1 1 220px;border:1px solid #bcd1d8;border-radius:9px;background:#fff;padding:11px;min-height:48px;cursor:pointer;font:700 17px Arial;color:var(--ink)}nav button.active{color:white;background:var(--teal);border-color:var(--teal)}main{max-width:1480px;margin:auto;padding:0 16px 32px}.slide{display:none;padding:25px 27px 30px;border:1px solid #d9e5e8;border-radius:15px;background:white;min-height:670px}.slide.active{display:block}h1{font-size:37px;margin:0 0 6px;line-height:1.15;letter-spacing:-.5px}.lead{font-size:19px;color:var(--muted);margin:0 0 17px}.twocol{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(355px,1fr);align-items:start;gap:18px}.twocol.equal{grid-template-columns:repeat(2,minmax(0,1fr))}.card{border:1px solid var(--line);padding:16px 18px;border-radius:12px;background:#fff;min-width:0}.card.soft{background:var(--panel)}.card.green{background:var(--green)}.tag{color:#4c6b77;font-size:14px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}.hint{font-size:15px;color:var(--muted)}.strong{font-weight:800}.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:14px 0}.btn{font:700 16px Arial;border:1px solid #adc5cd;background:white;color:var(--ink);padding:11px 14px;border-radius:9px;cursor:pointer;min-height:44px}.btn.primary{background:var(--teal);color:white;border-color:var(--teal)}.btn.selected{background:#dbeef4;border-color:var(--blue)}.btn:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}input[type=range]{width:100%;height:32px;accent-color:var(--teal);cursor:pointer;touch-action:pan-y}select{padding:9px;font-size:17px;border:1px solid var(--line);border-radius:8px;background:white}.sentence{display:flex;flex-wrap:wrap;gap:6px;margin:15px 0;min-height:125px;align-content:center}.token{min-width:62px;border:2px solid var(--line);border-radius:8px;background:#fff;padding:10px 9px;font:800 20px Arial;cursor:pointer}.token.context{background:#daf2eb;border-color:var(--teal)}.token.target{background:var(--amber);border-color:var(--gold)}.token.dim{opacity:.48}.token:hover{border-color:var(--blue)}.phrase{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;margin:3px 0;font-size:23px;font-weight:800}.chip{display:inline-block;background:#e1f3ef;border:1px solid #b1dcd4;color:#096a61;border-radius:7px;padding:5px 9px;font-weight:780}.chip.target{background:#fff1db;color:#935c18;border-color:#efca94}.arrow{color:var(--teal);font-size:26px;font-weight:900}.pred{display:grid;grid-template-columns:76px 1fr 58px;gap:10px;align-items:center;margin:9px 0;font-size:16px}.bar{height:15px;background:#e2eaf0;border-radius:6px;overflow:hidden}.bar div{height:100%;background:var(--teal)}.metric{font-size:32px;color:var(--teal);font-weight:850}.line{border-top:1px solid var(--line);margin:15px 0}.csvbox{overflow:auto;max-height:458px;border:1px solid var(--line);border-radius:9px;background:white}.csv table{width:100%;border-collapse:collapse;font-family:ui-monospace,Consolas,monospace;font-size:15px;white-space:nowrap}.csv th{position:sticky;top:0;z-index:1;background:#dceaf0}.csv th,.csv td{text-align:left;padding:9px 10px;border-bottom:1px solid #e2eaed}.csv tbody tr{cursor:pointer}.csv tr.selected{background:#e1f5ec}.csv tr:hover{background:#edf6f8}.formula{font-family:ui-monospace,Consolas,monospace;font-size:17px;background:#eef4f6;border-radius:8px;padding:12px 14px;overflow-wrap:anywhere;line-height:1.7}.formula b{color:#05756e}.smallformula{font-family:ui-monospace,Consolas,monospace;font-size:14px;line-height:1.55}.pill{background:#e3f3ef;border-radius:6px;padding:6px 10px;display:inline-block;margin:3px;color:#095f59;font-weight:800}.network{border:1px solid var(--line);border-radius:12px;background:#fafdfd;padding:7px}.network svg{display:block;width:100%;height:auto}.steps{display:flex;gap:7px;flex-wrap:wrap}.steps .btn{font-size:14px;padding:9px 11px;min-height:39px}.steps .btn.current{background:#d9f1e8;border-color:var(--teal)}table.basic{border-collapse:collapse;width:100%;font-size:16px;font-variant-numeric:tabular-nums}table.basic th,table.basic td{text-align:center;border-bottom:1px solid #dce7e9;padding:8px 9px}table.basic th{background:#e9f2f4}table.basic th:first-child,table.basic td:first-child{text-align:left;font-weight:750}table.basic tr.selected td{background:#e4f5ee}.matrix{max-height:345px;overflow:auto}.matrix tr{cursor:pointer}.threeCircles{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}.hiddennode{display:flex;align-items:center;justify-content:center;flex-direction:column;border:3px solid var(--teal);background:#d5f0e8;border-radius:50%;width:125px;height:125px;text-align:center}.hiddennode b{font-size:15px}.hiddennode strong{font-size:23px}.matrixpanel{margin-top:10px}.simCell{min-width:120px}.valuebar{height:10px;background:#e3eaf0;border-radius:4px;overflow:hidden;margin-top:6px}.valuebar span{display:block;height:100%;background:var(--blue)}.valuebar.alt span{background:#d59a41}.vectorrow{display:flex;gap:7px;flex-wrap:wrap}.num{font-weight:800;background:#d7eee9;border-radius:7px;padding:8px 11px;font-size:20px}.tiny{font-size:13px;color:var(--muted)}.compacttext{font-size:16px}
+@media (max-width:1050px){.twocol,.twocol.equal{grid-template-columns:1fr}.slide{padding:18px;min-height:auto}nav button{flex:1 1 150px}.csvbox{max-height:325px}}@media(max-width:550px){body{font-size:16px}h1{font-size:28px}.lead{font-size:17px}.card{padding:12px}.token{font-size:17px;min-width:52px;padding:8px 7px}.hiddennode{height:88px;width:88px}.hiddennode strong{font-size:17px}.hiddennode b{font-size:12px}.formula{font-size:14px}}
+</style></head><body>
+<header><div><div class="brand">WORD EMBEDDING LAB</div><div class="subtitle">Word2Vec · CBOW & Skip-gram · Hidden-neuron weights · Similarity</div></div><button class="btn" id="fullscreen" type="button">Full screen ⛶</button></header>
+<nav aria-label="Slides"><button class="active" data-page="0">1 · Window & training data</button><button data-page="1">2 · Neural network</button><button data-page="2">3 · Embeddings vs. activations</button><button data-page="3">4 · Word similarity</button></nav>
+<main>
+<section class="slide active" data-slide="0">
+<h1>Predict words with a sliding window</h1><p class="lead">Click an interior word. Use CBOW to predict that word from its neighbors, or Skip-gram to predict its neighbors.</p>
+<div class="twocol">
+<div class="card soft"><div class="controls"><button class="btn selected" id="modeCbow">CBOW · neighbors → center</button><button class="btn" id="modeSkip">Skip-gram · center → neighbors</button></div>
+<div class="tag">Training sentence</div><div class="sentence" id="sentence"></div>
+<div class="row"><label for="radius" class="strong">Context window radius: <span id="radiusValue">1</span></label><span class="hint">Words on either side</span></div><input id="radius" type="range" min="1" max="3" step="1" value="1"/>
+<div class="controls"><button class="btn" id="previousWord">← Earlier center</button><button class="btn" id="nextWord">Next center →</button><button class="btn primary" id="predict">Predict</button><button class="btn" id="reveal">Reveal true word</button></div>
+<div class="card" style="margin-top:12px"><div class="tag">Current training example</div><div id="trainingExample" class="phrase"></div><div id="onehotExample" class="hint" style="margin-top:9px"></div></div>
+<div class="card" style="margin-top:12px"><div class="row"><div class="tag">Prediction from a small teaching network</div><div class="strong" id="predictionLabel">?</div></div><div id="predictionBars" class="compacttext hint">Press Predict to show the output probabilities.</div><div class="hint" id="answerMessage" style="margin-top:8px"></div></div>
+</div>
+<aside class="card csv"><div class="row"><div class="tag">Training dataset · CSV style</div><b id="rowCount">12 rows</b></div><div class="hint" style="margin:0 0 10px">Each row is one training example; select a row to change the highlighted center word.</div>
+<div class="csvbox"><table><thead><tr><th>Row</th><th>X (input word(s))</th><th>y (target)</th></tr></thead><tbody id="csvBody"></tbody></table></div>
+<div class="line"></div><div class="tag">What exactly is X?</div><div class="compacttext">Each input word is represented by a <b>one-hot vector</b> (one 1, otherwise 0). The hidden layer transforms it into a learned dense embedding. For CBOW, the input vectors are averaged; for Skip-gram, the center word is the input.</div></aside>
+</div></section>
+<section class="slide" data-slide="1">
+<h1>How the Word2Vec neural network works</h1><p class="lead">One-hot inputs activate hidden neurons through their <b>connection weights</b>. Those weights are the word embeddings.</p>
+<div class="twocol"><div><div class="network"><svg id="networkSvg" viewBox="0 0 790 600" role="img" aria-label="CBOW neural network showing one-hot inputs, three hidden neurons, and output probabilities"></svg></div><div class="card soft" style="margin-top:12px"><div class="tag">Reveal the forward pass</div><div class="steps"><button class="btn current" data-step="0">1 · One-hot</button><button class="btn" data-step="1">2 · Weights</button><button class="btn" data-step="2">3 · Hidden values</button><button class="btn" data-step="3">4 · Output</button></div><div class="controls"><button class="btn primary" id="nextStep">Next calculation →</button><button class="btn" id="restartSteps">Restart</button></div></div></div>
+<aside class="card"><div class="tag">Numerical walkthrough · predict <span id="targetLabel">York</span></div><div id="stepDetail"></div><div class="line"></div><div class="tag">Two sets of trainable weights</div><div class="compacttext"><b>E</b> = input → hidden weight matrix (<span id="eshape">10 × 3</span>)<br><b>O</b> = hidden → output weight matrix (<span id="oshape">3 × 10</span>)</div><p class="hint">In this simplified Word2Vec model, the hidden layer has <b>three linear neurons</b> and no hidden-layer bias. Each word's E row is its stored embedding.</p></aside>
+</div></section>
+<section class="slide" data-slide="2">
+<h1>Word embeddings vs. hidden-neuron outputs</h1>
+<p class="lead"><b>Embedding of one word = its connection weights in E.</b> For CBOW, the hidden neurons output the <b>average of the context words' embedding weights</b>.</p>
+<div class="twocol equal">
+  <div class="card">
+    <div class="tag">1 · Stored word embeddings (matrix E)</div>
+    <p class="compacttext" style="margin:0 0 10px">Each row belongs to one word. Each column is its weight going to hidden neuron h1, h2, or h3. <b>Click a row</b> to inspect that word's embedding.</p>
+    <div class="matrix" id="weightMatrix"></div>
+    <div class="line"></div>
+    <div class="tag">Selected word's weights: <span id="selectedWord">New</span></div>
+    <div class="formula" id="onehotMath"></div>
+    <p class="hint" style="margin:10px 0 0">These three <b>connection weights</b> are the word's stored embedding—not the hidden-layer output for the entire sentence context.</p>
+  </div>
+  <aside class="card soft">
+    <div class="tag">2 · Current CBOW hidden-neuron activations</div>
+    <div class="compacttext">For predicting <strong id="cbowTarget">York</strong>, use the highlighted context from Slide 1:</div>
+    <div id="cbowContextChips" class="vectorrow" style="margin:10px 0"></div>
+    <div class="hint" style="margin:0 0 8px">Look up each context word's row in E, then average its values <b>column by column</b>.</div>
+    <div id="cbowAverage" class="formula"></div>
+    <div class="tag" style="margin:16px 0 10px">Hidden neurons: averaged output for this context</div>
+    <div class="threeCircles" id="embeddingNeurons"></div>
+    <p class="hint" style="margin:12px 0 0">These are <b>hidden-neuron activation values</b> for the current group of context words. They are not the stored embedding of any single word.</p>
+    <div class="line"></div>
+    <div class="compacttext"><b>Takeaway:</b> one word → a row of weights; multiple context words → average those rows → h1, h2, h3 → predict the middle word.</div>
+  </aside>
+</div></section>
+<section class="slide" data-slide="3"><h1>Compare two word embeddings</h1><p class="lead">A word is represented by multiple numerical coordinates. Cosine similarity compares the directions of two vectors.</p>
+<div class="twocol equal"><div class="card"><div class="controls"><label for="wordA">First word</label><select id="wordA"><option>cat</option><option>dog</option><option>is</option><option>are</option><option>it</option></select><label for="wordB">Second word</label><select id="wordB"><option>dog</option><option>cat</option><option>is</option><option>are</option><option>it</option></select></div>
+<div class="tag">Embedding coordinates (from your lecture example)</div><table class="basic" id="similarityTable"><thead><tr><th>Coordinate</th><th>cat</th><th>dog</th></tr></thead><tbody></tbody></table><p class="hint">The bars provide a visual comparison; the exact coordinate values are displayed above each bar.</p></div>
+<aside class="card green"><div class="tag">Cosine similarity · step by step</div><div class="metric" id="cosineResult">0.9978</div><div class="formula">cos(A,B) = (A · B) / (‖A‖ × ‖B‖)</div><div id="cosineMath" style="margin-top:14px"></div><p class="hint">These four-dimensional lecture vectors are illustrative and separate from the small CBOW network on the previous slides.</p></aside></div></section>
+</main>
+<script>
+(()=>{'use strict';
+const DEMO_DATA={"S": ["New", "York", "City", "is", "great", "for", "travel", "and", "New", "York", "City", "is", "busy", "today"], "V": ["New", "York", "City", "is", "great", "for", "travel", "and", "busy", "today"], "models": {"cbow": {"E": [[-0.813445, -1.503249, 1.780626], [-2.179166, 0.369838, -2.072555], [2.07385, -0.333898, 1.612983], [0.698433, 1.521486, -1.787332], [0.19926, 1.724751, 0.306848], [1.435045, -1.043415, -1.185096], [-1.389572, 0.859721, 0.777121], [-0.745555, -1.608326, -0.178112], [0.702998, 0.62469, 0.349392], [-0.62844, 0.579698, 1.508891]], "O": [[-2.015621, 0.592589, -0.842352, 2.171629, 1.817956, -0.967185, 0.489735, -1.355373, -0.093703, -0.628563], [-0.576421, -1.498171, 1.155697, 0.798672, 0.491943, 1.724535, -1.871987, -0.522291, 1.43963, -0.484577], [-1.061137, 1.845613, -2.349461, 0.909083, -1.793822, 0.591345, -0.852308, 1.397935, -0.033418, 0.163117]], "b": [-0.037503, 0.127259, -0.486531, 0.434801, -0.193524, 0.192747, 0.330861, 0.318024, 0.533597, -1.21973]}, "skip": {"E": [[0.281646, -1.774189, 1.728446], [1.244907, -1.449699, -1.549449], [-1.878679, -0.44049, 1.848993], [-1.422369, -0.859147, -1.770006], [0.167819, 1.668766, 1.608758], [-0.718333, 1.771917, -1.561303], [1.737448, 0.053617, 1.529634], [1.514361, 1.192952, -1.450854], [-0.91088, 0.628792, 0.494872], [0.127905, 0.144456, 0.150787]], "O": [[2.069548, -1.101738, 0.138528, -1.256627, -1.12722, 1.503347, 0.71771, 1.480331, -1.160314, -0.904402], [-0.094793, -1.447059, -1.518318, 0.974535, 0.909293, 1.221568, 1.917815, -1.081185, -0.534113, 0.712741], [-1.616639, 1.953289, -1.892967, 1.908815, -1.776096, 1.575383, -1.546232, 1.801712, -1.334412, 0.701948]], "b": [-0.025648, -0.386859, 0.087566, 0.544122, -0.148456, 0.128301, -0.15769, -0.093099, -0.71729, 0.769054]}}};
+const S=DEMO_DATA.S,WORDS=DEMO_DATA.V,N=WORDS.length,D=3;
+const ORIGINAL=DEMO_DATA.models;
+let MODELS=JSON.parse(JSON.stringify(ORIGINAL));
+const state={page:0,mode:'cbow',center:1,radius:1,predicted:false,revealed:false,step:0,selectedWord:0};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmt=(n,k=2)=>Number(n).toFixed(k);const sigmoid=z=>1/(1+Math.exp(-z));
+const id=w=>WORDS.indexOf(w);
+const contexts=(center=state.center,radius=state.radius)=>S.map((_,i)=>i).filter(i=>i!==center&&Math.abs(i-center)<=radius);
+const centerIndices=()=>Array.from({length:S.length-2},(_,i)=>i+1);
+const onehot=k=>WORDS.map((_,i)=>i===k?1:0);
+const inputVector=(wordIndices)=>{const x=Array(N).fill(0);for(const j of wordIndices)x[j]+=1/wordIndices.length;return x;};
+function prediction(mode=state.mode,center=state.center){const xs=mode==='cbow'?contexts(center).map(i=>id(S[i])):[id(S[center])];const model=MODELS[mode];let h=Array.from({length:D},(_,d)=>xs.reduce((s,j)=>s+model.E[j][d],0)/xs.length);const scores=WORDS.map((_,j)=>model.b[j]+h.reduce((v,a,d)=>v+a*model.O[d][j],0));const mx=Math.max(...scores),ex=scores.map(z=>Math.exp(z-mx));const sm=ex.reduce((a,b)=>a+b,0);return{xs,x:inputVector(xs),h,scores,p:ex.map(v=>v/sm)};}
+function pairs(){const rows=[];for(let center=1;center<S.length-1;center++){const nb=contexts(center);if(state.mode==='cbow') rows.push({center,X:nb.map(i=>S[i]),y:S[center]});else nb.forEach(j=>rows.push({center,X:[S[center]],y:S[j]}));}return rows;}
+function renderSlide1(){const ns=contexts();$('radius').value=state.radius;$('radiusValue').textContent=state.radius;
+$('modeCbow').classList.toggle('selected',state.mode==='cbow');$('modeSkip').classList.toggle('selected',state.mode==='skip');
+$('sentence').innerHTML=S.map((w,i)=>`<button type="button" data-center="${i}" class="token ${i===state.center?'target':ns.includes(i)?'context':'dim'}" ${i===0||i===S.length-1?'disabled title="Select an interior word"':''}>${i===state.center&&!state.revealed?'?':esc(w)}</button>`).join('');
+$('sentence').querySelectorAll('[data-center]').forEach(b=>b.addEventListener('click',()=>{state.center=+b.dataset.center;state.predicted=false;state.revealed=false;render();}));
+const x=state.mode==='cbow'?ns.map(i=>S[i]):[S[state.center]];const y=state.mode==='cbow'?[S[state.center]]:ns.map(i=>S[i]);
+$('trainingExample').innerHTML=`${x.map(w=>`<span class="chip">${esc(w)}</span>`).join('')}<span class="arrow">→</span>${state.mode==='cbow'&&!state.revealed?'<span class="chip target">?</span>':y.map(w=>`<span class="chip target">${esc(w)}</span>`).join('')}`;
+$('onehotExample').innerHTML=`One-hot input example: <b>${esc(x[0])}</b> = [${onehot(id(x[0])).join(', ')}] &nbsp; (vocabulary order: ${WORDS.map(esc).join(', ')})`;
+const p=prediction();if(state.predicted){let top=p.p.map((v,i)=>({v,i})).sort((a,b)=>b.v-a.v).slice(0,5);
+$('predictionLabel').textContent=WORDS[top[0].i];$('predictionBars').innerHTML=top.map(({v,i})=>`<div class="pred"><b>${esc(WORDS[i])}</b><div class="bar"><div style="width:${(v*100).toFixed(1)}%"></div></div><span>${fmt(v*100,1)}%</span></div>`).join('');}else {$('predictionLabel').textContent='?';$('predictionBars').textContent='Press Predict to display network predictions.';}
+$('answerMessage').innerHTML=state.revealed?`True ${state.mode==='cbow'?'center word':'neighbor words'}: <b>${y.map(esc).join(', ')}</b>`:'Answer hidden until you click Reveal.';
+const rows=pairs();$('rowCount').textContent=`${rows.length} rows`;$('csvBody').innerHTML=rows.map((r,i)=>`<tr data-rowcenter="${r.center}" class="${r.center===state.center?'selected':''}"><td>${i+1}</td><td>${esc(r.X.join(' · '))}</td><td>${esc(r.y)}</td></tr>`).join('');
+$('csvBody').querySelectorAll('[data-rowcenter]').forEach(tr=>tr.addEventListener('click',()=>{state.center=Number(tr.dataset.rowcenter);state.revealed=false;state.predicted=false;render();}));}
+function svgText(x,y,t,size=16,fill='#163246',weight=700,anchor='middle'){return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" fill="${fill}" font-weight="${weight}">${esc(t)}</text>`}
+function renderNetworkSvg(){const p=prediction('cbow'),st=state.step;const xi=p.x;let svg='';let inputXs=183,hiddenX=419,outputX=640;let iy=(i)=>75+49*i;let hy=[154,301,448],oy=(i)=>75+49*i;
+svg+=svgText(170,29,'One-hot input x',21)+svgText(hiddenX,29,'3 hidden neurons',21)+svgText(outputX,29,'Output words',21);
+for(let i=0;i<N;i++){for(let d=0;d<D;d++) svg+=`<line x1="${inputXs+26}" y1="${iy(i)}" x2="${hiddenX-38}" y2="${hy[d]}" stroke="${xi[i]>0&&st>=1?'#3ca898':'#d8e2e7'}" stroke-width="${xi[i]>0&&st>=1?2.7:.7}" opacity="${xi[i]>0&&st>=1?0.95:0.58}"/>`;}
+for(let d=0;d<D;d++){for(let j=0;j<N;j++)svg+=`<line x1="${hiddenX+35}" y1="${hy[d]}" x2="${outputX-37}" y2="${oy(j)}" stroke="${st>=3?'#8db2cb':'#e3eaee'}" stroke-width="${st>=3?1.4:.7}"/>`;}
+for(let i=0;i<N;i++){svg+=svgText(104,iy(i)+6,WORDS[i],16,'#36546b',700,'end');svg+=`<rect x="${inputXs-26}" y="${iy(i)-17}" rx="7" width="52" height="34" fill="${xi[i]?'#d2f1e7':'#f0f4f6'}" stroke="${xi[i]?'#14938b':'#cbd9df'}"/>`+svgText(inputXs,iy(i)+6,fmt(xi[i],2),14,xi[i]?'#07584f':'#70818e',700);}
+for(let d=0;d<D;d++){svg+=`<circle cx="${hiddenX}" cy="${hy[d]}" r="39" fill="${st>=2?'#c9eee3':'#e9f2f3'}" stroke="#138f8b" stroke-width="2.5"/>`+svgText(hiddenX,hy[d]-5,`h${d+1}`,18,'#075c57',800)+svgText(hiddenX,hy[d]+17,st>=2?fmt(p.h[d],2):'?',18,'#075c57',800);}
+for(let i=0;i<N;i++){svg+=`<rect x="${outputX-44}" y="${oy(i)-17}" rx="7" width="92" height="34" fill="${st>=3?'#deecf4':'#f2f6f7'}" stroke="#a6c5d6"/>`+svgText(outputX,oy(i)+5,st>=3?`${WORDS[i]}  ${fmt(p.p[i]*100,0)}%`:WORDS[i],13,'#23516a',750);}
+$('networkSvg').innerHTML=svg;}
+function renderNetwork(){const p=prediction('cbow'),active=contexts(),model=MODELS.cbow;
+$('targetLabel').textContent=S[state.center];$('eshape').textContent=`${N} × ${D}`;$('oshape').textContent=`${D} × ${N}`;
+const inputList=active.map(i=>`${S[i]}: [${onehot(id(S[i])).join(', ')}]`).join('<br>');
+const inputWeights=active.map(i=>`<b>${esc(S[i])}</b> → (${model.E[id(S[i])].map(v=>fmt(v,2)).join(', ')})`).join('<br>');
+const hEq=Array.from({length:D},(_,d)=>`<b>h${d+1}</b> = (${active.map(i=>fmt(model.E[id(S[i])][d],2)).join(' + ')})/${active.length} = <b>${fmt(p.h[d],3)}</b>`).join('<br>');
+const steps=[
+`<div class="tag">1 · One-hot inputs</div><p>There is one input neuron for every vocabulary word. Each context word activates its corresponding input unit.</p><div class="formula smallformula">${inputList}</div><p class="hint">For CBOW, we average their one-hot vectors, giving each context word weight 1/${active.length}.</p>`,
+`<div class="tag">2 · Connection weights E</div><p><b>E</b> means the <b>input-to-hidden weight matrix</b>. For each word, three connections go to hidden neurons h1, h2 and h3.</p><div class="formula smallformula">${inputWeights}</div><p class="hint">Each list is a row of E, not a new calculation invented by the hidden layer.</p>`,
+`<div class="tag">3 · Hidden neuron values</div><p>The three hidden neurons are <b>linear</b> (no sigmoid/ReLU). Their activations are the average incoming weighted signals:</p><div class="formula smallformula">${hEq}</div><p class="hint">A word's embedding is its stored row of E. The hidden values shown here are the <b>average</b> for the current CBOW context.</p>`,
+`<div class="tag">4 · Output scores and softmax</div><p>Each hidden value feeds all output neurons through the second weight matrix O.</p><div class="formula smallformula">score(word j) = Σ hᵈ × Oᵈⱼ + bⱼ<br><br>${WORDS.map((w,i)=>`${esc(w)}: ${fmt(p.scores[i],2)} → ${fmt(p.p[i]*100,1)}%`).join('<br>')}</div>`];
+$('stepDetail').innerHTML=steps[state.step];
+document.querySelectorAll('[data-step]').forEach(b=>b.classList.toggle('current',+b.dataset.step===state.step));renderNetworkSvg();}
+function renderWeights(){
+const E=MODELS.cbow.E;
+let tb='<table class="basic"><thead><tr><th>Word</th><th>Weight → h1</th><th>Weight → h2</th><th>Weight → h3</th></tr></thead><tbody>';
+E.forEach((row,i)=>tb+=`<tr data-choose-word="${i}" class="${state.selectedWord===i?'selected':''}"><td>${esc(WORDS[i])}</td>${row.map(v=>`<td>${fmt(v,3)}</td>`).join('')}</tr>`);
+tb+='</tbody></table>';
+$('weightMatrix').innerHTML=tb;
+$('weightMatrix').querySelectorAll('[data-choose-word]').forEach(tr=>tr.addEventListener('click',()=>{state.selectedWord=+tr.dataset.chooseWord;renderWeights();}));
+const ix=state.selectedWord,word=WORDS[ix],weights=E[ix];
+$('selectedWord').textContent=word;
+$('onehotMath').innerHTML=`one-hot(${esc(word)}) × E<br>= <b>[${weights.map(v=>fmt(v,3)).join(', ')}]</b><br>= embedding(${esc(word)})`;
+const positions=contexts();
+const words=positions.map(i=>S[i]);
+const p=prediction('cbow');
+$('cbowTarget').textContent=S[state.center];
+$('cbowContextChips').innerHTML=words.map(w=>`<span class="chip">${esc(w)}</span>`).join('');
+const rows=words.map(w=>({word:w,values:E[id(w)]}));
+const hdr='<tr><th>Context word</th><th>to h1</th><th>to h2</th><th>to h3</th></tr>';
+const tableRows=rows.map(r=>`<tr><td>${esc(r.word)}</td>${r.values.map(v=>`<td>${fmt(v,3)}</td>`).join('')}</tr>`).join('');
+const result=`<tr class="selected"><td><b>Average (h)</b></td>${p.h.map(v=>`<td><b>${fmt(v,3)}</b></td>`).join('')}</tr>`;
+const equations=Array.from({length:D},(_,d)=>`h${d+1} = (${rows.map(r=>fmt(r.values[d],3)).join(' + ')}) ÷ ${rows.length} = <b>${fmt(p.h[d],3)}</b>`).join('<br>');
+$('cbowAverage').innerHTML=`<div style="overflow-x:auto"><table class="basic"><thead>${hdr}</thead><tbody>${tableRows}${result}</tbody></table></div><div class="smallformula" style="margin-top:9px">${equations}</div>`;
+$('embeddingNeurons').innerHTML=p.h.map((value,d)=>`<div class="hiddennode"><b>Hidden h${d+1}</b><strong>${fmt(value,3)}</strong></div>`).join('');
+}
+const LECTURE={it:[.14,.89,.25,.43],is:[.76,.24,.13,.22],cat:[.34,.67,.76,.63],are:[.82,.21,.11,.24],dog:[.36,.68,.79,.75]};
+function cosine(a,b){const dot=a.reduce((s,x,i)=>s+x*b[i],0);const sa=a.reduce((s,x)=>s+x*x,0),sb=b.reduce((s,x)=>s+x*x,0);return{dot,sa,sb,normA:Math.sqrt(sa),normB:Math.sqrt(sb),sim:dot/Math.sqrt(sa*sb)}}
+function renderSimilarity(){let w1=$('wordA').value,w2=$('wordB').value,a=LECTURE[w1],b=LECTURE[w2],c=cosine(a,b);
+$('similarityTable').querySelector('thead').innerHTML=`<tr><th>Coordinate</th><th>${esc(w1)}</th><th>${esc(w2)}</th></tr>`;
+$('similarityTable').querySelector('tbody').innerHTML=a.map((v,i)=>`<tr><td>Dimension ${i+1}</td><td class="simCell"><b>${fmt(v,2)}</b><div class="valuebar"><span style="width:${v*100}%"></span></div></td><td class="simCell"><b>${fmt(b[i],2)}</b><div class="valuebar alt"><span style="width:${b[i]*100}%"></span></div></td></tr>`).join('');
+$('cosineResult').textContent=fmt(c.sim,4);
+$('cosineMath').innerHTML=`<div class="tag">1 · Dot product</div><div class="formula smallformula">A · B = ${a.map((v,i)=>`(${fmt(v,2)} × ${fmt(b[i],2)})`).join(' + ')}<br><b>= ${fmt(c.dot,4)}</b></div><div class="tag" style="margin-top:13px">2 · Vector lengths</div><div class="formula smallformula">‖A‖ = √(${a.map(v=>fmt(v,2)+'²').join(' + ')}) = <b>${fmt(c.normA,4)}</b><br>‖B‖ = √(${b.map(v=>fmt(v,2)+'²').join(' + ')}) = <b>${fmt(c.normB,4)}</b></div><div class="tag" style="margin-top:13px">3 · Divide</div><div class="formula smallformula">${fmt(c.dot,4)} / (${fmt(c.normA,4)} × ${fmt(c.normB,4)})<br><b>= ${fmt(c.sim,4)}</b></div>`;}
+function render(){renderSlide1();renderNetwork();renderWeights();renderSimilarity()}
+function showPage(i){state.page=Math.max(0,Math.min(3,i));document.querySelectorAll('.slide').forEach(s=>s.classList.toggle('active',+s.dataset.slide===state.page));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',+b.dataset.page===state.page));window.scrollTo(0,0);render()}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>showPage(+b.dataset.page)));
+$('modeCbow').addEventListener('click',()=>{state.mode='cbow';state.predicted=false;state.revealed=false;render()});$('modeSkip').addEventListener('click',()=>{state.mode='skip';state.predicted=false;state.revealed=false;render()});
+$('radius').addEventListener('input',e=>{state.radius=+e.target.value;state.predicted=false;state.revealed=false;render()});
+function moveWord(v){state.center=Math.max(1,Math.min(S.length-2,state.center+v));state.predicted=false;state.revealed=false;render()}
+$('previousWord').addEventListener('click',()=>moveWord(-1));$('nextWord').addEventListener('click',()=>moveWord(1));$('predict').addEventListener('click',()=>{state.predicted=true;renderSlide1()});$('reveal').addEventListener('click',()=>{state.revealed=!state.revealed;renderSlide1()});
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{state.step=+b.dataset.step;renderNetwork()}));$('nextStep').addEventListener('click',()=>{state.step=Math.min(3,state.step+1);renderNetwork()});$('restartSteps').addEventListener('click',()=>{state.step=0;renderNetwork()});
+
+$('wordA').addEventListener('change',renderSimilarity);$('wordB').addEventListener('change',renderSimilarity);
+$('fullscreen').addEventListener('click',()=>{if(!document.fullscreenElement){document.documentElement.requestFullscreen?.().catch(()=>{})}else{document.exitFullscreen?.()}});
+document.addEventListener('keydown',e=>{if(['INPUT','SELECT','BUTTON','TEXTAREA'].includes(document.activeElement?.tagName))return;if(e.key==='ArrowRight')showPage(state.page+1);if(e.key==='ArrowLeft')showPage(state.page-1)});
+render();
+})();
+</script></body></html>
