@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LLM Pre-Training & Transformers | Interactive Classroom v9</title>
+<style>
+:root{--bg:#f2f5f9;--paper:#fff;--ink:#182638;--muted:#52677d;--line:#dce5ed;--navy:#173658;--teal:#128d93;--blue:#3579ba;--amber:#d29232;--pink:#bf5e79;--soft:#e7f4f3;--good:#087b75;--red:#bc4f56;--shadow:0 8px 26px #12283b0b}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:18px}button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}button:focus-visible,input:focus-visible{outline:3px solid #edae4e;outline-offset:3px} .shell{max-width:1450px;margin:0 auto;padding:18px 24px 28px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}.brand{font-size:15px;letter-spacing:.14em;font-weight:800;color:var(--teal);text-transform:uppercase}.small{font-size:15px;color:var(--muted)}.stepcount{font-size:16px;font-weight:750;color:var(--navy)}
+nav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}nav button{border:1px solid #ccd9e5;border-radius:11px;padding:11px 14px;background:#fff;color:#4a5c6b;font-size:15px;font-weight:680}nav button.active{background:var(--navy);color:white;border-color:var(--navy)}nav button:hover:not(.active){background:#e7f1f8}
+.slide{display:none;min-height:680px}.slide.active{display:block}.heading{margin-bottom:17px}.eyebrow{font-size:14px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--teal);margin-bottom:5px}.heading h1{font-size:clamp(31px,3.2vw,45px);line-height:1.12;margin:0 0 7px;letter-spacing:-.035em}.heading p{font-size:19px;line-height:1.4;color:var(--muted);margin:0;max-width:1100px}
+.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(345px,1fr);gap:18px;align-items:stretch}.layout.even{grid-template-columns:1fr 1fr}.panel{background:var(--paper);border:1px solid var(--line);border-radius:17px;padding:19px 20px;box-shadow:var(--shadow);min-width:0}.panel h2{font-size:23px;margin:0 0 13px;line-height:1.2}.panel h3{font-size:19px;margin:12px 0 9px}.panel p{color:var(--muted);line-height:1.45;margin:9px 0}.panel.dim{background:#f9fbfd}.label{font-size:14px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.055em}.stat{font-size:31px;font-weight:850;letter-spacing:-.04em}.note{padding:13px 15px;border-left:4px solid var(--teal);background:#eef7f8;border-radius:9px;font-size:17px;line-height:1.4;color:#244a56;margin-top:14px}.chiprow{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.chip{display:inline-flex;align-items:center;justify-content:center;border:1px solid #cddce6;background:#f5f8fa;color:#1c3550;padding:9px 12px;border-radius:10px;font-size:20px;font-weight:650;min-height:47px}.chip.pred{background:#fff0d7;border:2px dashed var(--amber)}.chip.truth{background:#d6f1ed;border:2px solid var(--teal)}.chip.context{background:#e2edff;border:2px solid #6e9acd}.chip.blank{background:#fff4dc;border:2px dashed #c69a55;min-width:88px}.chip.ghost{color:#adb7c1;background:#f5f6f7}.between{display:flex;justify-content:space-between;gap:10px;align-items:center}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:13px 0}.btn{background:white;color:var(--navy);padding:12px 16px;border:1px solid #c6d7e2;border-radius:11px;font-weight:750;min-height:48px}.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}.btn.secondary{background:var(--navy);border-color:var(--navy);color:white}.btn.selected{background:var(--navy);border-color:var(--navy);color:white}.btn:disabled{cursor:not-allowed;opacity:.43}.btn:hover:not(:disabled){filter:brightness(.96)}
+.scrolltable{overflow-x:auto;max-width:100%}table{border-collapse:collapse;width:100%;font-size:16px}th{text-align:left;color:#446176;background:#eef3f8;font-weight:800}td,th{padding:9px 10px;border-bottom:1px solid #e1e9f0}tr.selectable{cursor:pointer}tr.selectable:hover{background:#f3f9fc}tr.selected{background:#ddf0f0}td.mono,.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}.formula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:18px;color:#213f54;background:#f2f6fa;border:1px solid #dce7ef;padding:11px;border-radius:9px;line-height:1.5;overflow-wrap:anywhere}.progress{height:17px;background:#e8eff5;border-radius:10px;overflow:hidden;flex:1}.progress span{height:100%;display:block;border-radius:10px;background:var(--blue);transition:width .24s}.barrow{display:grid;grid-template-columns:115px minmax(0,1fr) 62px;gap:10px;align-items:center;margin:10px 0;font-size:17px}.barrow.correct .progress span{background:var(--teal)}.barrow.future{opacity:.37}.barrow .pct{text-align:right;font-family:ui-monospace,monospace;font-size:16px;font-weight:700}.muted{color:var(--muted)}.tiny{font-size:13px;color:var(--muted)}.bigcenter{text-align:center;padding:24px 12px;font-size:26px;font-weight:850}.line{height:1px;background:#e1eaf0;margin:13px 0}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.metrics{display:flex;gap:18px;flex-wrap:wrap}.metrics>div{min-width:125px}
+svg{max-width:100%;display:block}#attentionSVG{width:100%;height:auto}#architectureSVG{width:100%;height:auto}.matrix{display:inline-grid;grid-auto-rows:38px;gap:4px;font-family:ui-monospace,monospace;font-size:17px;font-weight:600}.matrix span{display:flex;align-items:center;justify-content:center;min-width:58px;padding:4px 8px;background:#eef4f8;border-radius:5px}.matrix .hot{background:#cae9e5;color:#115452}.matrix .mask{background:#f2e7e7;color:#ae6666}.matrixbox{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:flex-start}.matrixhead{font-weight:800;text-align:center;margin-bottom:8px;color:var(--navy);font-size:19px}.stagegrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stepcard{padding:13px;border:1px solid #dce6ef;border-radius:12px;min-width:0}.stepcard h3{font-size:17px;margin:0 0 8px}.stepcard .value{font-size:20px;font-weight:800;color:var(--navy);word-break:break-word}.stepcard.active{border:2px solid var(--teal);background:#eef8f7}.heatmap{display:grid;gap:5px;align-items:center;justify-content:start}.heatmap .hcell{height:48px;min-width:48px;border-radius:5px;display:flex;justify-content:center;align-items:center;font-size:15px;font-weight:800;border:1px solid #e0e7ed}.legend{display:flex;gap:13px;align-items:center;flex-wrap:wrap;font-size:15px;color:var(--muted)}.legend i{width:15px;height:15px;display:inline-block;border-radius:4px;margin-right:5px;vertical-align:-2px}.rangebox{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:18px 0}.rangebox input{accent-color:var(--teal);flex:1;min-width:160px;height:35px}.highlight-num{color:var(--teal);font-size:25px;font-weight:800}.arch-description{padding:14px 16px;background:#eef6f8;border:1px solid #d4e8eb;border-radius:12px;font-size:17px;line-height:1.42;margin:10px 0}.archnodes{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:23px 0;flex-wrap:wrap}.archnode{flex:1 1 130px;text-align:center;padding:19px 12px;border-radius:13px;border:2px solid #9dbece;background:#eaf3f7;font-size:19px;font-weight:800;color:#173c5b;min-height:88px}.archnode.orange{border-color:#dfb468;background:#fff4dd}.archnode.green{border-color:#68b9a6;background:#e2f4ec}.archarrow{font-size:32px;color:#7497a8;font-weight:800;flex:0 0 auto}.tokenlist{display:flex;gap:7px;flex-wrap:wrap}.vis-grid{display:grid;gap:4px;align-items:center;margin:9px 0 4px}.viscell{display:flex;align-items:center;justify-content:center;min-width:33px;height:34px;border-radius:5px;font-size:15px;font-weight:800;background:#ddf1eb;color:#086f63}.viscell.no{background:#f0f1f3;color:#a7afb7}.vislabel{font-size:14px;font-weight:700;color:#5b6e7e;text-align:center}.viscollection{display:flex;gap:22px;flex-wrap:wrap}.viscollection>div{min-width:145px}.translated{background:#e1f3ee;border:1px solid #b0dacc;border-radius:11px;padding:15px;font-size:24px;font-weight:800;min-height:67px}.footer{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:20px}.foot-right{display:flex;gap:10px}.hidden{display:none!important}
+@media(max-width:1000px){.layout,.layout.even{grid-template-columns:1fr}.slide{min-height:0}.stagegrid{grid-template-columns:repeat(2,1fr)}.shell{padding:14px}.heading h1{font-size:32px}.panel{padding:16px}}
+@media(max-width:540px){nav{gap:5px}nav button{padding:10px;font-size:13px}.chip{font-size:16px;min-height:42px}.stagegrid{grid-template-columns:1fr 1fr}.barrow{grid-template-columns:93px 1fr 55px}.panel h2{font-size:21px}body{font-size:16px}.heading p{font-size:16px}.foot-right{flex-wrap:wrap}.archnodes{flex-direction:column}.archarrow{transform:rotate(90deg)}.archnode{width:100%;flex-basis:auto}}
+
+/* Make Q/K/V output components explicitly named on the projection slide */
+.projectionGrid .projValue{display:flex;gap:6px;flex-direction:column;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-size:18px;line-height:1.25}
+.projectionGrid .projValue>span{white-space:nowrap}
+.projectionGrid .projValue sub{font-size:11px}
+.projectedTable{font-size:15px}
+.projectedTable th,.projectedTable td{font-size:14px;padding:10px 8px}
+.mathSide .mathQkvGuide{margin:14px 0;background:#edf8f5;border-radius:10px;padding:13px 15px;font-size:16px;color:#25565a;line-height:1.42}
+.attentionStageBelow .attTable{max-width:100%}
+/* Visible multiplication from X through the selected projection matrix */
+.multiplyWork{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:15px;line-height:1.42}
+.multiplyWork .label{font-family:inherit;font-size:14px;margin-bottom:7px}
+.multiplyInput{font-weight:800;font-size:17px;margin-bottom:8px;color:#1d4865}
+.multiplyLine{padding:8px 0;border-top:1px solid #dbe7ef;display:grid;grid-template-columns:93px minmax(0,1fr) 69px;gap:7px;align-items:center}.multiplyLine b{font-size:13px;white-space:nowrap}
+.multiplyLine span{overflow-wrap:anywhere}.multiplyLine strong{white-space:nowrap;color:#087e77;font-size:17px}
+.multiplyAnswer{border-top:2px solid #a4d4ce;padding:10px 0 0;font-size:19px;font-weight:850;color:#116f6d}
+/* Guided attention and model examples */
+.intuitionSummary{display:flex;gap:13px;align-items:center;flex-wrap:wrap;margin-top:15px}.intuitionPill{padding:11px 15px;border:1px solid #b6dacf;border-radius:12px;background:#e9f7f3;color:#145957;font-size:20px;font-weight:800}.legendStrong{display:flex;align-items:center;gap:9px;font-size:17px;color:#42647a}
+.mathLayout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(315px,.8fr);gap:17px}.mathChoice{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0 16px}.mathExplanation{font-size:21px;line-height:1.48;min-height:72px;color:#28465b}.mathFormula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:19px;line-height:1.5;color:#204454}.mathCompute{background:#f0f7fa;border:1px solid #d7e7ef;border-radius:14px;padding:19px;margin:14px 0;min-height:175px}.mathCompute h3{margin:0 0 10px;font-size:22px}.mathStepCounter{font-weight:850;color:var(--teal);letter-spacing:.04em;text-transform:uppercase;font-size:15px}.calcTokens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:15px 0}.calcToken{background:#f1f6f9;border:1px solid #d0e0e8;border-radius:11px;padding:13px 8px;text-align:center;font-size:17px;font-weight:750}.calcToken.active{background:#e0f4ef;border-color:#69b6ac}.calcToken.blocked{opacity:.5;background:#f6eaea}.calcToken .number{font-size:22px;color:#163c58;font-variant-numeric:tabular-nums;margin-top:4px}.weightTrack{height:17px;background:#e5eef3;border-radius:15px;overflow:hidden;margin:7px 0}.weightTrack div{height:100%;background:#198e94;border-radius:15px;transition:width .2s}.kvTable{font-size:17px}.kvTable th,.kvTable td{text-align:center;padding:10px 7px}.kvTable td.sel{background:#d8f3e9;font-weight:850}.mathDoc{background:#f8fafc;border:1px solid #e1e9f0;border-radius:11px;padding:12px;font-size:16px;line-height:1.55;color:#435d72}
+.demoTag{font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#577084;font-size:14px;margin-bottom:10px}.demoRow{border:1px solid #d8e6ed;border-radius:13px;padding:14px;margin:12px 0;background:#f8fafc}.demoRow.active{background:#eef8f6;border:2px solid #2c9994}.demoRow .chip{font-size:19px;min-height:42px;padding:7px 11px}.demoArrow{font-size:19px;text-align:center;font-weight:800;color:#65899c;margin:9px 0}.demoToken{background:#e4edf8;border:1px solid #a8c6df;border-radius:9px;padding:8px 12px;font-weight:750;font-size:19px}.demoToken.focus{background:#ffe7c3;border:2px solid #c99b57}.demoToken.generated{background:#d8f3e9;border:1px solid #67ad9e}.demoToken.dim{opacity:.45}.demoTokens{display:flex;align-items:center;flex-wrap:wrap;gap:7px;min-height:48px}.demoOutput{background:#e5f5ef;border:1px solid #a9d8ca;border-radius:13px;padding:16px;font-size:25px;font-weight:850;color:#0a625c;min-height:69px}.demoInfo{font-size:20px;line-height:1.42;color:#304d61;min-height:100px}.demoProgress{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}.demoProgress span{padding:7px 11px;border:1px solid #d2dee7;border-radius:8px;font-size:15px;font-weight:700;background:#f3f6f9}.demoProgress span.current{background:#176f76;color:white;border-color:#176f76}.demoProgress span.past{background:#d6f1e9}.demoMode{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 18px}.demoMode .btn{font-size:17px}.mathMathSide{max-height:580px;overflow:auto}
+@media(max-width:1050px){.mathLayout{grid-template-columns:1fr}.mathMathSide{max-height:none}}@media(max-width:600px){.calcTokens{grid-template-columns:1fr 1fr}.mathExplanation{font-size:18px}.demoInfo{font-size:18px}}
+
+/* Revised lesson visuals: consistent reading order and projector-friendly graphics */
+.pillNotice{display:flex;align-items:center;gap:13px;padding:15px 18px;border:2px solid #dba450;background:#fff8e7;border-radius:12px;margin:14px 0;font-size:19px;font-weight:700;color:#664c24}
+.pillNotice strong{font-size:24px;color:#9a5610}.exampleSwitcher{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}.shortHelp{font-size:16px;line-height:1.35;color:#52677d}
+.wideGrid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(360px,.8fr);gap:18px}.matrixMini{font-family:ui-monospace,monospace;font-size:16px;font-weight:700}.matrixMini td,.matrixMini th{text-align:center;padding:7px 9px}.matrixMini tr.selected{background:#dbf3ec}
+.vectorLine{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0}.vectorLine span{font-family:ui-monospace,monospace;background:#eef5fa;padding:8px 9px;border-radius:7px;font-weight:750;font-size:18px}.vectorLine .em{background:#d9f2ea;color:#0d5b58}
+.qkvTabs{display:flex;gap:8px;flex-wrap:wrap}.qkvStep{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:7px 0}.projectionGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.projectionGrid>div{background:#eef7fa;border:1px solid #cfe0e8;border-radius:10px;padding:10px;text-align:center}.projectionGrid strong{font-size:21px;color:#14546b}.projectionGrid small{font-size:14px;color:#52677d}
+.archSvg{width:100%;height:auto;background:#f7fbfd;border:1px solid #d7e6ee;border-radius:14px}.archLegend{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 4px;font-size:15px;font-weight:680;color:#4d6578}.archLegend i{display:inline-block;width:26px;height:5px;border-radius:3px;margin-right:6px;vertical-align:4px}
+.archMeaning{font-size:16px;color:#35566a;background:#eef7f9;border-radius:10px;padding:11px 13px;margin:10px 0}
+@media(max-width:1000px){.wideGrid{grid-template-columns:1fr}}@media(max-width:600px){.projectionGrid{grid-template-columns:1fr}.pillNotice{font-size:16px}}
+
+/* Unambiguous token notation and readable attention matrices. */
+.attentionMatrixPair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.attentionMatrixPair h3{font-size:17px;margin:5px 0}
+.attentionMatrixPair .tiny{font-size:13px;min-height:30px}
+.attTable{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:3px;margin:8px 0}
+.attTable th{font-size:12px;padding:6px 1px;text-align:center;border:0;background:#edf3f7;border-radius:5px}
+.attTable td{padding:0;border:0;text-align:center}
+.attCell{width:100%;min-height:46px;border:1px solid #cbdde3;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:780;color:#1a4758;font-variant-numeric:tabular-nums}
+.attCell.masked{background:#f4e8eb!important;color:#a4aab0}
+.attTable tr.focusRow .attCell{outline:2px solid #128d93;outline-offset:-2px}
+.attTable tr:not(.focusRow){opacity:.89}
+.mathMatrixLegend{display:flex;align-items:center;flex-wrap:wrap;gap:7px;font-size:12px;font-weight:650;color:#52677d;margin:9px 0}
+.maskSwatch{width:19px;height:14px;background:#f4e8eb;border:1px solid #ddc5cb;border-radius:3px}
+.mathSmallFormula{font-family:ui-monospace,monospace;background:#eff6fa;border-radius:8px;padding:10px;margin-top:12px;font-size:14px;line-height:1.7}
+.compactDetails{border-top:1px solid #dfebf1;margin-top:14px;padding-top:10px}
+.compactDetails summary{cursor:pointer;font-size:15px;color:#155b75;font-weight:800}
+.compactDetails[open] .formula{margin:8px 0}
+.mathSide .small{font-size:14px;margin:5px 0 0}
+.archFlowNote{display:flex;align-items:center;justify-content:space-around;gap:6px;flex-wrap:wrap;background:#eef5fb;border:1px solid #d4e4ec;padding:10px;border-radius:10px;font-size:15px;font-weight:760;color:#214b60;margin-top:10px}
+@media(max-width:1180px){.attentionMatrixPair{grid-template-columns:1fr}.attCell{min-height:38px}}
+
+/* Slide 5: transparent numerical provenance without revealing the answer too early */
+.attentionStageBelow{margin-top:13px}
+.attentionStageBelow .attTable{max-width:570px}
+.attentionStageBelow .attCell{min-height:43px;font-size:16px}
+.attentionStageBelow h2{font-size:22px;margin-bottom:5px}
+
+.mathSourceFormula{background:#eaf5f6;border-radius:9px;padding:9px 11px;font-size:17px;font-weight:750;color:#205a61;text-align:center;margin-bottom:8px}
+.originInput .label,.mathVectorSummary .label{font-size:12px}
+.miniOriginTable{width:100%;border-collapse:collapse;table-layout:auto;font-size:12px;line-height:1.15;font-variant-numeric:tabular-nums}
+.miniOriginTable th,.miniOriginTable td{padding:5px 5px;border-bottom:1px solid #e4edf1;text-align:center;white-space:nowrap}
+.miniOriginTable th{background:#edf4f8;color:#355a6a}
+.miniOriginTable tr.selected>td,.miniOriginTable tr.selected>th{background:#d9f2ea}
+.weightMatrices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:7px 0 9px}
+.miniW{border:1px solid #d7e6ee;border-radius:9px;padding:4px;min-width:0}
+.miniW .miniOriginTable{font-size:11.5px}
+.miniW .miniOriginTable th,.miniW .miniOriginTable td{padding:5px 3px}
+.miniWTitle{text-align:center;font-size:17px;font-weight:850;color:#164b65}
+.mathVectorSummary{margin:8px 0 5px}
+.projectedTable th,.projectedTable td{font-size:11.5px;padding:5px 3px}
+.matrixWait{background:#f2f5f8;border:1px dashed #bdcbd5;color:#527082;font-size:15px;line-height:1.4;padding:14px;border-radius:10px;margin-top:11px}
+.dimensionNote{color:#25556b;font-size:16px;line-height:1.3;margin:8px 0}
+@media(max-width:600px){.weightMatrices{grid-template-columns:repeat(3,minmax(0,1fr))}.miniOriginTable th,.miniOriginTable td{font-size:11px;padding:3px 2px}}
+
+/* Slide 5 v8: Q/K/V and progressive attention matrix in the reference column */
+.mathSide .attentionStageBelow{margin-top:15px;padding-top:12px;border-top:1px solid #d9e5ec}
+.mathSide .attentionStageBelow .attTable{max-width:100%;margin-top:9px}
+.mathSide .attentionStageBelow .attCell{min-height:51px;font-size:17px}
+.mathSide .attentionStageBelow h2{font-size:22px;margin-bottom:4px}
+.mathSide .attentionStageBelow .small{font-size:15px;line-height:1.4;margin:5px 0}
+.mathSide .attentionStageBelow .matrixWait{font-size:16px;line-height:1.45;margin-top:9px}
+.mathSide .attentionStageBelow .mathMatrixLegend{font-size:12px;line-height:1.35}
+.mathSide .attentionStageBelow .mathSmallFormula{font-size:13px;padding:8px 10px;margin-top:8px}
+.softmaxWork{border:1px solid #c9e4df;background:#fbfffd;padding:13px 14px;margin-top:13px;border-radius:11px;font-size:16px;color:#234a53}
+.softmaxWork .softmaxLabel{font-size:15px;font-weight:850;color:#126d69;margin-bottom:7px}
+.softmaxWork .softmaxDenom{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-weight:700;font-size:16px;line-height:1.6;padding:6px 9px;background:#e8f5f2;border-radius:8px;margin-bottom:8px}
+.softmaxWork .softmaxRows{display:grid;grid-template-columns:1fr;gap:5px}
+.softmaxWork .softmaxRow{display:grid;grid-template-columns:112px minmax(0,1fr) 63px;align-items:center;gap:8px;padding:6px 8px;background:#f1f8f7;border-radius:7px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:15px}
+.softmaxWork .softmaxRow .exp{font-weight:650;overflow-wrap:anywhere}
+.softmaxWork .softmaxRow strong{text-align:right;color:#0a736b;font-size:17px}
+@media(max-width:520px){.softmaxWork .softmaxRow{grid-template-columns:80px minmax(0,1fr) 58px;font-size:12px}.softmaxWork .softmaxRow strong{font-size:14px}}
+
+
+/* Slide 1 — classroom-size sliding causal context */
+.trainFullSentence{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:10px 0 16px;line-height:1.15}
+.trainFullSentence .chip{font-size:16px;min-height:34px;padding:6px 9px;border-radius:7px}
+.trainFullSentence .chip.current{background:#fff1d5;border:2px solid #c99036;color:#694407}
+.trainFullSentence .chip.future{opacity:.53}
+.trainWindowBox{margin:5px 0 11px;padding:0 2px}
+.trainWindowBox input{min-width:190px;height:38px}
+.trainWindowLabel{font-weight:800;color:var(--navy);font-size:18px}
+#trainPrefix{min-height:65px;align-content:start}
+#trainRows td:first-child{line-height:1.35}
+.trainTableWrap{max-height:450px;overflow:auto;border:1px solid #e2eaf0;border-radius:9px}
+.trainTableWrap table{font-size:15px}
+.trainTableWrap thead{position:sticky;top:0;z-index:1}
+@media(max-width:650px){.trainFullSentence .chip{font-size:14px;padding:5px 7px;min-height:30px}.trainWindowLabel{font-size:16px}.trainTableWrap{max-height:330px}}
+</style></head><body><div class="shell" id="deck"><div class="top"><div class="brand">Interactive LLM classroom</div><div class="stepcount" id="stepcount">Slide 1 of 6</div></div>
+<nav aria-label="Choose slide" id="slideNav">
+<button type="button" data-slide="0" class="active">1 · Next-token training</button><button type="button" data-slide="1">2 · Temperature</button><button type="button" data-slide="2">3 · Self-attention intuition</button><button type="button" data-slide="3">4 · Embedding → Q/K/V</button><button type="button" data-slide="4">5 · Attention math</button><button type="button" data-slide="5">6 · Encoder & decoder</button>
+</nav><main><section class="slide active" id="slide0"><div class="heading"><div class="eyebrow">Self-supervised pre-training</div><h1>Predict the next token, then learn from the answer</h1><p>The text supplies its own training labels: at each position, the model predicts the token that actually comes next.</p></div>
+<div class="layout"><div class="panel"><div class="between"><h2>Training example</h2><span class="label" id="trainStepLabel">Position 9</span></div>
+<div class="label">Full training sentence</div><div class="trainFullSentence" id="trainFullSentence"></div>
+<div class="between" style="align-items:baseline"><label class="label" for="trainWindow">Context window · earlier tokens only</label><span class="trainWindowLabel" id="trainWindowLabel">Last 5 tokens</span></div>
+<div class="rangebox trainWindowBox"><span class="small">1 token</span><input type="range" min="1" max="16" step="1" value="5" id="trainWindow" aria-label="Number of previous tokens model can see"><span class="small">Full prefix</span></div>
+<div class="label">Model sees these earlier tokens</div><div class="chiprow" id="trainPrefix" style="margin:12px 0 14px"></div><div class="label">True next token (training target)</div><div class="chiprow" id="trainGold" style="margin:10px 0 16px"></div><div class="controls" aria-label="Move through next-token examples"><button class="btn" data-action="trainPrev" id="trainPrev">← Previous token</button><button class="btn primary" data-action="trainNext" id="trainNext">Next token →</button><button class="btn" data-action="trainPlay" id="trainPlay">▶ Play sequence</button><button class="btn" data-action="trainEnd">Jump to &lt;END&gt;</button></div><div class="line"></div><h2>Model prediction</h2><div id="trainBars"></div><div class="metrics" style="margin-top:24px"><div><div class="label">P(true token)</div><div class="stat" id="trainProb">—</div></div><div><div class="label">Loss = −ln P(true)</div><div class="stat" id="trainLoss">—</div></div></div><div class="controls"><button class="btn secondary" data-action="trainImprove">Improve prediction (demo)</button><button class="btn" data-action="trainReset">Reset probabilities</button></div><div class="note">The correct token is the training target. The context window restricts which earlier tokens are visible; future tokens are never inputs. Probabilities and the improvement button are illustrative, not a trained LLM.</div></div>
+<div class="panel"><h2>One sentence → many training rows</h2><div class="trainTableWrap"><table><thead><tr><th>Visible earlier tokens (X)</th><th>True next (y)</th></tr></thead><tbody id="trainRows"></tbody></table></div><p class="small">Each X uses at most the selected number of <b>preceding</b> tokens. Click a row to inspect it; the final row predicts <code>&lt;END&gt;</code>.</p></div></div></section>
+
+<section class="slide" id="slide1"><div class="heading"><div class="eyebrow">After training: generation</div><h1>One probability distribution, different outputs</h1><p>The model predicts probabilities. Temperature changes how we sample a token from those probabilities—it is not the training target.</p></div>
+<div class="layout even"><div class="panel"><h2>Prompt</h2><div class="chiprow"><span class="chip">The</span><span class="chip">customer</span><span class="chip">ordered</span><span class="chip">a</span><span class="chip blank">?</span></div><div class="rangebox"><label for="tempRange"><b>Temperature</b></label><input id="tempRange" type="range" min="0.25" max="2.5" step="0.05" value="1"/><span class="highlight-num" id="tempValue">1.00</span></div><div id="tempBars"></div><div class="controls"><button class="btn primary" data-action="sample">Sample next token</button><button class="btn" data-action="tempReset">Reset</button></div><div class="label">Generated next token</div><div class="translated" id="generatedToken">Click “Sample next token”</div></div><div class="panel"><h2>What changes?</h2><div class="stagegrid" style="grid-template-columns:1fr 1fr"><div class="stepcard"><h3>Low temperature</h3><div class="value">More predictable</div><p>Stronger preference for the highest-scoring token.</p></div><div class="stepcard"><h3>High temperature</h3><div class="value">More varied</div><p>Less concentration on the most likely token.</p></div></div><div class="note">In causal language modeling, the model is trained against the actual next token. During generation, it samples or selects from the predicted distribution.</div><h3 style="margin-top:20px">Important distinction</h3><div class="archnodes"><div class="archnode">Training<br><small>known answer</small></div><div class="archarrow">→</div><div class="archnode orange">Generation<br><small>choose a token</small></div></div></div></div></section>
+
+<section class="slide" id="slide2"><div class="heading"><div class="eyebrow">Self-attention intuition</div><h1>Which words should this token pay attention to?</h1><p>Switch between two sentences. Select a token to see which other words it draws information from; optionally block future positions.</p></div>
+<div class="layout"><div class="panel"><div class="exampleSwitcher"><button class="btn selected" data-action="intExample" data-i="0" id="intEx0">Example A · “it” → “cat”</button><button class="btn" data-action="intExample" data-i="1" id="intEx1">Example B · “bank” → “loan”</button></div><div class="between" style="flex-wrap:wrap"><h2 id="intSentence">The cat drank the milk because it was thirsty</h2><button class="btn" data-action="toggleIntMask" id="intMaskBtn">Causal mask: On</button></div><svg id="attentionSVG" viewBox="0 0 1000 330" role="img" aria-label="Attention strengths from selected word to the others"></svg><div class="legend"><span><i style="background:#188c92"></i>Stronger line = more attention</span><span><i style="background:#e3e7eb"></i>Dashed = blocked future word</span></div><div class="note" id="intStory">Choose “it” to see which previous words could help resolve its meaning.</div></div>
+<div class="panel"><h2 id="intSelectedTitle">Selected word: “it”</h2><div class="label">Where does its attention go?</div><div id="intBars"></div><div class="intuitionSummary"><span class="intuitionPill" id="intTopWord">Top attention: cat</span></div><p style="margin-top:18px">Attention weights describe <b>how much each available token contributes</b>. Different queried tokens can focus on different parts of the sentence.</p><p class="small">Illustrative attention weights, not the output of a trained model. Actual transformers learn the relations from data and use multiple heads.</p></div></div></section>
+
+<section class="slide" id="slide3"><div class="heading"><div class="eyebrow">From embeddings to attention</div><h1>Where do Q, K, and V come from?</h1><p>Every token begins with a learned <b>word embedding</b> and a <b>position embedding</b>. Their sum becomes the input to three learned projection matrices.</p></div>
+<div class="exampleSwitcher"><button class="btn selected" data-action="projWord" data-i="0" id="proj0">t₁ · cat</button><button class="btn" data-action="projWord" data-i="1" id="proj1">t₂ · drank</button><button class="btn" data-action="projWord" data-i="2" id="proj2">t₃ · milk</button><span class="label" id="projLabel">Selected token: cat</span></div>
+<div class="wideGrid"><div class="panel"><h2>Build the token representation</h2><div class="stagegrid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+<div class="stepcard" id="projStage0"><h3>1 · Word embedding</h3><div class="vectorLine" id="wordVec"></div><div class="shortHelp">Learned vector for the token</div></div>
+<div class="stepcard" id="projStage1"><h3>2 · Position embedding</h3><div class="vectorLine" id="posVec"></div><div class="shortHelp">Represents position in sequence</div></div>
+<div class="stepcard" id="projStage2"><h3>3 · Add them</h3><div class="vectorLine" id="sumVec"></div><div class="shortHelp">Combined input <b>X<sub>t</sub></b> · 4 dimensions</div></div>
+</div><div class="formula" style="margin:14px 0">X<sub>t</sub> = token embedding<sub>t</sub> + position embedding<sub>t</sub></div>
+<h2>Project the same X in three different ways</h2><div class="projectionGrid"><div><div class="label">Query · what it seeks</div><strong id="projQ">[—]</strong><br><small>Q = X W<sub>Q</sub></small></div><div><div class="label">Key · how it matches</div><strong id="projK">[—]</strong><br><small>K = X W<sub>K</sub></small></div><div><div class="label">Value · information it shares</div><strong id="projV">[—]</strong><br><small>V = X W<sub>V</sub></small></div></div>
+<div class="controls"><button class="btn" data-action="projPrev" id="projPrev">← Previous stage</button><button class="btn primary" data-action="projNext" id="projNext">Next stage →</button><button class="btn" data-action="projReset">Start over</button></div>
+<div class="note" id="projNote">First, choose a token and inspect its input word embedding.</div></div>
+<div class="panel"><h2>X is used throughout every projection step</h2><div id="projXTableBlock"><div class="label">Input matrix X · 4 input dimensions (x<sub>d₁</sub>…x<sub>d₄</sub>)</div><div class="scrolltable"><table class="matrixMini"><thead><tr><th>Token</th><th>x<sub>d₁</sub></th><th>x<sub>d₂</sub></th><th>x<sub>d₃</sub></th><th>x<sub>d₄</sub></th></tr></thead><tbody id="projXRows"></tbody></table></div></div>
+<div class="qkvTabs" style="margin:13px 0"><button class="btn selected" data-action="projMatrix" data-type="Q" id="projTabQ">W<sub>Q</sub></button><button class="btn" data-action="projMatrix" data-type="K" id="projTabK">W<sub>K</sub></button><button class="btn" data-action="projMatrix" data-type="V" id="projTabV">W<sub>V</sub></button></div><div class="scrolltable"><table class="matrixMini"><thead><tr><th>From input</th><th id="projDim1">To Q<sub>d₁</sub></th><th id="projDim2">To Q<sub>d₂</sub></th></tr></thead><tbody id="projWRows"></tbody></table></div>
+<div class="formula" id="projMultiply" style="margin-top:13px">Select a token to see the multiplication.</div><p class="small">These are illustrative embedding/position values and projection weights, chosen to give the consistent Q, K, and V example on the next slide. In a trained transformer, embeddings and projection weights are learned.</p></div></div></section>
+<section class="slide" id="slide4"><div class="heading"><div class="eyebrow">Self-attention calculations</div><h1>Follow one token through Q, K, and V</h1><p>Begin with t₁, calculate its attention row, then advance to t₂ and t₃. Watch the attention matrix grow one row at a time.</p></div>
+<div class="controls"><button class="btn selected" data-action="mathRow" data-i="0" id="row0">Query: cat · t₁</button><button class="btn" data-action="mathRow" data-i="1" id="row1">Query: drank · t₂</button><button class="btn" data-action="mathRow" data-i="2" id="row2">Query: milk · t₃</button><button class="btn secondary" id="mathMaskBtn" data-action="mathMask">Mask: Off</button></div>
+<div class="mathLayout"><div class="panel"><div class="between"><span class="mathStepCounter" id="mathStepCount">Step 1 of 4</span><span class="label">Single-query calculation</span></div><div class="mathCompute" id="mathCompute"></div><div id="mathTokenStrip" class="calcTokens"></div><div class="controls"><button class="btn" data-action="mathPrev" id="mathPrev">← Previous calculation</button><button class="btn primary" data-action="mathNext" id="mathNext">Next calculation →</button><button class="btn" data-action="mathReset">Start over</button></div><div class="note" id="mathTakeaway"></div></div>
+<div class="panel mathSide">
+<h2>Q, K, V reference</h2>
+<p class="small">Each token has a 2-dimensional Query, Key, and Value vector. We calculated these projections on Slide 4; now we use them to compute attention.</p>
+<div class="mathVectorSummary"><div id="mathProjectedVectors"></div></div>
+<div class="mathQkvGuide">The selected token's <b>Q</b> compares with every token's <b>K</b>. The resulting attention weights determine how their <b>V</b> vectors are combined.</div>
+<div class="attentionStageBelow"><div id="mathMatrixReveal" class="hidden"><div class="line" style="margin:10px 0"></div>
+<h2 id="mathMatrixTitle">Attention matrix A</h2>
+<p class="small">Rows ask (queries); columns supply information (keys / values). Each row sums to 100%.</p>
+<div id="mathActiveMatrix"></div>
+<div class="mathMatrixLegend"><span>Each completed token adds one query row</span><span>· Outlined row: selected query</span><span class="maskSwatch"></span><span>Unavailable future position</span></div>
+<div class="mathSmallFormula" id="mathMatrixFormula"></div></div>
+<div id="mathMatrixPlaceholder" class="matrixWait">Complete <b>Step 3: Softmax</b> for token 1 to reveal its first attention row. Then calculate token 2 and token 3 to build the matrix.</div>
+
+</div></div></section>
+
+<section class="slide" id="slide5"><div class="heading"><div class="eyebrow">Transformer architecture in action</div><h1>What does an encoder or decoder actually do?</h1><p>Follow three visual pipelines: <b>tokens → attention → contextual vectors → prediction</b>. Each architecture has a different way of building those vectors.</p></div>
+<div class="demoMode"><button class="btn selected" data-action="arch" data-type="encoder" id="arch_encoder">Encoder-only · understand a sentence</button><button class="btn" data-action="arch" data-type="decoder" id="arch_decoder">Decoder-only · complete text</button><button class="btn" data-action="arch" data-type="both" id="arch_both">Encoder–decoder · translate</button></div>
+<div class="layout"><div class="panel"><div class="between"><h2 id="archTitle">Encoder-only</h2><span class="label" id="archStepLabel">Step 1</span></div><div class="demoProgress" id="archProgress"></div><div id="archVisual"></div><div class="archLegend"><span><i style="background:#148d89"></i>Full self-attention</span><span><i style="background:#3778b9"></i>Masked self-attention / decoder query</span><span><i style="background:#d38d38"></i>Cross-attention</span><span><i style="background:#957cc8"></i>Contextual vectors</span><span class="encoderCue"><i style="background:#c85365"></i>Negation word</span><span class="encoderCue"><i style="background:#52a17b"></i>Positive word</span></div><div class="controls"><button class="btn" data-action="archPrev" id="archPrev">← Earlier step</button><button class="btn primary" data-action="archNext" id="archNext">Next step →</button><button class="btn" data-action="archReset">Reset</button></div></div>
+<div class="panel"><h2 id="archSideTitle">What is happening?</h2><div class="demoInfo" id="archInfo"></div><div class="label" id="archResultLabel">Output at this step</div><div class="demoOutput" id="archResult">Input tokens</div><div class="line"></div><div class="label" id="archCandidatesTitle">What can it see?</div><div id="archCandidates"></div><p class="small">Illustrative attention patterns and predictions (not results from a trained model). Arrows illustrate available information flow. The predictions and attention patterns are illustrative.</p></div></div></section>
+</main><div class="footer"><div class="small">Six interactive steps · illustrative teaching models · works offline</div><div class="foot-right"><button class="btn" data-action="prev">← Previous</button><button class="btn secondary" data-action="next">Next →</button></div></div></div><script>(()=>{'use strict';
+const $=id=>document.getElementById(id), deck=$('deck');
+let slide=0; const count=6;
+const esc=str=>String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=(v,d=2)=>Number.isFinite(v)?Number(v).toFixed(d):'—';
+function softmax(vals){const max=Math.max(...vals),exp=vals.map(v=>Math.exp(v-max)),s=exp.reduce((a,b)=>a+b,0);return exp.map(v=>v/s)}
+function bars(labels,values,hi=-1){return labels.map((w,i)=>`<div class="barrow ${i===hi?'correct':''}"><span>${esc(w)}</span><div class="progress"><span style="width:${Math.max(0,100*values[i]).toFixed(2)}%"></span></div><span class="pct">${fmt(values[i]*100,1)}%</span></div>`).join('')}
+function setSlide(n){if(n!==0&&typeof stopTrainPlayback==='function')stopTrainPlayback();slide=Math.max(0,Math.min(count-1,n));document.querySelectorAll('section.slide').forEach((s,i)=>s.classList.toggle('active',i===slide));document.querySelectorAll('#slideNav button').forEach((b,i)=>b.classList.toggle('active',i===slide));$('stepcount').textContent=`Slide ${slide+1} of ${count}`;window.scrollTo(0,0)}
+// Slide 1: longer teacher-forced causal sequence with an adjustable past-only context window.
+// Tokenization is simplified for classroom use (including punctuation and the end marker).
+const sentence=['The','customer','ordered','a','coffee','after','lunch','because','the','afternoon','meeting','lasted','longer','than','expected','.','<END>'];
+const trainOpts={
+ customer:['customer','teacher','company','store'],ordered:['ordered','returned','found','liked'],
+ a:['a','the','two','our'],coffee:['coffee','sandwich','book','tea'],
+ after:['after','before','during','without'],lunch:['lunch','work','coffee','school'],
+ because:['because','although','when','while'],the:['the','a','an','my'],
+ afternoon:['afternoon','morning','sales','weekly'],meeting:['meeting','flight','break','class'],
+ lasted:['lasted','started','finished','ended'],longer:['longer','shorter','earlier','later'],
+ than:['than','and','but','for'],expected:['expected','planned','usual','today'],
+ '.':['.','!','and',','], '<END>':['<END>','today','again','please']
+};
+let trainIdx=8,trainWindow=5,boosts=Array(sentence.length).fill(0),trainTimer=null;
+function stopTrainPlayback(){if(trainTimer!==null){clearInterval(trainTimer);trainTimer=null;}$('trainPlay').textContent='▶ Play sequence';}
+function stepTrain(dir){stopTrainPlayback();trainIdx=Math.min(sentence.length-1,Math.max(1,trainIdx+dir));renderTrain();}
+function toggleTrainPlayback(){
+  if(trainTimer!==null){stopTrainPlayback();return;}
+  if(trainIdx>=sentence.length-1)trainIdx=1;
+  $('trainPlay').textContent='Ⅱ Pause';renderTrain();
+  trainTimer=setInterval(()=>{if(trainIdx<sentence.length-1){trainIdx++;renderTrain();}else stopTrainPlayback();},1050);
+}
+function visibleTrainingContext(pos){return sentence.slice(Math.max(0,pos-trainWindow),pos)}
+function trainingDistribution(){
+ const target=sentence[trainIdx],words=trainOpts[target]||[target,'different','another','thing'];
+ // Schematic score adjustment to illustrate that changing available context can change a prediction.
+ // It is NOT a trained LLM; additional context does not always improve real-world predictions.
+ const seen=visibleTrainingContext(trainIdx).length;
+ const logits=[.75+.38*Math.log1p(seen)+boosts[trainIdx],1.2,.3,-.15];
+ return{words,prob:softmax(logits),target};
+}
+function renderTrain(){
+ const t=trainingDistribution();
+ $('trainPrev').disabled=trainIdx===1;
+ $('trainNext').disabled=trainIdx===sentence.length-1;
+ $('trainStepLabel').textContent=`Predict token ${trainIdx+1} of ${sentence.length}`;
+ const start=Math.max(0,trainIdx-trainWindow);
+ $('trainWindowLabel').textContent=trainWindow===sentence.length-1?'Full prefix':`Last ${trainWindow} token${trainWindow===1?'':'s'}`;
+ $('trainFullSentence').innerHTML=sentence.map((word,i)=>{
+   const cls=i===trainIdx?'current':i<start?'ghost':i<trainIdx?'context':'future';
+   return `<span class="chip ${cls}" title="${i===trainIdx?'Current prediction target':i<start?'Earlier token outside selected context':i<trainIdx?'Available earlier token':'Future token'}">${esc(word)}</span>`;
+ }).join('');
+ const prefix=visibleTrainingContext(trainIdx);
+ $('trainPrefix').innerHTML=(start>0?'<span class="chip ghost" title="Earlier tokens outside the window">…</span>':'')+
+   prefix.map(w=>`<span class="chip context">${esc(w)}</span>`).join('')+
+   '<span class="chip blank">?</span>';
+ $('trainGold').innerHTML=`<span class="chip truth">${esc(t.target)}</span>`;
+ $('trainBars').innerHTML=bars(t.words,t.prob,0);
+ $('trainProb').textContent=fmt(t.prob[0]*100,1)+'%';
+ $('trainLoss').textContent=fmt(-Math.log(t.prob[0]),3);
+ $('trainRows').innerHTML=sentence.slice(1).map((word,i)=>{
+   const j=i+1,context=visibleTrainingContext(j),older=j>trainWindow?'… ':'',isSelected=j===trainIdx;
+   return `<tr data-action="trainSelect" data-i="${j}" class="selectable ${isSelected?'selected':''}"><td>${older}${context.map(esc).join(' ')}</td><td><b>${esc(word)}</b></td></tr>`;
+ }).join('');
+ // Keep the currently illustrated training row in view as the sequence advances.
+ // Scroll only within the table, leaving the lecture page and slider stationary.
+ const scrollBox=document.querySelector('.trainTableWrap');
+ const activeRow=$('trainRows').querySelector('tr.selected');
+ if(scrollBox&&activeRow){
+   const box=scrollBox.getBoundingClientRect(),row=activeRow.getBoundingClientRect();
+   if(row.bottom>box.bottom-12) scrollBox.scrollTop+=row.bottom-(box.bottom-12);
+   else if(row.top<box.top+39) scrollBox.scrollTop-=box.top+39-row.top;
+ }
+}
+// Slide 2: sampling temperature.
+const tempWords=['coffee','sandwich','salad','laptop'],tempLogits=[2.1,1.35,.6,-.3];let temp=1;
+function renderTemp(){const p=softmax(tempLogits.map(s=>s/temp));$('tempValue').textContent=fmt(temp,2);$('tempBars').innerHTML=bars(tempWords,p,0);return p}
+// Slide 3: two intuitive contexts; same code renders every query, while selected examples
+// use a stronger link to the salient contextual cue.
+const stories=[
+ {label:'The cat drank the milk because it was thirsty',tokens:['The','cat','drank','the','milk','because','it','was','thirsty'],default:6,focus:[6,1],tell:'“it” attends strongly to “cat,” helping relate a pronoun to an earlier noun.',mask:true},
+ {label:'The loan was approved by the bank',tokens:['The','loan','was','approved','by','the','bank'],default:6,focus:[6,1],tell:'“bank” attends to “loan” and “approved,” which favor its financial sense.',mask:true}
+];
+let attExample=0,attSelected=6,attMask=true;
+function attentionDistribution(){const story=stories[attExample],q=attSelected;
+let scores=story.tokens.map((tok,i)=>0.08+0.045*((i*3+q)%5));
+if(attExample===0&&q===6){scores[1]=3.15;scores[8]=1.7;scores[4]=1.05;scores[6]=.9;}
+else if(attExample===1&&q===6){scores[1]=3.3;scores[3]=2.25;scores[6]=.92;}
+else if(attExample===0&&q===8){scores[6]=2.6;scores[1]=1.5;}
+else if(attExample===1&&q===3){scores[1]=2.5;scores[6]=1.35;}
+else {scores[q]=2.15;scores[Math.max(0,q-1)]=1.65;}
+return softmax(scores.map((s,i)=>attMask&&i>q?-1e9:s));}
+function renderInt(){const st=stories[attExample],t=st.tokens,p=attentionDistribution();$('intSentence').textContent=st.label;$('intMaskBtn').textContent=`Causal mask: ${attMask?'On':'Off'}`;for(let i=0;i<2;i++)$('intEx'+i).classList.toggle('selected',i===attExample);
+$('intSelectedTitle').textContent=`Selected token: “${t[attSelected]}”`;$('intBars').innerHTML=bars(t,p);let best=0;p.forEach((val,i)=>{if(val>p[best])best=i});$('intTopWord').textContent=`Strongest: ${t[best]} (${fmt(100*p[best],0)}%)`;
+$('intStory').innerHTML=attSelected===st.default?st.tell:`“${esc(t[attSelected])}” now uses a different attention pattern. Choose another token to see how each query changes the connections.`;
+const w=1000,margin=50,gap=st.tokens.length>1?(w-2*margin)/(st.tokens.length-1):0,xx=t.map((_,i)=>margin+i*gap),source=xx[attSelected];let out=`<defs><marker id="attArrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#138b8e"/></marker></defs>`;
+for(let i=0;i<t.length;i++){let x=xx[i],blocked=attMask&&i>attSelected,val=p[i];out+=`<path d="M ${source} 242 Q ${(source+x)/2} ${144-Math.abs(source-x)*.055} ${x} 93" stroke="${blocked?'#b9c5cb':'#168e91'}" stroke-width="${blocked?1.3:(2+13*val)}" fill="none" opacity="${blocked?.28:Math.min(.95,.18+2.8*val)}" ${blocked?'stroke-dasharray="5 5"':'marker-end="url(#attArrow)"'}/>`;}
+for(let i=0;i<t.length;i++){const x=xx[i],blocked=attMask&&i>attSelected,sel=i===attSelected;out+=`<g data-inttoken="${i}" role="button" tabindex="0" aria-label="Focus ${esc(t[i])}" style="cursor:pointer"><rect x="${x-45}" y="33" width="90" height="56" rx="10" stroke="${sel?'#008e84':'#9cb8c7'}" stroke-width="${sel?3:1.4}" fill="${sel?'#d8f3e8':blocked?'#f2f2f2':'#e9f1f8'}"/><text x="${x}" y="67" font-size="19" fill="#18384d" text-anchor="middle" font-weight="800">${esc(t[i])}</text><text x="${x}" y="116" font-size="14" fill="#52677d" text-anchor="middle">${blocked?'blocked':fmt(100*p[i],0)+'%'}</text></g>`;}
+out+=`<rect x="${source-70}" y="227" width="140" height="62" rx="13" fill="#156c77"/><text x="${source}" y="251" font-size="14" fill="#dbf6ef" text-anchor="middle">QUERY</text><text x="${source}" y="275" font-size="21" fill="white" text-anchor="middle" font-weight="800">${esc(t[attSelected])}</text>`;$('attentionSVG').innerHTML=out;}
+// Slide 4: word + position --> X --> three learned projections.
+const X=[[1,0,1,0],[0,1,1,0],[0,0,1,1]],pos=[[.1,0,0,0],[0,.1,0,0],[0,0,.1,0]],e=X.map((x,i)=>x.map((v,j)=>+(v-pos[i][j]).toFixed(2)));
+const matrices={Q:[[.8,.2],[.3,.7],[.2,.3],[.3,.7]],K:[[.3,.8],[.3,.3],[.2,.2],[.3,.3]],V:[[.8,-.2],[.3,.3],[.2,.2],[.3,.3]]};
+const dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);function proj(vec,m){return[0,1].map(j=>dot(vec,m.map(r=>r[j])))}
+const Q=X.map(x=>proj(x,matrices.Q)),K=X.map(x=>proj(x,matrices.K)),V=X.map(x=>proj(x,matrices.V));
+let projWord=0,projStage=0,projMatrix='Q';const wordLabels=['cat','drank','milk'];
+function vecHTML(v,highlight=false){return v.map(n=>`<span class="${highlight?'em':''}">${fmt(n,1)}</span>`).join('')}
+function renderProj(){for(let i=0;i<3;i++)$('proj'+i).classList.toggle('selected',i===projWord);for(let i=0;i<3;i++)$('projStage'+i).classList.toggle('active',i===projStage);for(const m of ['Q','K','V'])$('projTab'+m).classList.toggle('selected',m===projMatrix);
+$('projXTableBlock').classList.remove('hidden');$('projLabel').textContent=`Selected token: t${['₁','₂','₃'][projWord]} (${wordLabels[projWord]})`;$('wordVec').innerHTML=vecHTML(e[projWord],projStage===0);$('posVec').innerHTML=projStage>=1?vecHTML(pos[projWord],projStage===1):'<span>?</span>';$('sumVec').innerHTML=projStage>=2?vecHTML(X[projWord],true):'<span>?</span>';
+for(const letter of ['Q','K','V']){const v=({Q,K,V})[letter][projWord];$('proj'+letter).innerHTML=projStage>=2?`<div class="projValue"><span>${letter}<sub>d₁</sub> = ${fmt(v[0],2)}</span><span>${letter}<sub>d₂</sub> = ${fmt(v[1],2)}</span></div>`:'[—]';}
+$('projDim1').innerHTML=`To ${projMatrix}<sub>d₁</sub>`;$('projDim2').innerHTML=`To ${projMatrix}<sub>d₂</sub>`;
+$('projXRows').innerHTML=X.map((r,i)=>`<tr class="${i===projWord?'selected':''}"><th>${wordLabels[i]}</th>${r.map(n=>`<td>${fmt(n,1)}</td>`).join('')}</tr>`).join('');
+$('projWRows').innerHTML=matrices[projMatrix].map((r,i)=>`<tr><th>x<sub>d${['₁','₂','₃','₄'][i]}</sub></th>${r.map(v=>`<td>${fmt(v,1)}</td>`).join('')}</tr>`).join('');
+const xv=X[projWord],wm=matrices[projMatrix],result=proj(xv,wm);
+const workFor=j=>xv.map((n,i)=>`(${fmt(n,1)} × ${fmt(wm[i][j],1)})`).join(' + ');
+$('projMultiply').innerHTML=projStage<2?'Reveal the combined X vector to calculate each projection.':`<div class="multiplyWork"><div class="label">t${projWord+1}: ${wordLabels[projWord]} · ${projMatrix}<sub>t${projWord+1}</sub> = X<sub>t${projWord+1}</sub> × W<sub>${projMatrix}</sub></div><div class="multiplyInput">X<sub>t${projWord+1}</sub> = [${xv.map(n=>fmt(n,1)).join(', ')}]</div><div class="multiplyLine"><b>${projMatrix}<sub>t${projWord+1},d₁</sub></b><span>${workFor(0)}</span><strong>= ${fmt(result[0],2)}</strong></div><div class="multiplyLine"><b>${projMatrix}<sub>t${projWord+1},d₂</sub></b><span>${workFor(1)}</span><strong>= ${fmt(result[1],2)}</strong></div><div class="multiplyAnswer">${projMatrix}<sub>t${projWord+1}</sub> = [${result.map(n=>fmt(n,2)).join(', ')}]</div></div>`;
+$('projPrev').disabled=projStage===0;$('projNext').disabled=projStage===2;
+$('projNote').innerHTML=['The word has its own learned embedding. The full input matrix X stays visible on the right.','A position vector is added to each word vector. The input matrix X stays visible throughout.','Add the two vectors. Then project the same X using <b>W<sub>Q</sub>, W<sub>K</sub>, and W<sub>V</sub></b>. The 4D inputs become 2D Q, K, and V vectors.'][projStage];}
+// Slide 5: scaled dot-product attention with same computed Q/K/V.
+let mathRow=0,mathMask=false,mathStep=0;let completedAttentionRows=[false,false,false];
+function renderMath(){for(let i=0;i<3;i++)$('row'+i).classList.toggle('selected',i===mathRow);$('mathMaskBtn').textContent=`Causal mask: ${mathMask?'On':'Off'}`;
+const raw=K.map(ki=>dot(Q[mathRow],ki)),scaled=raw.map((n,i)=>mathMask&&i>mathRow?-1e9:n/Math.sqrt(2)),p=softmax(scaled),y=[0,1].map(j=>p.reduce((sum,a,i)=>sum+a*V[i][j],0));
+$('mathStepCount').textContent=`Step ${mathStep+1} of 4 · Token ${mathRow+1}`;$('mathPrev').disabled=mathStep===0;$('mathNext').disabled=mathStep===3&&mathRow===2;$('mathNext').textContent=mathStep===3&&mathRow<2?'Next token →':'Next calculation →';
+if(mathStep>=2)completedAttentionRows[mathRow]=true;
+
+
+let title='',main='',take='',cards=[];
+if(mathStep===0){title='1 · Calculate similarity: Q · Kᵀ';main=`<div class="mathExplanation">For this token, dot each <b>Key</b> with the selected <b>Query</b>. A larger dot product means a stronger numerical match.</div><div class="mathFormula">Q<sub>t${mathRow+1}</sub> · K<sub>tⱼ</sub> = q<sub>d₁</sub> k<sub>j,d₁</sub> + q<sub>d₂</sub> k<sub>j,d₂</sub></div>`;take='Each token position has its own query. A single query produces one match score per key.';cards=raw.map((n,i)=>({name:`Q(t${mathRow+1}) · K(t${i+1})`,num:fmt(n,2),sub:`${fmt(Q[mathRow][0],1)}×${fmt(K[i][0],1)} + ${fmt(Q[mathRow][1],1)}×${fmt(K[i][1],1)}`}));}
+if(mathStep===1){title='2 · Scale and apply a future-token mask';main=`<div class="mathExplanation">Divide by √dₖ to keep scores well scaled as vector size grows. Here <b>dₖ = 2</b>. A causal mask replaces future-position scores with −∞.</div><div class="mathFormula">S<sub>tᵢ,tⱼ</sub> = (Q<sub>tᵢ</sub> · K<sub>tⱼ</sub>) / √d<sub>k</sub></div>`;take=mathMask?'Future positions are blocked before softmax, so their attention weights become zero.':'Switch the causal mask on to see how a decoder blocks future words.';cards=scaled.map((n,i)=>({name:`S(t${mathRow+1},t${i+1})`,num:n<-1e6?'−∞':fmt(n,3),sub:n<-1e6?'future position blocked':`${fmt(raw[i],2)} ÷ √2`}));}
+if(mathStep===2){
+ title='3 · Turn scores into attention weights';
+ // Calculate exp(score), the normalization denominator, and each probability explicitly.
+ // A masked future position contributes exp(−∞)=0 to the denominator.
+ const exponentials=scaled.map(v=>v<-1e6?0:Math.exp(v));
+ const denom=exponentials.reduce((sum,v)=>sum+v,0);
+ const displayExp=scaled.map((v,i)=>v<-1e6?'e<sup>−∞</sup> = 0':`e<sup>${fmt(v,3)}</sup> = ${fmt(exponentials[i],3)}`);
+ const sumParts=exponentials.map(v=>fmt(v,3)).join(' + ');
+ const softmaxRows=p.map((val,i)=>`<div class="softmaxRow"><b>A<sub>t${mathRow+1},t${i+1}</sub></b><span class="exp">${displayExp[i]}<br>${fmt(exponentials[i],3)} ÷ ${fmt(denom,3)}</span><strong>${fmt(val*100,1)}%</strong></div>`).join('');
+ main=`<div class="mathExplanation">Softmax turns the three match scores into nonnegative attention weights that <b>sum to 100%</b>.</div>
+ <div class="mathFormula">A<sub>tᵢ,tⱼ</sub> = e<sup>S<sub>tᵢ,tⱼ</sub></sup> / Σ<sub>k</sub> e<sup>S<sub>tᵢ,tₖ</sub></sup></div>
+ <div class="softmaxWork"><div class="softmaxLabel">For query t${mathRow+1} (${wordLabels[mathRow]})</div>
+ <div class="softmaxDenom">Denominator = ${sumParts} = ${fmt(denom,3)}</div>
+ <div class="softmaxRows">${softmaxRows}</div></div>`;
+ take='These are attention weights over token positions—not probabilities of the next word.';
+ cards=p.map((n,i)=>({name:`A(t${mathRow+1},t${i+1})`,num:fmt(n*100,1)+'%',sub:mathMask&&i>mathRow?'masked / zero weight':'attention contribution'}));
+}
+if(mathStep===3){title='4 · Combine the Values';main=`<div class="mathExplanation">Finally multiply each <b>Value</b> vector by its attention weight and add.</div><div class="mathFormula">Y<sub>tᵢ</sub> = Σⱼ A<sub>tᵢ,tⱼ</sub> V<sub>tⱼ</sub></div><div class="dimensionNote">Attention output has <b>2 dimensions</b>: Y<sub>tᵢ,d₁</sub> and Y<sub>tᵢ,d₂</sub>. The earlier input X had 4 dimensions.</div><div class="formula" style="margin-top:8px">Y<sub>t${mathRow+1},d₁</sub> = ${p.map((a,i)=>`${fmt(a,3)}×${fmt(V[i][0],1)}`).join(' + ')} = ${fmt(y[0],3)}<br>Y<sub>t${mathRow+1},d₂</sub> = ${p.map((a,i)=>`${fmt(a,3)}×${fmt(V[i][1],1)}`).join(' + ')} = ${fmt(y[1],3)}</div>`;take=`The updated representation of “${wordLabels[mathRow]}” is [${fmt(y[0],3)}, ${fmt(y[1],3)}].`;cards=p.map((a,i)=>({name:`${wordLabels[i]} value`,num:fmt(a*100,1)+'%',sub:`V(t${i+1}) = [${V[i].map(v=>fmt(v,1)).join(', ')}]`}));}
+$('mathCompute').innerHTML=`<h3>${title}</h3>${main}`;$('mathTokenStrip').innerHTML=cards.map((c,i)=>`<div class="calcToken ${mathMask&&i>mathRow&&mathStep>0?'blocked':''} ${i===mathRow?'active':''}"><div>${esc(c.name)}</div><div class="number">${c.num}</div><div class="tiny">${c.sub}</div></div>`).join('');$('mathTakeaway').textContent=take;
+ const matrixFor=(masked)=>{
+   const head='<tr><th>Query ↓</th>'+wordLabels.map((w,i)=>`<th>t${i+1}<br>${w}</th>`).join('')+'</tr>';
+   const rows=Q.map((qi,r)=>{
+      if(!completedAttentionRows[r])return '';
+      const a=K.map((ki,j)=>masked&&j>r?-1e9:dot(qi,ki)/Math.sqrt(2));
+      const probs=softmax(a);
+      return `<tr class="${r===mathRow?'focusRow':''}"><th>t${r+1}<br>${wordLabels[r]}</th>`+
+        probs.map((v,c)=>{
+          const blocked=masked&&c>r;
+          const color=blocked?'#f4e8eb':`hsl(175 58% ${97-v*51}%)`;
+          return `<td><div class="attCell ${blocked?'masked':''}" style="background:${color}" title="${wordLabels[r]} attends to ${wordLabels[c]}: ${fmt(v*100,1)}%">${blocked?'—':fmt(v*100,1)+'%'}</div></td>`;
+        }).join('')+'</tr>';
+    }).join('');
+   return `<table class="attTable"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
+ };
+ $('mathProjectedVectors').innerHTML=`<table class="miniOriginTable projectedTable"><thead><tr><th>Token</th><th>Q<sub>d₁</sub>, Q<sub>d₂</sub></th><th>K<sub>d₁</sub>, K<sub>d₂</sub></th><th>V<sub>d₁</sub>, V<sub>d₂</sub></th></tr></thead><tbody>${wordLabels.map((w,i)=>`<tr class="${i===mathRow?'selected':''}"><th>t${i+1} · ${w}</th><td>[${Q[i].map(n=>fmt(n,1)).join(', ')}]</td><td>[${K[i].map(n=>fmt(n,1)).join(', ')}]</td><td>[${V[i].map(n=>fmt(n,1)).join(', ')}]</td></tr>`).join('')}</tbody></table>`;
+ const hasAnyRows=completedAttentionRows.some(Boolean);
+ $('mathMatrixReveal').classList.toggle('hidden',!hasAnyRows);
+ $('mathMatrixPlaceholder').classList.toggle('hidden',hasAnyRows);
+ if(hasAnyRows){
+    $('mathMatrixTitle').textContent=(mathMask?'Masked attention':'Full attention')+' · A ('+completedAttentionRows.filter(Boolean).length+' of 3 query rows)';
+    $('mathActiveMatrix').innerHTML=matrixFor(mathMask);
+    $('mathMatrixFormula').innerHTML=mathMask?'A = softmax(QKᵀ / √d<sub>k</sub> + M)':'A = softmax(QKᵀ / √d<sub>k</sub>)';
+ }
+
+}
+// Slide 6: a consistent token-connection diagram for three transformer architectures.
+let arch='encoder',archStep=0;
+const examples={
+ encoder:{title:'Encoder-only · sentiment from a complete review',labels:['Read the review','Full self-attention','Build contextual vectors','Classify the review'],source:['The','service','was','not','good'],steps:[
+ {info:'The encoder receives the complete sentence at once: all five tokens are available.',result:'Input: The service was not good'},
+ {info:'Full self-attention lets each token use information from any position. For example, good can receive information from not.',result:'All five tokens can attend to one another.'},
+ {info:'Attention creates a contextual vector for each token. The vector for good now reflects nearby negation instead of just the positive word.',result:'Five contextual vectors: z₁ through z₅'},
+ {info:'An aggregation/classification head uses these contextual vectors to make one prediction about the whole review.',result:'Positive sentiment: 12% (illustrative)'}]},
+ decoder:{title:'Decoder-only · predict the next word',labels:['Read visible prefix','Masked attention → vectors','Predict sleeps','Append and predict end'],source:['The','cat'],steps:[
+ {info:'Only the prompt The cat is available. A decoder cannot attend to the word it has not generated yet.',result:'Prefix: The cat'},
+ {info:'Masked self-attention allows each position to use its own token and earlier tokens only. This produces a contextual vector for every visible token.',result:'Visible vectors: z₁, z₂'},
+ {info:'The vector from the latest token is fed to the output head, which predicts the next token.',result:'Predicted next token: sleeps'},
+ {info:'After appending sleeps to the prefix, the masked attention and contextual vectors update. The output head now predicts <END>.',result:'The cat sleeps <END>'}]},
+ both:{title:'Encoder–decoder · translate English to French',labels:['Read English text','Full attention → encoded vectors','Start French prefix','Predict Le','Predict chat','Predict dort','Predict end'],source:['The','cat','sleeps'],steps:[
+ {info:'The source sentence is supplied to the encoder all at once.',result:'English: The cat sleeps'},
+ {info:'Full self-attention builds a contextual vector for each English source token.',result:'Encoded vectors: e₁, e₂, e₃'},
+ {info:'The decoder begins with <START>. It creates its own vector with masked self-attention; no future French word is visible.',result:'Decoder prefix: <START>'},
+ {info:'Cross-attention lets the current decoder vector read all English encoder vectors before predicting Le.',result:'Next token: Le'},
+ {info:'The prefix is now <START> Le. The decoder updates its masked-attention vectors and cross-attends to English before predicting chat.',result:'Next token: chat'},
+ {info:'The prefix is <START> Le chat. The decoder attends to the available French prefix and the English source, then predicts dort.',result:'Next token: dort'},
+ {info:'The French prefix now includes Le chat dort. The decoder uses those past tokens plus the English encodings to predict <END>.',result:'Le chat dort <END>'}]}
+ };
+const arrowDefs=`<defs><marker id="arr-teal" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#148d89"/></marker><marker id="arr-blue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#3778b9"/></marker><marker id="arr-orange" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#d38d38"/></marker></defs>`;
+function tokenRect(x,y,w,txt,focus=false,generated=false){return `<rect x="${x-w/2}" y="${y-22}" width="${w}" height="44" rx="10" fill="${focus?'#fbe6c4':generated?'#dff3ed':'#e7eff7'}" stroke="${focus?'#ba8540':generated?'#6fb9a1':'#9ab6cb'}" stroke-width="${focus?2.5:1.5}"/><text x="${x}" y="${y+6}" text-anchor="middle" font-size="19" fill="#173c55" font-weight="800">${esc(txt)}</text>`}
+function arcline(x1,y1,x2,y2,color,width=2,opacity=.85,marker=''){return `<path d="M ${x1} ${y1} Q ${(x1+x2)/2} ${Math.min(y1,y2)-Math.max(29,Math.abs(x1-x2)*.20)} ${x2} ${y2}" fill="none" stroke="${color}" stroke-width="${width}" opacity="${opacity}" ${marker?`marker-end="url(#arr-${marker})"`:''}/>`}
+
+function stem(x,y1,y2,color='#9a7cc6'){
+ return `<path d="M ${x} ${y1} L ${x} ${y2}" stroke="${color}" stroke-width="2.1" fill="none" marker-end="url(#arr-purple)"/>`;
+}
+function flowArrow(x1,y1,x2,y2,color='#148d89',width=2.8){
+ return `<path d="M ${x1} ${y1} L ${x2} ${y2}" stroke="${color}" stroke-width="${width}" fill="none" marker-end="url(#arr-${color==='#d38d38'?'orange':color==='#3778b9'?'blue':'teal'})"/>`;
+}
+function vbox(x,y,label='z',dim='t'){
+ return `<rect x="${x-46}" y="${y-21}" width="92" height="42" rx="10" fill="#ebe6f7" stroke="#8d78b7" stroke-width="1.8"/><text x="${x}" y="${y+6}" font-size="19" font-weight="850" fill="#493873" text-anchor="middle">${label}<tspan font-size="13" baseline-shift="sub">${dim}</tspan></text>`;
+}
+function outputBox(x,y,subtitle,value,w=185){
+ return `<rect x="${x-w/2}" y="${y-36}" width="${w}" height="72" rx="13" fill="#155a79"/><text x="${x}" y="${y-10}" font-size="15" fill="#d7f1ff" text-anchor="middle">${esc(subtitle)}</text><text x="${x}" y="${y+19}" font-size="23" font-weight="850" fill="white" text-anchor="middle">${esc(value)}</text>`;
+}
+function svgEncoder(step){
+ const words=examples.encoder.source,xx=[95,227,359,491,623],yy=126;
+ let s=arrowDefs.replace('</defs>','<marker id="arr-purple" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#9a7cc6"/></marker></defs>');
+ s+=`<text x="20" y="32" font-size="19" fill="#147d7c" font-weight="800">1 · Read the full sentence</text>`;
+ if(step>=1){
+  // Full attention is available among all five tokens; highlight the meaningful not/good link.
+  for(let i=0;i<words.length;i++)for(let j=i+1;j<words.length;j++)
+    s+=arcline(xx[i],yy-27,xx[j],yy-27,'#a3d2ce',1.5,.35);
+  s+=arcline(xx[4],yy-28,xx[3],yy-28,'#148d89',5,.95,'teal');
+  s+=`<text x="690" y="65" fill="#147d7c" font-weight="800" font-size="17">Full self-attention</text><text x="690" y="86" fill="#477285" font-size="15">can use both sides</text>`;
+ }
+ for(let i=0;i<words.length;i++){
+  let fill=i===3?'#fce1e6':i===4?'#e0f4e5':'#e7eff7',stroke=i===3?'#c85365':i===4?'#52a17b':'#9ab6cb';
+  s+=`<rect x="${xx[i]-54}" y="${yy-23}" width="108" height="46" rx="11" fill="${fill}" stroke="${stroke}" stroke-width="2"/><text x="${xx[i]}" y="${yy+7}" font-size="20" text-anchor="middle" font-weight="850" fill="#213e54">${esc(words[i])}</text>`;
+ }
+ if(step>=2){
+   s+=`<text x="20" y="227" fill="#775fa4" font-size="19" font-weight="800">2 · Each word becomes a contextual vector</text>`;
+   for(let i=0;i<words.length;i++){s+=stem(xx[i],yy+24,256);s+=vbox(xx[i],282,'z',i+1);}
+   s+=`<text x="695" y="282" fill="#715b9b" font-size="17" font-weight="800">z₁ … z₅</text>`;
+ }
+ if(step>=3){
+  s+=`<rect x="235" y="351" width="274" height="54" rx="12" fill="#e8f4f7" stroke="#84b5c4" stroke-width="2"/><text x="372" y="383" font-size="20" fill="#24536a" text-anchor="middle" font-weight="800">Aggregate + classify</text>`;
+  for(let i=0;i<words.length;i++)s+=flowArrow(xx[i],304,372,345,'#148d89',1.8);
+  s+=flowArrow(510,377,627,377,'#148d89',3);
+  s+=outputBox(735,377,'Sentence prediction','12% positive',184);
+ }
+ return `<svg viewBox="0 0 880 440" class="archSvg" role="img" aria-label="Encoder: words exchange information with full attention, become contextual vectors, then produce a sentiment score">${s}</svg>`;
+}
+function svgDecoder(step){
+ const words=step>=3?['The','cat','sleeps']:['The','cat'],xx=[130,296,462],yy=138,vecY=271;
+ let s=arrowDefs.replace('</defs>','<marker id="arr-purple" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#9a7cc6"/></marker></defs>');
+ s+=`<text x="20" y="32" font-size="19" fill="#3778b9" font-weight="800">1 · Read only the available prefix</text>`;
+ if(step>=1){
+  for(let i=1;i<words.length;i++)for(let j=0;j<i;j++)s+=arcline(xx[i],yy-29,xx[j],yy-29,'#3778b9',3.4,.87,'blue');
+  s+=`<text x="572" y="95" font-size="18" fill="#3778b9" font-weight="800">Masked self-attention</text><text x="572" y="117" font-size="16" fill="#567189">No future words available</text>`;
+ }
+ words.forEach((w,i)=>s+=tokenRect(xx[i],yy,126,w,i===words.length-1,i>1));
+ if(step>=1){
+  s+=`<text x="20" y="216" font-size="19" fill="#775fa4" font-weight="800">2 · Build vectors from the visible prefix</text>`;
+  words.forEach((_,i)=>{s+=stem(xx[i],yy+24,vecY-27);s+=vbox(xx[i],vecY,'z',i+1)});
+ }
+ if(step>=2){
+  const latest=xx[words.length-1];s+=flowArrow(latest+49,vecY,585,vecY,'#3778b9',3);
+  s+=`<rect x="587" y="245" width="135" height="54" rx="12" fill="#e9f3fc" stroke="#8ab3dc" stroke-width="2"/><text x="654" y="277" font-size="19" text-anchor="middle" fill="#215985" font-weight="800">Output head</text>`;
+  s+=flowArrow(723,vecY,739,vecY,'#3778b9',3);
+  s+=outputBox(794,vecY,'Next token',step===2?'sleeps':'<END>',150);
+ }
+ s+=`<text x="20" y="353" font-size="17" fill="#527082">The final available vector summarizes only the prefix, then predicts the next token.</text>`;
+ return `<svg viewBox="0 0 880 400" class="archSvg" role="img" aria-label="Decoder: masked attention over prefix, contextual vectors for current tokens, output head predicts next token">${s}</svg>`;
+}
+function svgBoth(step){
+ const source=['The','cat','sleeps'],xs=[106,272,438],sourceY=83,sourceVectorY=171;
+ const targ=step<2?[]:step<=3?['<START>']:step===4?['<START>','Le']:step===5?['<START>','Le','chat']:['<START>','Le','chat','dort'];
+ const xt=targ.map((_,i)=>105+i*140),targetY=335,targetVY=414;
+ let s=arrowDefs.replace('</defs>','<marker id="arr-purple" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#9a7cc6"/></marker></defs>');
+ s+=`<text x="16" y="25" fill="#147c78" font-weight="850" font-size="18">ENGLISH INPUT · encoder full attention</text>`;
+ if(step>=1)for(let i=0;i<3;i++)for(let j=i+1;j<3;j++)s+=arcline(xs[i],sourceY-25,xs[j],sourceY-25,'#148d89',2.7,.83,'teal');
+ for(let i=0;i<3;i++)s+=tokenRect(xs[i],sourceY,122,source[i],false,false);
+ if(step>=1){
+  for(let i=0;i<3;i++){s+=stem(xs[i],sourceY+23,sourceVectorY-26);s+=vbox(xs[i],sourceVectorY,'e',i+1);}
+  
+ }
+ s+=`<path d="M 17 250 L 860 250" stroke="#d6e6ed" stroke-width="2" stroke-dasharray="6,7"/>`;
+ s+=`<text x="16" y="279" fill="#3876b2" font-weight="850" font-size="18">FRENCH PREFIX · decoder masked attention</text>`;
+ if(step>=2){
+  for(let i=1;i<targ.length;i++)for(let j=0;j<i;j++)s+=arcline(xt[i],targetY-24,xt[j],targetY-24,'#3778b9',3,.85,'blue');
+  targ.forEach((w,i)=>{s+=tokenRect(xt[i],targetY,116,w,i===targ.length-1,i>0);s+=stem(xt[i],targetY+24,targetVY-26);s+=vbox(xt[i],targetVY,'d',i+1);});
+  // The decoder's newest contextual representation is a query into all source vectors.
+  const latest=xt[targ.length-1];
+  if(step>=3){
+   s+=`<rect x="655" y="162" width="205" height="69" rx="13" fill="#fff3df" stroke="#d38d38" stroke-width="2.4"/><text x="757" y="186" font-size="15" text-anchor="middle" fill="#955a1e" font-weight="800">Cross-attention</text><text x="757" y="211" font-size="16" text-anchor="middle" fill="#785a36">Decoder reads encoder</text>`;
+   for(let i=0;i<3;i++)s+=`<path d="M ${xs[i]+47} ${sourceVectorY} Q 570 ${140+i*16} 648 186" fill="none" stroke="#d38d38" opacity="${i===Math.min(2,Math.max(0,step-3))?.92:.42}" stroke-width="${i===Math.min(2,Math.max(0,step-3))?3.3:1.7}" marker-end="url(#arr-orange)"/>`;
+   s+=`<path d="M ${latest+43} ${targetVY-10} Q 630 350 735 235" fill="none" stroke="#3778b9" stroke-width="3" marker-end="url(#arr-blue)"/>`;
+   s+=flowArrow(757,231,757,387,'#d38d38',3.5);
+   s+=outputBox(757,428,'Next French token',step===3?'Le':step===4?'chat':step===5?'dort':'<END>',196);
+  }
+ }
+ return `<svg viewBox="0 0 880 508" class="archSvg" role="img" aria-label="Encoder decoder: English full attention produces encoded vectors, French masked attention produces decoder vectors, cross attention combines them to predict next token">${s}</svg>`;
+}
+function renderArch(){for(const name of ['encoder','decoder','both'])$('arch_'+name).classList.toggle('selected',arch===name);let ex=examples[arch],st=ex.steps[archStep];$('archTitle').textContent=ex.title;$('archStepLabel').textContent=`Step ${archStep+1} of ${ex.steps.length}`;$('archPrev').disabled=archStep===0;$('archNext').disabled=archStep===ex.steps.length-1;
+$('archProgress').innerHTML=ex.labels.map((l,i)=>`<span class="${i===archStep?'current':i<archStep?'past':''}">${i+1}. ${esc(l)}</span>`).join('');$('archVisual').innerHTML=arch==='encoder'?svgEncoder(archStep):arch==='decoder'?svgDecoder(archStep):svgBoth(archStep);$('archSideTitle').textContent=`Step ${archStep+1}: ${ex.labels[archStep]}`;$('archInfo').textContent=st.info;document.querySelectorAll('.encoderCue').forEach(el=>el.style.display=arch==='encoder'?'inline-flex':'none');$('archResultLabel').textContent=arch==='encoder'?'Output / interpretation':'Current result';$('archResult').textContent=st.result;
+if(arch==='encoder'){$('archCandidatesTitle').textContent='How a prediction is formed';$('archCandidates').innerHTML='<div class="archMeaning"><b>Complete input → full self-attention → one contextual vector per word → classification.</b><br>The word <b>not</b> changes the context of <b>good</b>.</div>'}
+else if(arch==='decoder'){$('archCandidatesTitle').textContent='How a prediction is formed';$('archCandidates').innerHTML='<div class="archMeaning"><b>Available prefix → masked self-attention → contextual vectors → next-token prediction.</b><br>The prediction becomes part of the prefix for the following step.</div>'}
+else {$('archCandidatesTitle').textContent='How a prediction is formed';$('archCandidates').innerHTML='<div class="archMeaning"><b>English source → full attention → encoder vectors.</b><br><b>French prefix → masked attention → decoder vectors.</b><br><b>Cross-attention</b> lets the decoder use encoder vectors to predict the next French token.</div>'}}
+// Event delegation: controls never get replaced on input, so sliders can be dragged smoothly.
+deck.addEventListener('click',evt=>{const t=evt.target.closest('[data-action],[data-slide],[data-inttoken]');if(!t)return;if(t.dataset.slide!==undefined){setSlide(+t.dataset.slide);return}if(t.dataset.inttoken!==undefined){attSelected=+t.dataset.inttoken;renderInt();return}
+switch(t.dataset.action){case'next':setSlide(slide+1);break;case'prev':setSlide(slide-1);break;
+case'trainSelect':stopTrainPlayback();trainIdx=+t.dataset.i;renderTrain();break;case'trainEnd':stopTrainPlayback();trainIdx=sentence.length-1;renderTrain();break;case'trainPrev':stepTrain(-1);break;case'trainNext':stepTrain(1);break;case'trainPlay':toggleTrainPlayback();break;case'trainImprove':boosts[trainIdx]+=.6;renderTrain();break;case'trainReset':boosts=Array(sentence.length).fill(0);renderTrain();break;
+case'sample':{const p=renderTemp(),r=Math.random();let sum=0,j=p.length-1;for(let i=0;i<p.length;i++){sum+=p[i];if(r<sum){j=i;break}}$('generatedToken').textContent=tempWords[j];break}case'tempReset':temp=1;$('tempRange').value='1';$('generatedToken').textContent='Click “Sample next token”';renderTemp();break;
+case'intExample':attExample=+t.dataset.i;attSelected=stories[attExample].default;renderInt();break;case'toggleIntMask':attMask=!attMask;renderInt();break;
+case'projWord':projWord=+t.dataset.i;renderProj();break;case'projPrev':projStage=Math.max(0,projStage-1);renderProj();break;case'projNext':projStage=Math.min(2,projStage+1);renderProj();break;case'projReset':projStage=0;renderProj();break;case'projMatrix':projMatrix=t.dataset.type;renderProj();break;
+case'mathRow':mathRow=+t.dataset.i;mathStep=0;renderMath();break;case'mathMask':mathMask=!mathMask;renderMath();break;case'mathPrev':mathStep=Math.max(0,mathStep-1);renderMath();break;case'mathNext':if(mathStep===3&&mathRow<2){mathRow++;mathStep=0}else{mathStep=Math.min(3,mathStep+1)}renderMath();break;case'mathReset':mathRow=0;mathStep=0;completedAttentionRows=[false,false,false];renderMath();break;
+case'arch':arch=t.dataset.type;archStep=0;renderArch();break;case'archNext':archStep=Math.min(examples[arch].steps.length-1,archStep+1);renderArch();break;case'archPrev':archStep=Math.max(0,archStep-1);renderArch();break;case'archReset':archStep=0;renderArch();break;
+}});
+deck.addEventListener('input',e=>{if(e.target.id==='tempRange'){temp=+e.target.value;renderTemp();}else if(e.target.id==='trainWindow'){trainWindow=+e.target.value;renderTrain();}});
+deck.addEventListener('keydown',e=>{if(e.target.dataset.inttoken!==undefined&&(e.key==='Enter'||e.key===' ')){e.preventDefault();attSelected=+e.target.dataset.inttoken;renderInt();return}if(['INPUT','TEXTAREA','BUTTON','SELECT'].includes(e.target.tagName))return;if(e.key==='ArrowRight')setSlide(slide+1);if(e.key==='ArrowLeft')setSlide(slide-1)});
+renderTrain();renderTemp();renderInt();renderProj();renderMath();renderArch();setSlide(0);
+})();
+</script></body></html>
